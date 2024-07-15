@@ -9,6 +9,7 @@ import clip
 from PIL import Image
 from tqdm import tqdm
 from skimage.measure import label, regionprops
+import math
 
 def samplot(image, mask_generator, label=None, ax=None):
     '''
@@ -372,26 +373,160 @@ def load_roulette(input, process, para_in):
 def preprocessing_roulette(input, process_para):
     '''
     Crop:
-    para={'crop size': 2048,
-          'i':0,
-          'j':0}
+    para={'crop size': 2048, 'i':0, 'j':0}
 
     Gaussian:
     para={'kernel size': 3}
 
     CLAHE:
-    para={'clahe window': 50,
-            'clip limit': 4}
+    para={'clahe window': 50, 'clip limit': 4}
 
     Lpull:
-    para={'thres': 60,
-          'pull': 60}
+    para={'thres': 60, 'pull': 60}
 
     Downsample:
-    para={'fxy':2,
-          'inter_area': None}
+    para={'fxy':2, 'inter_area': None}
     '''
     temp_input = input.copy()
-    for process, para in process_para.items():
-        temp_input=load_roulette(temp_input,process,para)
+    if len(process_para.items())>0:
+        for process, para in process_para.items():
+            temp_input=load_roulette(temp_input,process,para)
+    else:
+        print('No process performed, returning input')
     return temp_input
+
+def get_centroid(mask):
+    labels = label(mask)
+    regions = regionprops(labels)
+    sorted_regions = sorted(regions, key=lambda x: x.area, reverse=True)
+    if len(regions)>0:
+        return sorted_regions[0].centroid
+    else:
+        return (0,0)
+
+def make_circle(radius, array_size = 256):
+    '''
+    make a circle with input radius. returns a true false mask. optional arg 2 array_size, default 256
+    '''
+    #array = np.zeros((array_size, array_size), dtype=np.uint8)
+    center = (array_size // 2, array_size // 2)
+    Y, X = np.ogrid[:array_size, :array_size]
+    dist_from_center = np.sqrt((X - center[0])**2 + (Y - center[1])**2)
+    mask = dist_from_center <= radius
+    #array[mask] = 1
+    return mask
+
+def circle_colouring(mask):
+    '''
+    colours the input circle and the dege. returns a coloured array.
+    '''
+    RGB = np.random.randint(0, 256), np.random.randint(0, 256), np.random.randint(0, 256)
+    RGB_edge = np.random.randint(0, 256), np.random.randint(0, 256), np.random.randint(0, 256)
+    array = np.zeros((mask.shape[0], mask.shape[1],3), dtype=np.uint8)
+    array[mask,0] = RGB[0]
+    array[mask,1] = RGB[1]
+    array[mask,2] = RGB[2]
+    array[~mask,0] = RGB_edge[0]
+    array[~mask,1] = RGB_edge[1]
+    array[~mask,2] = RGB_edge[2]
+    return array, RGB, RGB_edge
+
+def circle_colouring_specified(mask, RGB, RGB_edge):
+    '''
+    colours the input circle and the dege. returns a coloured array.
+    '''
+    array = np.zeros((mask.shape[0], mask.shape[1],3), dtype=np.uint8)
+    array[mask,0] = RGB[0]
+    array[mask,1] = RGB[1]
+    array[mask,2] = RGB[2]
+    array[~mask,0] = RGB_edge[0]
+    array[~mask,1] = RGB_edge[1]
+    array[~mask,2] = RGB_edge[2]
+    return array
+
+def add_guassian_noise_to_circle(array, mean ,std , mask=None, edge_std=None):
+    '''
+    add guassian noise to the input image. if mask is given noise will not be added to the area outside the circle. takes mean and std
+    '''
+    gaussian_noise = np.random.normal(mean, std, array.shape)
+    if np.any(mask):
+        gaussian_noise=gaussian_noise*mask[:, :, np.newaxis]
+        if edge_std:
+            gaussian_noise_ed = np.random.normal(mean, edge_std, array.shape)
+            gaussian_noise+=gaussian_noise_ed*~mask[:, :, np.newaxis]
+    noisy_image = array + gaussian_noise
+    #noisy_image = np.clip(noisy_image, 0, 255).astype(np.uint8)
+    
+    return noisy_image
+
+def iou(mask1, mask2):
+    # Ensure that the input arrays are binary
+    assert np.array_equal(mask1, mask1.astype(bool)), "mask1 is not binary"
+    assert np.array_equal(mask2, mask2.astype(bool)), "mask2 is not binary"
+    
+    # Calculate intersection and union
+    intersection = np.logical_and(mask1, mask2).sum()
+    union = np.logical_or(mask1, mask2).sum()
+    
+    # Compute IoU
+    iou = intersection / union if union != 0 else 0
+    
+    return iou
+
+def angular_distance(RGB_a, RGB_b):
+    return math.degrees(np.arccos((RGB_a[0]*RGB_b[0]+RGB_a[1]*RGB_b[1]+RGB_a[2]*RGB_b[2])))
+
+def euclidean_distance(color1, color2):
+    R1, G1, B1 = color1
+    R2, G2, B2 = color2
+    distance = math.sqrt((R2 - R1)**2 + (G2 - G1)**2 + (B2 - B1)**2)
+    return distance
+
+def normalize_rgb(RGB):
+    nor=np.sqrt(RGB[0]**2+RGB[1]**2+RGB[2]**2)
+    nor_rgb=RGB/nor
+    return nor_rgb
+
+def mean_std_overlay(temp_image,list_of_masks,cleaned_groups,list_of_mask_centroid,k,ts,tm):
+    stacked=np.stack([list_of_masks[i] for i in cleaned_groups[k]])
+    mean_stacked=np.mean(stacked,axis=0)
+    std_stacked=np.std(stacked,axis=0)
+
+    plt.figure(figsize=(10, 10))
+    plt.subplot(2,2,1)
+    plt.imshow(temp_image)
+    plt.imshow(mean_stacked, alpha=0.7)
+    plt.colorbar(fraction=0.046, pad=0.04)
+    plt.title('mean overlay')
+
+    for idx in cleaned_groups[k]:
+        plt.scatter(list_of_mask_centroid[idx][1],list_of_mask_centroid[idx][0])
+
+    plt.subplot(2,2,2)
+    plt.imshow(temp_image)
+    plt.imshow(mean_stacked>tm, alpha=0.7)
+    plt.title(f'mean>{tm} overlay')
+
+    for idx in cleaned_groups[k]:
+        plt.scatter(list_of_mask_centroid[idx][1],list_of_mask_centroid[idx][0])
+
+    plt.subplot(2,2,3)
+    plt.imshow(temp_image)
+    plt.imshow(std_stacked, alpha=0.7)
+    plt.colorbar(fraction=0.046, pad=0.04)
+    plt.title('std overlay')
+
+    for idx in cleaned_groups[k]:
+        plt.scatter(list_of_mask_centroid[idx][1],list_of_mask_centroid[idx][0])
+
+
+    plt.subplot(2,2,4)
+    plt.imshow(temp_image)
+    plt.imshow(np.logical_and(std_stacked<ts, std_stacked>0), alpha=0.7)
+    plt.title(f'std<{ts} overlay')
+
+    for idx in cleaned_groups[k]:
+        plt.scatter(list_of_mask_centroid[idx][1],list_of_mask_centroid[idx][0])
+
+    plt.tight_layout()
+    plt.show()
