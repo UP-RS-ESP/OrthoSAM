@@ -169,6 +169,34 @@ def clip_plotting(img, mask, masks, p1=0.3,p2=0.5):
     #cbar.set_label('probability')
     plt.show()
 
+def clip_plotting_array(img, mask, masks, p1=0.3,p2=0.5):
+    fig, ax= plt.subplots(2,2, figsize=(15,15))
+    ax=ax.flatten()
+    ax[0].imshow(img)
+    ax[0].imshow(np.sum(masks,axis=0))
+    ax[0].set_title('RGB')
+    ax[0].axis('off')
+    ax[1].imshow(img)
+    ax[1].imshow(mask, alpha=0.5)
+    ax[1].set_title('Probability mask')
+    ax[1].axis('off')
+    ax[2].imshow(img)
+    ax[2].imshow(mask>p1, alpha=0.5)
+    ax[2].set_title(f'P>{p1}')
+    ax[2].axis('off')
+    ax[3].imshow(img)
+    ax[3].imshow(mask>p2, alpha=0.5)
+    ax[3].set_title(f'P>{p2}')
+    ax[3].axis('off')
+    plt.tight_layout()
+    #cbar = plt.colorbar(ax[1].imshow(probability_mask, alpha=0.5), ax=ax[1], orientation='horizontal', shrink=0.5)
+    #cbar.set_label('probability')
+
+    #cbar_ax = fig.add_axes([ax[2].get_position().x0, ax[2].get_position().y0, ax[2].get_position().width, ax[2].get_position().height])
+    #cbar = plt.colorbar(ax[1].imshow(probability_mask, alpha=0.5), cax=cbar_ax, orientation='vertical', shrink=0.5)
+    #cbar.set_label('probability')
+    plt.show()
+
 def clipzeroshot(img, masks, zeroshot_weights, crop_size, target_index, model, DEVICE, preprocess, WithBackground=False, pre_mask=None):
     #load image
     pil_image = Image.fromarray(img[:crop_size,:crop_size,:])
@@ -294,7 +322,11 @@ def crop_fnc(input, para_in):
     crop_size=para.get('crop size')
     i=para.get('i')
     j=para.get('j')
-    output = input[crop_size*i:crop_size*(i+1),crop_size*j:crop_size*(j+1),:]
+    if len(input.shape)==3:
+        output = input[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*(j)+crop_size),:]
+    else:
+        output = input[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*(j)+crop_size)]
+    print(f'Cropped from {input.shape} to {output.shape}')
     return output
 def gaussian_fnc(input, para_in):
     para={'kernel size': 3}
@@ -343,16 +375,43 @@ def Lpull_fnc(input, para_in):
     return output
 
 def downsample_fnc(input, para_in):
-    para={'fxy':2,
-          'inter_area': None}
+    para={'fxy':1,
+          'method': None}
     para.update(para_in)
 
     fxy=para.get('fxy')
-    if para.get('inter_area'):
-        output=cv2.resize(input, (0, 0), fx = fxy, fy = fxy, interpolation = cv2.INTER_AREA)
+    method=para.get('method')
+    if fxy!=1:
+        if method:
+            if method=='area':
+                output=cv2.resize(input.astype(np.uint8), (0, 0), fx = fxy, fy = fxy, interpolation = cv2.INTER_AREA)
+            elif method=='nearest':
+                output=cv2.resize(input.astype(np.uint8), (0, 0), fx = fxy, fy = fxy, interpolation = cv2.INTER_NEAREST)
+        else:
+            output=cv2.resize(input.astype(np.uint8), (0, 0), fx = fxy, fy = fxy)
     else:
-        output=cv2.resize(input, (0, 0), fx = fxy, fy = fxy)
+        print('Not downsampling')
+        output=input
     return output
+
+def buffering_fnc(input,para_in):
+    para={'crop size': 2048}
+    para.update(para_in)
+
+    target_size=para.get('crop size')
+    if (input.shape[0]==target_size) and (input.shape[1]==target_size):
+        print('Boundary not hit, buffering not required')
+        return input
+    else:
+        if len(input.shape)<3:
+            buffered=np.zeros((target_size,target_size))
+            buffered[:input.shape[0],:input.shape[1]]=input
+        else:
+            buffered=np.zeros((target_size,target_size,3))
+            for i in range(3):
+                buffered[:input.shape[0],:input.shape[1],i]=input[:,:,i]
+        print(f'From {input.shape} buffered to {buffered.shape}')
+        return buffered
 
 
 def load_roulette(input, process, para_in):
@@ -366,6 +425,8 @@ def load_roulette(input, process, para_in):
         output = Lpull_fnc(input,para_in)
     elif process=='Downsample':
         output = downsample_fnc(input,para_in)
+    elif process=='Buffering':
+        output = buffering_fnc(input,para_in)
     else:
         print('No process performed, returning input')
         output=input
@@ -385,7 +446,10 @@ def preprocessing_roulette(input, process_para):
     para={'thres': 60, 'pull': 60}
 
     Downsample:
-    para={'fxy':2, 'inter_area': None}
+    para={'fxy':2, 'method': None}
+    
+    Buffer:
+    para={'crop size': 2048}
     '''
     temp_input = input.copy()
     if len(process_para.items())>0:
@@ -530,3 +594,20 @@ def mean_std_overlay(temp_image,list_of_masks,cleaned_groups,list_of_mask_centro
 
     plt.tight_layout()
     plt.show()
+
+def find_bounding_boxes(binary_mask):
+    bboxes = []
+    if torch.cuda.is_available():
+        DEVICE = torch.device('cuda:0')
+    binary_mask=torch.tensor(binary_mask, device=DEVICE, dtype=torch.float)
+    labels = torch.unique(binary_mask)
+    for label in labels:
+        if label == 0:
+            continue  # skip the background
+        positions = torch.nonzero(binary_mask == label)
+        if positions.numel() == 0:
+            continue
+        y_min, x_min = positions.min(dim=0)[0]
+        y_max, x_max = positions.max(dim=0)[0]
+        bboxes.append([x_min.item(), y_min.item(), x_max.item() + 1, y_max.item() + 1])
+    return bboxes[0]
