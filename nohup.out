@@ -7372,3 +7372,593 @@ Traceback (most recent call last):
   File "/DATA/vito/.venv/lib/python3.8/site-packages/numpy/core/shape_base.py", line 460, in stack
     raise ValueError('need at least one array to stack')
 ValueError: need at least one array to stack
+Ravi2_orthomosaic_02mm.png imported
+Image size: (19871, 20555, 3)
+Currently running on GPU
+Model vit_h
+Clip: [0. 0.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047799 groups removed 
+Overlap groups before filtering: 1047814, after filtering: 15
+loop took:  81.64804410934448
+Clip: [0.  0.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047447 groups removed 
+Overlap groups before filtering: 1047454, after filtering: 7
+loop took:  81.57785868644714
+Clip: [0. 1.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046405 groups removed 
+Overlap groups before filtering: 1046416, after filtering: 11
+loop took:  78.73449468612671
+Clip: [0.  1.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047004 groups removed 
+Overlap groups before filtering: 1047060, after filtering: 56
+loop took:  84.70725917816162
+Clip: [0. 2.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046670 groups removed 
+Overlap groups before filtering: 1046684, after filtering: 14
+loop took:  81.97483730316162
+Clip: [0.  2.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046676 groups removed 
+Overlap groups before filtering: 1046726, after filtering: 50
+loop took:  84.35149073600769
+Clip: [0. 3.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046141 groups removed 
+Overlap groups before filtering: 1046161, after filtering: 20
+loop took:  88.08351111412048
+Clip: [0.  3.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046752 groups removed 
+Overlap groups before filtering: 1046801, after filtering: 49
+loop took:  84.20601987838745
+Clip: [0. 4.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046178 groups removed 
+Overlap groups before filtering: 1046201, after filtering: 23
+loop took:  82.99436473846436
+Clip: [0.  4.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045958 groups removed 
+Overlap groups before filtering: 1045966, after filtering: 8
+loop took:  82.72798323631287
+Clip: [0. 5.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046132 groups removed 
+Overlap groups before filtering: 1046144, after filtering: 12
+loop took:  84.58200550079346
+Clip: [0.  5.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045223 groups removed 
+Overlap groups before filtering: 1045230, after filtering: 7
+loop took:  83.14846611022949
+Clip: [0. 6.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045929 groups removed 
+Overlap groups before filtering: 1045944, after filtering: 15
+loop took:  81.99415469169617
+Clip: [0.  6.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046202 groups removed 
+Overlap groups before filtering: 1046215, after filtering: 13
+loop took:  86.00709629058838
+Clip: [0. 7.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045509 groups removed 
+Overlap groups before filtering: 1045521, after filtering: 12
+loop took:  82.5957658290863
+Clip: [0.  7.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045928 groups removed 
+Overlap groups before filtering: 1045948, after filtering: 20
+loop took:  83.58578372001648
+Clip: [0. 8.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046016 groups removed 
+Overlap groups before filtering: 1046024, after filtering: 8
+loop took:  85.87259697914124
+Clip: [0.  8.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047447 groups removed 
+Overlap groups before filtering: 1047461, after filtering: 14
+loop took:  86.15274333953857
+Clip: [0. 9.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046411 groups removed 
+Overlap groups before filtering: 1046425, after filtering: 14
+loop took:  84.97261834144592
+Clip: [0.  9.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045870 groups removed 
+Overlap groups before filtering: 1045878, after filtering: 8
+loop took:  85.98393154144287
+Clip: [ 0. 10.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045794 groups removed 
+Overlap groups before filtering: 1045802, after filtering: 8
+loop took:  85.02190279960632
+Clip: [ 0.  10.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047693 groups removed 
+Overlap groups before filtering: 1047697, after filtering: 4
+loop took:  90.61281538009644
+Clip: [ 0. 11.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045717 groups removed 
+Overlap groups before filtering: 1045722, after filtering: 5
+loop took:  88.40645051002502
+Clip: [ 0.  11.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045400 groups removed 
+Overlap groups before filtering: 1045404, after filtering: 4
+loop took:  86.59708523750305
+Clip: [ 0. 12.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046147 groups removed 
+Overlap groups before filtering: 1046159, after filtering: 12
+loop took:  89.02933955192566
+Clip: [ 0.  12.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045693 groups removed 
+Overlap groups before filtering: 1045700, after filtering: 7
+loop took:  90.63370323181152
+Clip: [ 0. 13.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046010 groups removed 
+Overlap groups before filtering: 1046022, after filtering: 12
+loop took:  87.5012538433075
+Clip: [ 0.  13.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047715 groups removed 
+Overlap groups before filtering: 1047721, after filtering: 6
+loop took:  95.21496248245239
+Clip: [ 0. 14.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045469 groups removed 
+Overlap groups before filtering: 1045479, after filtering: 10
+loop took:  89.82975482940674
+Clip: [ 0.  14.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045318 groups removed 
+Overlap groups before filtering: 1045323, after filtering: 5
+loop took:  88.92465114593506
+Clip: [ 0. 15.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046031 groups removed 
+Overlap groups before filtering: 1046038, after filtering: 7
+loop took:  88.65815758705139
+Clip: [ 0.  15.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046285 groups removed 
+Overlap groups before filtering: 1046293, after filtering: 8
+loop took:  89.53487038612366
+Clip: [ 0. 16.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047216 groups removed 
+Overlap groups before filtering: 1047226, after filtering: 10
+loop took:  93.49409699440002
+Clip: [ 0.  16.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046172 groups removed 
+Overlap groups before filtering: 1046178, after filtering: 6
+loop took:  90.90901756286621
+Clip: [ 0. 17.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046680 groups removed 
+Overlap groups before filtering: 1046687, after filtering: 7
+loop took:  94.22200274467468
+Clip: [ 0.  17.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046206 groups removed 
+Overlap groups before filtering: 1046214, after filtering: 8
+loop took:  93.13369870185852
+Clip: [ 0. 18.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045182 groups removed 
+Overlap groups before filtering: 1045192, after filtering: 10
+loop took:  91.03327822685242
+Clip: [ 0.  18.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045652 groups removed 
+Overlap groups before filtering: 1045663, after filtering: 11
+loop took:  90.34782695770264
+Clip: [ 0. 19.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045635 groups removed 
+Overlap groups before filtering: 1045646, after filtering: 11
+loop took:  90.99755120277405
+Clip: [ 0.  19.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045553 groups removed 
+Overlap groups before filtering: 1045562, after filtering: 9
+loop took:  93.0595474243164
+Clip: [ 0. 20.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045612 groups removed 
+Overlap groups before filtering: 1045619, after filtering: 7
+loop took:  92.95910143852234
+Clip: [ 0.  20.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045560 groups removed 
+Overlap groups before filtering: 1045567, after filtering: 7
+loop took:  96.05396318435669
+Clip: [ 0. 21.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045333 groups removed 
+Overlap groups before filtering: 1045342, after filtering: 9
+loop took:  94.46891927719116
+Clip: [ 0.  21.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045018 groups removed 
+Overlap groups before filtering: 1045037, after filtering: 19
+loop took:  95.76012587547302
+Clip: [ 0. 22.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1044980 groups removed 
+Overlap groups before filtering: 1044989, after filtering: 9
+loop took:  96.00034594535828
+Clip: [ 0.  22.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046890 groups removed 
+Overlap groups before filtering: 1046895, after filtering: 5
+loop took:  95.01741647720337
+Clip: [ 0. 23.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047868 groups removed 
+Overlap groups before filtering: 1047874, after filtering: 6
+loop took:  97.42797446250916
+Clip: [ 0.  23.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046802 groups removed 
+Overlap groups before filtering: 1046806, after filtering: 4
+loop took:  94.99022126197815
+Clip: [ 0. 24.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045381 groups removed 
+Overlap groups before filtering: 1045385, after filtering: 4
+loop took:  99.01515674591064
+Clip: [ 0.  24.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045674 groups removed 
+Overlap groups before filtering: 1045679, after filtering: 5
+loop took:  100.58385229110718
+Clip: [ 0. 25.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045785 groups removed 
+Overlap groups before filtering: 1045791, after filtering: 6
+loop took:  98.7354302406311
+Clip: [ 0.  25.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045375 groups removed 
+Overlap groups before filtering: 1045384, after filtering: 9
+loop took:  99.50717377662659
+Clip: [ 0. 26.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045876 groups removed 
+Overlap groups before filtering: 1045896, after filtering: 20
+loop took:  97.27452373504639
+Clip: [ 0.  26.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045636 groups removed 
+Overlap groups before filtering: 1045651, after filtering: 15
+loop took:  98.62134218215942
+Clip: [ 0. 27.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045560 groups removed 
+Overlap groups before filtering: 1045568, after filtering: 8
+loop took:  98.91163563728333
+Clip: [ 0.  27.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045341 groups removed 
+Overlap groups before filtering: 1045349, after filtering: 8
+loop took:  103.53483033180237
+Clip: [ 0. 28.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045525 groups removed 
+Overlap groups before filtering: 1045537, after filtering: 12
+loop took:  106.7354986667633
+Clip: [ 0.  28.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045504 groups removed 
+Overlap groups before filtering: 1045508, after filtering: 4
+loop took:  109.83380699157715
+Clip: [ 0. 29.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045452 groups removed 
+Overlap groups before filtering: 1045460, after filtering: 8
+loop took:  110.98568153381348
+Clip: [ 0.  29.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045649 groups removed 
+Overlap groups before filtering: 1045657, after filtering: 8
+loop took:  106.69578242301941
+Clip: [ 0. 30.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045372 groups removed 
+Overlap groups before filtering: 1045377, after filtering: 5
+loop took:  106.85186100006104
+Clip: [ 0.  30.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1012696 groups removed 
+Overlap groups before filtering: 1012703, after filtering: 7
+loop took:  108.84673142433167
+Clip: [ 0. 31.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045171 groups removed 
+Overlap groups before filtering: 1045182, after filtering: 11
+loop took:  108.89457321166992
+Clip: [ 0.  31.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1020593 groups removed 
+Overlap groups before filtering: 1020597, after filtering: 4
+loop took:  110.47622537612915
+Clip: [ 0. 32.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046138 groups removed 
+Overlap groups before filtering: 1046175, after filtering: 37
+loop took:  98.16754937171936
+Clip: [ 0.  32.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045852 groups removed 
+Overlap groups before filtering: 1045895, after filtering: 43
+loop took:  92.69521903991699
+Clip: [ 0. 33.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045262 groups removed 
+Overlap groups before filtering: 1045276, after filtering: 14
+loop took:  97.65082597732544
+Clip: [ 0.  33.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045074 groups removed 
+Overlap groups before filtering: 1045081, after filtering: 7
+loop took:  92.20743560791016
+Clip: [ 0. 34.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046059 groups removed 
+Overlap groups before filtering: 1046070, after filtering: 11
+loop took:  88.2030119895935
+Clip: [ 0.  34.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046545 groups removed 
+Overlap groups before filtering: 1046565, after filtering: 20
+loop took:  85.16709733009338
+Clip: [ 0. 35.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047571 groups removed 
+Overlap groups before filtering: 1047578, after filtering: 7
+loop took:  83.57214117050171
+Clip: [ 0.  35.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047134 groups removed 
+Overlap groups before filtering: 1047149, after filtering: 15
+loop took:  84.34995532035828
+Clip: [ 0. 36.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046648 groups removed 
+Overlap groups before filtering: 1046661, after filtering: 13
+loop took:  86.69511485099792
+Clip: [ 0.  36.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046234 groups removed 
+Overlap groups before filtering: 1046241, after filtering: 7
+loop took:  87.29922389984131
+Clip: [ 0. 37.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045291 groups removed 
+Overlap groups before filtering: 1045296, after filtering: 5
+loop took:  85.86413884162903
+Clip: [ 0.  37.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046128 groups removed 
+Overlap groups before filtering: 1046140, after filtering: 12
+loop took:  90.93041682243347
+Clip: [ 0. 38.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046721 groups removed 
+Overlap groups before filtering: 1046769, after filtering: 48
+loop took:  86.02803659439087
+Clip: [ 0.  38.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1044395 groups removed 
+Overlap groups before filtering: 1044404, after filtering: 9
+loop took:  86.75163531303406
+Clip: [ 0. 39.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1044021 groups removed 
+Overlap groups before filtering: 1044025, after filtering: 4
+loop took:  92.32763028144836
+Clip: [ 0.  39.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045571 groups removed 
+Overlap groups before filtering: 1045575, after filtering: 4
+loop took:  91.88475346565247
+Clip: [ 0. 40.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046508 groups removed 
+Overlap groups before filtering: 1046519, after filtering: 11
+loop took:  89.09300565719604
+Clip: [ 0.  40.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046400 groups removed 
+Overlap groups before filtering: 1046406, after filtering: 6
+loop took:  90.03870296478271
+Clip: [ 0. 41.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045879 groups removed 
+Overlap groups before filtering: 1045883, after filtering: 4
+loop took:  90.89770174026489
+Clip: [ 0.  41.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046222 groups removed 
+Overlap groups before filtering: 1046225, after filtering: 3
+loop took:  93.46275424957275
+Clip: [ 0. 42.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045879 groups removed 
+Overlap groups before filtering: 1045883, after filtering: 4
+loop took:  104.78390979766846
+Clip: [ 0.  42.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1044797 groups removed 
+Overlap groups before filtering: 1044800, after filtering: 3
+loop took:  103.46869564056396
+Clip: [ 0. 43.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045087 groups removed 
+Overlap groups before filtering: 1045097, after filtering: 10
+loop took:  91.29955673217773
+Clip: [ 0.  43.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1045657 groups removed 
+Overlap groups before filtering: 1045661, after filtering: 4
+loop took:  91.54067182540894
+Clip: [ 0. 44.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1044991 groups removed 
+Overlap groups before filtering: 1044996, after filtering: 5
+loop took:  90.88185167312622
+Clip: [ 0.  44.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046036 groups removed 
+Overlap groups before filtering: 1046042, after filtering: 6
+loop took:  101.12054252624512
+Clip: [ 0. 45.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1046199 groups removed 
+Overlap groups before filtering: 1046220, after filtering: 21
+loop took:  96.5115077495575
+Clip: [ 0.  45.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1047576 groups removed 
+Overlap groups before filtering: 1047598, after filtering: 22
+loop took:  87.69794797897339
+Clip: [ 0. 46.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1043726 groups removed 
+Overlap groups before filtering: 1043745, after filtering: 19
+loop took:  86.30088686943054
+Clip: [ 0.  46.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1038719 groups removed 
+Overlap groups before filtering: 1038744, after filtering: 25
+loop took:  72.57184410095215
+Clip: [ 0. 47.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1041663 groups removed 
+Overlap groups before filtering: 1041668, after filtering: 5
+loop took:  98.6777617931366
+Clip: [ 0.  47.5]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1044786 groups removed 
+Overlap groups before filtering: 1044791, after filtering: 5
+loop took:  112.11284184455872
+Clip: [ 0. 48.]
+Cropped from (79484, 82220, 3) to (1024, 1024, 3)
+1728
+Threshold: 1000 pixels, 1044479 groups removed 
+Overlap groups before filtering: 1044481, after filtering: 2
+Traceback (most recent call last):
+  File "code/overlap_highestIOU_reseg_moving_clip_noplot_nolabel.py", line 204, in <module>
+    all_grouped_masks=np.unique(np.hstack(cleaned_groups))
+  File "<__array_function__ internals>", line 200, in hstack
+TypeError: dispatcher for __array_function__ did not return an iterable

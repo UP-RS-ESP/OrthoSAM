@@ -67,6 +67,22 @@ def show_anns(anns):
         img[m] = color_mask
     ax.imshow(img)
 
+def show_anns_array(anns, ax):
+    if len(anns) == 0:
+        return
+    ax.set_autoscale_on(False)
+
+    img = np.ones((anns[0].shape[0], anns[0].shape[1], 4))
+    img[:,:,3] = 0
+    i=0
+    for id in range(anns.shape[0]):
+        m = anns[id].astype(int)
+        color_mask = np.concatenate([np.random.random(3), [0.35]])
+        img[m] = color_mask
+        i+=1
+
+    ax.imshow(img)
+
 def show_anns_mod(anns, label=None):
     if len(anns) == 0:
         return
@@ -611,3 +627,36 @@ def find_bounding_boxes(binary_mask):
         y_max, x_max = positions.max(dim=0)[0]
         bboxes.append([x_min.item(), y_min.item(), x_max.item() + 1, y_max.item() + 1])
     return bboxes[0]
+
+def create_stats_df(masks):
+    if type(masks)==np.ndarray:
+        ids=masks.shape[0]
+    elif type(masks)==list:
+        ids=len(masks)
+    all_stats=[]
+
+    
+    for i in range(ids):
+        label_img = label(masks[i])
+        l = len(np.unique(label_img))
+
+        regions = regionprops(label_img)
+
+
+        if l > 2:
+            #get area
+            regions = regionprops(label_img)
+            # Sort regions by area
+            regions = sorted(regions, key=lambda x: x.area, reverse=True)
+        y0, x0=regions[0].centroid
+
+        all_stats.append({'label':i,'area':regions[0].area
+                            ,'centroid y':y0,'centroid x':x0
+                            , 'major axis length': regions[0].axis_major_length
+                            , 'minor axis length': regions[0].axis_minor_length
+                            , 'orientation': regions[0].orientation
+                            , 'perimeter': regions[0].perimeter
+                            , 'bbox':regions[0].bbox})
+    stats_df=pd.DataFrame(all_stats)
+    return stats_df
+    

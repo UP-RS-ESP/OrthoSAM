@@ -20,14 +20,23 @@ from skimage.morphology import binary_dilation
 
 start_script = time.time()
 #load image
-OutDIR='/DATA/vito/output/testing/'
+OutDIR='/DATA/vito/output/Ravi2/'
 if not os.path.exists(OutDIR[:-1]):
     os.makedirs(OutDIR[:-1])
 DataDIR='/DATA/vito/data/'
 
-image=(np.load(DataDIR+'example/rgb.npy')*255).astype(np.uint8)
-#image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-seg_ids=np.load(DataDIR+'example/segment_ids.npy')
+#fn_img = glob.glob(DataDIR+'sand/*')
+fn_img = glob.glob(DataDIR+'Ravi/*')
+fn_img.sort()
+fid=0
+image = cv2.imread(fn_img[fid])
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+image = image[100:-200,500:-1000]
+print(fn_img[fid].split("/")[-1]+' imported')
+print('Image size:', image.shape)
+
+#image=(np.load(DataDIR+'example/rgb.npy')*255).astype(np.uint8)
+#seg_ids=np.load(DataDIR+'example/segment_ids.npy')
 
 #setup SAM
 MODEL_TYPE = "vit_h"
@@ -53,7 +62,7 @@ mask_generator = SamAutomaticMaskGenerator(sam)
 crop_size=1024
 #clips=[0,0.5,1,1.5,2]
 #clipij=np.array(np.meshgrid(clips, clips)).T.reshape(-1,2)
-downsample_factor=1
+downsample_factor=4
 clipi=np.arange(0,(image.shape[0]*downsample_factor)//crop_size+1,0.5)
 clipj=np.arange(0,(image.shape[1]*downsample_factor)//crop_size+1,0.5)
 clipij=np.array(np.meshgrid(clipi, clipj)).T.reshape(-1,2)
@@ -76,7 +85,7 @@ for ij_idx in clipij:
         #prepare image
         pre_para={'Downsample': {'fxy':downsample_factor},
                 'Crop': {'crop size': crop_size, 'j':ji,'i':ii},
-                'Gaussian': {'kernel size':3}
+                #'Gaussian': {'kernel size':3}
                 #'CLAHE':{'clip limit':2}#,
                 #'Downsample': {'fxy':4},
                 #'Buffering': {'crop size': crop_size}
@@ -271,7 +280,6 @@ del list_of_cleaned_groups_reseg_score_nms, list_of_nooverlap_mask, cleaned_grou
 del masks, list_of_pred_iou,list_of_stability_score,list_of_masks
 del list_of_mask_centroid, ar_masks, ar_masks_flat
 
-#np.save(OutDIR+'all_reseg_mask',np.hstack(all_reseg))
 
 #Merging windows
 Aggregate_masks_noedge=[]
@@ -326,7 +334,12 @@ del Aggregate_masks_noedge, pred_iou_noedge
 
 list_of_mask_centroid = [fnc.get_centroid(mask) for mask in Aggregate_masks_noedge_nms]
 ar_masks=np.stack(Aggregate_masks_noedge_nms)
-np.save(OutDIR+'Aggregate_masks_noedge_nms',ar_masks)
+
+#temp=np.zeros(ar_masks[0].shape)
+#for i in range(ar_masks.shape[0]):
+#    temp[ar_masks[i]==1]=i
+
+#np.save(OutDIR+'Aggregate_masks_noedge_nms',temp)
 del Aggregate_masks_noedge_nms
 
 #identify void
@@ -558,9 +571,12 @@ if len(list_of_no_mask_area_mask)>0:
             #list_of_mask_centroid = [fnc.get_centroid(ar_masks[i]) for i in range(ar_masks.shape[0])]
             del void_pointed_reseg_resized, void_pointed_reseg
 
-        
 
-    np.save(OutDIR+'Aggregate_masks_noedge_nms_voidreseg',ar_masks)
+    #saving mask
+    saving_void_filled=[]
+    for mask in ar_masks:
+        saving_void_filled.append({'mask':mask})
+    np.save(OutDIR+'all_reseg_mask_void_filled',np.hstack(saving_void_filled))
 
     plt.figure(figsize=(15,10))
     plt.subplot(1,2,1)
