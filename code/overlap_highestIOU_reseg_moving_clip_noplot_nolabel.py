@@ -119,10 +119,27 @@ for ij_idx in clipij:
 
             #post processing
             #filter output mask per point by select highest pred iou mask
+            seed_point=np.array([mask['point_coords'][0] for mask in masks])
             highest_pred_iou_by_point=[]
-            for i in np.arange(0,len(masks),3):
-                iou=[mask['predicted_iou'] for mask in masks[i:i+3]]
-                highest_pred_iou_by_point.append(masks[np.argmax(iou)+i])
+            i=0
+            while i < len(masks):
+                i0=i
+                if np.all(seed_point[i]==seed_point[i+2]):
+                    i+=2
+                elif np.all(seed_point[i]==seed_point[i+1]):
+                    i+=1
+                iou=[mask['predicted_iou'] for mask in masks[i0:i+1]]
+                idx=np.argsort(iou)[::-1]
+                pick=0
+
+                while pick < len(idx):
+                    mask_area = np.sum(masks[idx[pick] + i0]['segmentation'])
+                    if mask_area / (crop_size ** 2) <= 0.4:# if mask is very large compared to size of the image (credit:segment everygrain) modified from 0.1 to 0.4
+                        break
+                    pick += 1
+                if pick<len(idx):
+                    highest_pred_iou_by_point.append(masks[idx[pick]+i0])
+                i+=1
             masks=highest_pred_iou_by_point
 
             #grouping overlaps
