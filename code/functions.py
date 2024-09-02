@@ -10,6 +10,8 @@ from PIL import Image
 from tqdm import tqdm
 from skimage.measure import label, regionprops
 import math
+from torchvision.ops.boxes import batched_nms
+import pandas as pd
 
 def samplot(image, mask_generator, label=None, ax=None):
     '''
@@ -392,12 +394,22 @@ def Lpull_fnc(input, para_in):
 
 def downsample_fnc(input, para_in):
     para={'fxy':1,
-          'method': None}
+          'method': None,
+          'target_size': (0, 0)}
     para.update(para_in)
 
     fxy=para.get('fxy')
     method=para.get('method')
-    if fxy!=1:
+    target_size=para.get('target_size')
+    if target_size!=(0,0):
+        if method:
+            if method=='area':
+                output=cv2.resize(input.astype(np.uint8), target_size, interpolation = cv2.INTER_AREA)
+            elif method=='nearest':
+                output=cv2.resize(input.astype(np.uint8), target_size, interpolation = cv2.INTER_NEAREST)
+        else:
+            output=cv2.resize(input.astype(np.uint8), target_size)
+    elif fxy!=1:
         if method:
             if method=='area':
                 output=cv2.resize(input.astype(np.uint8), (0, 0), fx = fxy, fy = fxy, interpolation = cv2.INTER_AREA)
@@ -660,3 +672,17 @@ def create_stats_df(masks):
     stats_df=pd.DataFrame(all_stats)
     return stats_df
     
+def nms(lst_msk,lst_score):
+    #NMS filtering
+    if torch.cuda.is_available():
+        DEVICE = torch.device('cuda:0')
+    else:
+        DEVICE = torch.device('cpu')
+    bboxes = torch.tensor([find_bounding_boxes(mask) for mask in lst_msk], device=DEVICE, dtype=torch.float)
+    scores = torch.tensor(lst_score, device=DEVICE, dtype=torch.float)
+    labels = torch.zeros_like(bboxes[:, 0])
+
+    keep = batched_nms(bboxes, scores, labels, 0.3)
+    lst_msk_nms=[lst_msk[i] for i in keep]
+    lst_score_nms=[lst_score[i] for i in keep]
+    return lst_msk_nms,lst_score_nms

@@ -20,15 +20,23 @@ from skimage.morphology import binary_dilation
 
 start_script = time.time()
 #load image
-OutDIR='/DATA/vito/output/Ravi2/'
+OutDIR='/DATA/vito/output/Ravi2_dw6_test2/'
+DataDIR='/DATA/vito/data/'
+fn_img = glob.glob(DataDIR+'Ravi/*')
+#fn_img = glob.glob(DataDIR+'sand/*')
+fid=0
+
+#defining clips
+crop_size=1024
+#clips=[0,0.5,1,1.5,2]
+#clipij=np.array(np.meshgrid(clips, clips)).T.reshape(-1,2)
+downsample_factor=1/6
+
+# create dir if output dir not exist
 if not os.path.exists(OutDIR[:-1]):
     os.makedirs(OutDIR[:-1])
-DataDIR='/DATA/vito/data/'
 
-#fn_img = glob.glob(DataDIR+'sand/*')
-fn_img = glob.glob(DataDIR+'Ravi/*')
 fn_img.sort()
-fid=0
 image = cv2.imread(fn_img[fid])
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 image = image[100:-200,500:-1000]
@@ -58,33 +66,35 @@ sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH)
 sam.to(device=DEVICE)
 mask_generator = SamAutomaticMaskGenerator(sam)
 
-#defining clips
-crop_size=1024
-#clips=[0,0.5,1,1.5,2]
-#clipij=np.array(np.meshgrid(clips, clips)).T.reshape(-1,2)
-downsample_factor=4
 clipi=np.arange(0,(image.shape[0]*downsample_factor)//crop_size+1,0.5)
 clipj=np.arange(0,(image.shape[1]*downsample_factor)//crop_size+1,0.5)
 clipij=np.array(np.meshgrid(clipi, clipj)).T.reshape(-1,2)
 
 
 #containers
-all_sizes=[]
-all_max_iou=[]
-all_kdc_iou=[]
-all_label_exclude_edge=[]
-all_nearest_centroid_distance=[]
+#all_sizes=[]
+#all_max_iou=[]
+#all_kdc_iou=[]
+#all_label_exclude_edge=[]
+#all_nearest_centroid_distance=[]
 all_reseg=[]
+
+pre_para={'Downsample': {'fxy':downsample_factor},
+        #'Gaussian': {'kernel size':3}
+        #'CLAHE':{'clip limit':2}#,
+        #'Downsample': {'fxy':4},
+        #'Buffering': {'crop size': crop_size}
+        }
+image=fnc.preprocessing_roulette(image, pre_para)
 
 for ij_idx in clipij:
     start_loop = time.time()
-    print(f'Clip: {ij_idx}')
+    print(f'Segmenting clip: {ij_idx}')
     ji=ij_idx[1]
     ii=ij_idx[0]
-    if (ji*crop_size<(image.shape[1]*downsample_factor) and ii*crop_size<(image.shape[0]*downsample_factor)):
+    if (ji*crop_size<(image.shape[1]) and ii*crop_size<(image.shape[0])):
         #prepare image
-        pre_para={'Downsample': {'fxy':downsample_factor},
-                'Crop': {'crop size': crop_size, 'j':ji,'i':ii},
+        pre_para={'Crop': {'crop size': crop_size, 'j':ji,'i':ii},
                 #'Gaussian': {'kernel size':3}
                 #'CLAHE':{'clip limit':2}#,
                 #'Downsample': {'fxy':4},
@@ -141,6 +151,7 @@ for ij_idx in clipij:
                     highest_pred_iou_by_point.append(masks[idx[pick]+i0])
                 i+=1
             masks=highest_pred_iou_by_point
+            print('Filtered by highest predicted iou per seed point, ', len(masks),' mask(s) remains')
 
             #grouping overlaps
             list_of_pred_iou=[mask['predicted_iou'] for mask in masks]
@@ -187,7 +198,7 @@ for ij_idx in clipij:
 
             cleaned_groups=None#dummy to identify first run
 
-            while remaining_ungroupped>1:#keep groupping until there is no overlapping groups
+            while remaining_ungroupped>1:#keep groupping until there is no group shares common mask
                 groups=[]
 
                 if not cleaned_groups:#the first run
@@ -217,12 +228,18 @@ for ij_idx in clipij:
                     for i in gp:
                         checker[i]+=1
                 remaining_ungroupped=np.max(np.unique(checker))
-            
-            all_grouped_masks=np.unique(np.hstack(cleaned_groups))
-            if len(all_grouped_masks)!=len(list_of_masks):
+            if cleaned_groups:
+                all_grouped_masks=np.unique(np.hstack(cleaned_groups))
+                if len(all_grouped_masks)!=len(list_of_masks):
+                    list_of_nooverlap_mask=np.setdiff1d(np.arange(len(list_of_masks)), all_grouped_masks)
+                else:
+                    list_of_nooverlap_mask=[]
+            else:#if no groups share common mask
+                cleaned_groups=unique_groups_thresholded
+                all_grouped_masks=np.unique(np.hstack(cleaned_groups))
                 list_of_nooverlap_mask=np.setdiff1d(np.arange(len(list_of_masks)), all_grouped_masks)
-            else:
-                list_of_nooverlap_mask=[]
+                #list_of_nooverlap_mask=[]
+                #list_of_nooverlap_mask=np.unique(np.hstack(unique_groups_thresholded))
             
             #apply to all groups guided resegmentation by overlaping confidence  
             tm=0.5
@@ -273,7 +290,7 @@ for ij_idx in clipij:
             keep = batched_nms(bboxes, scores, labels, 0.3)
             list_of_cleaned_groups_reseg_masks_nms=[list_of_cleaned_groups_reseg_masks[i] for i in keep]
             list_of_cleaned_groups_reseg_score_nms=[list_of_cleaned_groups_reseg_score[i] for i in keep]
-
+            print('Found ',len(keep), ' mask(s)/object(s) in the clip')
             #saving outputs
             all_reseg.append({'mask':list_of_cleaned_groups_reseg_masks,
                             'nms mask':list_of_cleaned_groups_reseg_masks_nms,
@@ -301,11 +318,10 @@ del list_of_mask_centroid, ar_masks, ar_masks_flat
 #Merging windows
 Aggregate_masks_noedge=[]
 pred_iou_noedge=[]
-crop_size=1024
 for clip_window in all_reseg:
     i=clip_window['i']
     j=clip_window['j']
-    for mask,score in zip(clip_window['mask'], clip_window['mask pred iou']):
+    for mask,score in zip(clip_window['nms mask'], clip_window['nms mask pred iou']):
         if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
             resize=np.zeros(image.shape[:-1])
             Valid_area=resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)].shape
@@ -313,17 +329,28 @@ for clip_window in all_reseg:
                 resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask
             else:
                 resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
-            Aggregate_masks_noedge.append(resize)
+            Aggregate_masks_noedge.append(resize.astype(np.uint8))
             pred_iou_noedge.append(score)
 
+print(f'{len(Aggregate_masks_noedge)} masks found')
 bboxes = torch.tensor([fnc.find_bounding_boxes(mask) for mask in Aggregate_masks_noedge], device=DEVICE, dtype=torch.float)
 scores = torch.tensor(pred_iou_noedge, device=DEVICE, dtype=torch.float)
 labels = torch.zeros_like(bboxes[:, 0])
 
 keep = batched_nms(bboxes, scores, labels, 0.35)#was 0.3
-Aggregate_masks_noedge_nms=[Aggregate_masks_noedge[i] for i in keep]
+#del bboxes, scores, labels
+Aggregate_masks_noedge_nms=[Aggregate_masks_noedge[i].astype(np.uint8) for i in keep]
 
-stacked_Aggregate_masks_noedge_nms=np.sum(Aggregate_masks_noedge_nms,axis=0)
+#del Aggregate_masks_noedge
+print(f'NMS filtered, {len(Aggregate_masks_noedge_nms)} masks remains')
+
+#stacked_Aggregate_masks_noedge_nms=np.sum(Aggregate_masks_noedge_nms,axis=0)
+
+stacked_Aggregate_masks_noedge_nms = np.zeros_like(Aggregate_masks_noedge_nms[0], dtype=np.uint8)
+
+# Sum in chunks
+for mask in Aggregate_masks_noedge_nms:
+    stacked_Aggregate_masks_noedge_nms += mask.astype(np.uint8)
 
 plt.figure(figsize=(20,15))
 plt.subplot(1,3,1)
@@ -350,7 +377,7 @@ del bboxes,scores,labels,keep
 del Aggregate_masks_noedge, pred_iou_noedge
 
 list_of_mask_centroid = [fnc.get_centroid(mask) for mask in Aggregate_masks_noedge_nms]
-ar_masks=np.stack(Aggregate_masks_noedge_nms)
+ar_masks=np.stack(Aggregate_masks_noedge_nms).astype(np.uint8)
 
 #temp=np.zeros(ar_masks[0].shape)
 #for i in range(ar_masks.shape[0]):
@@ -522,10 +549,10 @@ if len(list_of_no_mask_area_mask)>0:
                 else:
                     resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
                 #upsampling back to original resolution
-                resize=fnc.downsample_fnc(resize,{'fxy':reseg_fxy[-1]}).astype(int)
+                resize=fnc.downsample_fnc(resize,{'target_size':image.shape[:-1][::-1]}).astype(np.uint8)
                 void_pointed_reseg_resized.append(resize)
-
-        ar_masks=np.vstack((ar_masks,np.stack(void_pointed_reseg_resized)))
+        if len(void_pointed_reseg_resized)!=0:
+            ar_masks=np.vstack((ar_masks,np.stack(void_pointed_reseg_resized)))
         #list_of_mask_centroid = [fnc.get_centroid(ar_masks[i]) for i in range(ar_masks.shape[0])]
         del void_pointed_reseg_resized, void_pointed_reseg
     else:
@@ -581,10 +608,10 @@ if len(list_of_no_mask_area_mask)>0:
                         resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)]=mask
                     else:
                         resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
-                    resize=fnc.downsample_fnc(resize,{'fxy':reseg_fxy[i]}).astype(int)
+                    resize=fnc.downsample_fnc(resize,{'target_size':image.shape[:-1][::-1]}).astype(np.uint8)
                     void_pointed_reseg_resized.append(resize)
-
-            ar_masks=np.vstack((ar_masks,np.stack(void_pointed_reseg_resized)))
+            if len(void_pointed_reseg_resized)!=0:
+                ar_masks=np.vstack((ar_masks,np.stack(void_pointed_reseg_resized)))
             #list_of_mask_centroid = [fnc.get_centroid(ar_masks[i]) for i in range(ar_masks.shape[0])]
             del void_pointed_reseg_resized, void_pointed_reseg
 
@@ -595,13 +622,18 @@ if len(list_of_no_mask_area_mask)>0:
         saving_void_filled.append({'mask':mask})
     np.save(OutDIR+'all_reseg_mask_void_filled',np.hstack(saving_void_filled))
 
-    plt.figure(figsize=(15,10))
-    plt.subplot(1,2,1)
+    plt.figure(figsize=(20,15))
+    plt.subplot(1,3,1)
     plt.imshow(image)
     plt.imshow(np.sum(ar_masks,axis=0),alpha=0.6)
     plt.axis('off')
     plt.title(f'No edge nms Stacked after merging downsampled mask\nmax overlap: {np.max(np.sum(ar_masks,axis=0))}', fontsize=20)
-    plt.subplot(1,2,2)
+    plt.subplot(1,3,2)
+    plt.imshow(image)
+    plt.imshow(np.sum(ar_masks,axis=0)>0,alpha=0.6)
+    plt.axis('off')
+    plt.title('Masked area after nms and\nmerging downsampled mask', fontsize=20)
+    plt.subplot(1,3,3)
     plt.imshow(image)
     plt.imshow(np.sum(ar_masks,axis=0)>1,alpha=0.6)
     plt.axis('off')
