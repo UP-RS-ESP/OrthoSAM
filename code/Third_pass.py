@@ -35,26 +35,22 @@ try:#attempt to load saved init_para
     OutDIR=sys.argv[1]
     with open(OutDIR+'init_para.json', 'r') as json_file:
         init_para = json.load(json_file)
-    print('Loaded json')
+    print('Loaded parameters from json')
     print(init_para)
 except:#use defined init_para
-    print('Using default')
+    print('Using default paramters')
     print(init_para)
 
 
 DataDIR=init_para.get('DataDIR')
-fn_img = glob.glob(DataDIR+init_para.get('DatasetName'))
+DSname=init_para.get('DatasetName')
 fid=init_para.get('fid')
 
 #defining clips
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
 
-fn_img.sort()
-image = cv2.imread(fn_img[fid])
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-image = image#[100:-200,500:-1000]
-print(fn_img[fid].split("/")[-1]+' imported')
+image=fnc.load_image(DataDIR,DSname,fid)
 print('Image size:', image.shape)
 
 pre_para={'Downsample': {'fxy':resample_factor},
@@ -357,3 +353,4 @@ else:
     print('No void found. Minimum size threshold or dilation parameter may need to be adjusted')
 end_script = time.time()
 print('script took: ', end_script-start_script)
+print('Third pass SAM completed. Output saved to '+OutDIR)

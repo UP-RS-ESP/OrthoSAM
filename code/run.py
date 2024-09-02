@@ -10,12 +10,13 @@ first_second_run = "code/First_second_pass.py"
 Merging_window = "code/Merging_window.py"
 Third_pass = 'code/Third_pass.py'
 
-para={'OutDIR': '/DATA/vito/output/Ravi3_run_dw6/',
+para={'OutDIR': '/DATA/vito/output/Ravi2_run_dw4/',
       'DataDIR': '/DATA/vito/data/',
       'DatasetName': 'Ravi/*',
-      'fid': 1,
+      #'DatasetName': 'example/*',
+      'fid': 0,
       'crop_size': 1024,
-      'resample_factor': 1/8
+      'resample_factor': 1/4
       }
 resample_factor=para.get('resample_factor')
 pre_para={'Downsample': {'fxy':resample_factor},

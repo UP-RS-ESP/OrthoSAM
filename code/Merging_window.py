@@ -6,6 +6,7 @@ import functions as fnc
 import time
 import sys
 import json
+from tqdm import tqdm
 
 start_script = time.time()
 
@@ -24,26 +25,22 @@ try:#attempt to load saved init_para
     OutDIR=sys.argv[1]
     with open(OutDIR+'init_para.json', 'r') as json_file:
         init_para = json.load(json_file)
-    print('Loaded json')
+    print('Loaded parameters from json')
     print(init_para)
 except:#use defined init_para
-    print('Using default')
+    print('Using default parameters')
     print(init_para)
 
 OutDIR=init_para.get('OutDIR')
 DataDIR=init_para.get('DataDIR')
-fn_img = glob.glob(DataDIR+init_para.get('DatasetName'))
+DSname=init_para.get('DatasetName')
 fid=init_para.get('fid')
 
 #defining clips
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
 
-fn_img.sort()
-image = cv2.imread(fn_img[fid])
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-image = image#[100:-200,500:-1000]
-print(fn_img[fid].split("/")[-1]+' imported')
+image=fnc.load_image(DataDIR,DSname,fid)
 print('Image size:', image.shape)
 
 pre_para={'Downsample': {'fxy':resample_factor},
@@ -62,25 +59,31 @@ except:#use defined init_para
     print(pre_para)
 
 image=fnc.preprocessing_roulette(image, pre_para)
+print('Resampled to: ', image.shape)
 
+print('Loading masks.....')
 all_reseg=np.load(OutDIR+'all_reseg_mask.npy', allow_pickle=True)
+print(len(all_reseg),' clips imported')
 
-#Merging windows
-Aggregate_masks_noedge=[]
-pred_iou_noedge=[]
-for clip_window in all_reseg:
-    i=clip_window['i']
-    j=clip_window['j']
-    for mask,score in zip(clip_window['nms mask'], clip_window['nms mask pred iou']):
-        if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
-            resize=np.zeros(image.shape[:-1])
-            Valid_area=resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)].shape
-            if Valid_area==(crop_size,crop_size):
-                resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask
-            else:
-                resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
-            Aggregate_masks_noedge.append(resize.astype(np.uint8))
-            pred_iou_noedge.append(score)
+try:
+    #Merging windows
+    Aggregate_masks_noedge=[]
+    pred_iou_noedge=[]
+    for clip_window in tqdm(all_reseg,'Merging and resizing clips:', unit='clips'):
+        i=clip_window['i']
+        j=clip_window['j']
+        for mask,score in tqdm(zip(clip_window['mask'], clip_window['mask pred iou']), f'Merging and resizing masks in clip {i,j}:',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
+            if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
+                resize=np.zeros(image.shape[:-1])
+                Valid_area=resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)].shape
+                if Valid_area==(crop_size,crop_size):
+                    resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask
+                else:
+                    resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
+                Aggregate_masks_noedge.append(resize.astype(np.uint8))
+                pred_iou_noedge.append(score)
+except Exception as error:
+    print("An exception occurred:", error)
 
 print(f'{len(Aggregate_masks_noedge)} masks found')
 Aggregate_masks_noedge_nms,_=fnc.nms(Aggregate_masks_noedge,pred_iou_noedge)
@@ -122,3 +125,4 @@ print('Saved')
 
 end_script = time.time()
 print('script took: ', end_script-start_script)
+print('Merging windows completed. Output saved to '+OutDIR)

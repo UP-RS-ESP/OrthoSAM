@@ -867,3 +867,1710 @@ loop took:  0.0002684593200683594
 68 masks found
 NMS filtered, 60 masks remains
 script took:  226.5620300769806
+Loaded parameters from json
+{'OutDIR': '/DATA/vito/output/Ravi3_run_dw4/', 'DataDIR': '/DATA/vito/data/', 'DatasetName': 'Ravi/*', 'fid': 1, 'crop_size': 1024, 'resample_factor': 0.25}
+Loaded preprocessing parameters from json
+{'Downsample': {'fxy': 0.25}}
+Ravi3_orthomosaic_clip_02mm.tif imported
+Image size: (28382, 32563, 3)
+Currently running on GPU
+Model vit_h
+Segmenting clip: [0. 0.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  50.07831931114197
+Segmenting clip: [0.  0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  53.07331848144531
+Segmenting clip: [0. 1.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 302950 groups removed 
+Overlap groups before filtering: 302955, after filtering: 5
+Found  3  mask(s)/object(s) in the clip
+loop took:  37.16481018066406
+Segmenting clip: [0.  1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  506  mask(s) remains
+Threshold: 1000 pixels, 1026978 groups removed 
+Overlap groups before filtering: 1027021, after filtering: 43
+Found  3  mask(s)/object(s) in the clip
+loop took:  73.99510645866394
+Segmenting clip: [0. 2.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 889190 groups removed 
+Overlap groups before filtering: 889265, after filtering: 75
+Found  24  mask(s)/object(s) in the clip
+loop took:  38.925161838531494
+Segmenting clip: [0.  2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1025645 groups removed 
+Overlap groups before filtering: 1025760, after filtering: 115
+Found  9  mask(s)/object(s) in the clip
+loop took:  44.568328857421875
+Segmenting clip: [0. 3.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  231  mask(s) remains
+Threshold: 1000 pixels, 897049 groups removed 
+Overlap groups before filtering: 897156, after filtering: 107
+Found  4  mask(s)/object(s) in the clip
+loop took:  32.2332227230072
+Segmenting clip: [0.  3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  572  mask(s) remains
+Threshold: 1000 pixels, 669024 groups removed 
+Overlap groups before filtering: 669082, after filtering: 58
+Found  3  mask(s)/object(s) in the clip
+loop took:  58.34393620491028
+Segmenting clip: [0. 4.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  57.15834927558899
+Segmenting clip: [0.  4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  58.41729426383972
+Segmenting clip: [0. 5.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  59.11131286621094
+Segmenting clip: [0.  5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  59.66651630401611
+Segmenting clip: [0. 6.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  60.835164308547974
+Segmenting clip: [0.  6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  62.02066469192505
+Segmenting clip: [0. 7.]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 465867 groups removed 
+Overlap groups before filtering: 465896, after filtering: 29
+Found  1  mask(s)/object(s) in the clip
+loop took:  47.035804986953735
+Segmenting clip: [0.  7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.0648500919342041
+Segmenting clip: [0.5 0. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  62.0321044921875
+Segmenting clip: [0.5 0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 250611 groups removed 
+Overlap groups before filtering: 250619, after filtering: 8
+Found  2  mask(s)/object(s) in the clip
+loop took:  48.300987005233765
+Segmenting clip: [0.5 1. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  567  mask(s) remains
+Threshold: 1000 pixels, 884961 groups removed 
+Overlap groups before filtering: 885056, after filtering: 95
+Found  4  mask(s)/object(s) in the clip
+loop took:  60.24437427520752
+Segmenting clip: [0.5 1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1036432 groups removed 
+Overlap groups before filtering: 1036521, after filtering: 89
+Found  12  mask(s)/object(s) in the clip
+loop took:  51.06032967567444
+Segmenting clip: [0.5 2. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 995773 groups removed 
+Overlap groups before filtering: 995879, after filtering: 106
+Found  42  mask(s)/object(s) in the clip
+loop took:  44.84166884422302
+Segmenting clip: [0.5 2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 965474 groups removed 
+Overlap groups before filtering: 965562, after filtering: 88
+Found  56  mask(s)/object(s) in the clip
+loop took:  43.56440043449402
+Segmenting clip: [0.5 3. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1005786 groups removed 
+Overlap groups before filtering: 1005889, after filtering: 103
+Found  34  mask(s)/object(s) in the clip
+loop took:  51.22756361961365
+Segmenting clip: [0.5 3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  464  mask(s) remains
+Threshold: 1000 pixels, 1040700 groups removed 
+Overlap groups before filtering: 1040768, after filtering: 68
+Found  5  mask(s)/object(s) in the clip
+loop took:  60.43009924888611
+Segmenting clip: [0.5 4. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  458  mask(s) remains
+Threshold: 1000 pixels, 971274 groups removed 
+Overlap groups before filtering: 971307, after filtering: 33
+Found  9  mask(s)/object(s) in the clip
+loop took:  88.47510147094727
+Segmenting clip: [0.5 4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  575  mask(s) remains
+Threshold: 1000 pixels, 490072 groups removed 
+Overlap groups before filtering: 490083, after filtering: 11
+Found  2  mask(s)/object(s) in the clip
+loop took:  64.75753927230835
+Segmenting clip: [0.5 5. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  69.6792962551117
+Segmenting clip: [0.5 5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  68.6015796661377
+Segmenting clip: [0.5 6. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  68.93125677108765
+Segmenting clip: [0.5 6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  69.23353219032288
+Segmenting clip: [0.5 7. ]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 465867 groups removed 
+Overlap groups before filtering: 465896, after filtering: 29
+Found  1  mask(s)/object(s) in the clip
+loop took:  54.516873359680176
+Segmenting clip: [0.5 7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.06817626953125
+Segmenting clip: [1. 0.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  69.97543001174927
+Segmenting clip: [1.  0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 482046 groups removed 
+Overlap groups before filtering: 482075, after filtering: 29
+Found  3  mask(s)/object(s) in the clip
+loop took:  52.279537200927734
+Segmenting clip: [1. 1.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  538  mask(s) remains
+Threshold: 1000 pixels, 1038535 groups removed 
+Overlap groups before filtering: 1038631, after filtering: 96
+Found  4  mask(s)/object(s) in the clip
+loop took:  67.49624800682068
+Segmenting clip: [1.  1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 972284 groups removed 
+Overlap groups before filtering: 972419, after filtering: 135
+Found  45  mask(s)/object(s) in the clip
+loop took:  59.037513732910156
+Segmenting clip: [1. 2.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 957370 groups removed 
+Overlap groups before filtering: 957481, after filtering: 111
+Found  52  mask(s)/object(s) in the clip
+loop took:  54.500630378723145
+Segmenting clip: [1.  2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 910987 groups removed 
+Overlap groups before filtering: 911098, after filtering: 111
+Found  52  mask(s)/object(s) in the clip
+loop took:  54.175830602645874
+Segmenting clip: [1. 3.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1022031 groups removed 
+Overlap groups before filtering: 1022118, after filtering: 87
+Found  47  mask(s)/object(s) in the clip
+loop took:  56.94002628326416
+Segmenting clip: [1.  3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 993238 groups removed 
+Overlap groups before filtering: 993348, after filtering: 110
+Found  38  mask(s)/object(s) in the clip
+loop took:  59.8865647315979
+Segmenting clip: [1. 4.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1004796 groups removed 
+Overlap groups before filtering: 1004860, after filtering: 64
+Found  23  mask(s)/object(s) in the clip
+loop took:  62.83014535903931
+Segmenting clip: [1.  4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  313  mask(s) remains
+Threshold: 1000 pixels, 964337 groups removed 
+Overlap groups before filtering: 964383, after filtering: 46
+Found  14  mask(s)/object(s) in the clip
+loop took:  66.27222967147827
+Segmenting clip: [1. 5.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  570  mask(s) remains
+Threshold: 1000 pixels, 742457 groups removed 
+Overlap groups before filtering: 742478, after filtering: 21
+Found  3  mask(s)/object(s) in the clip
+loop took:  96.53639125823975
+Segmenting clip: [1.  5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 300421 groups removed 
+Overlap groups before filtering: 300432, after filtering: 11
+Found  1  mask(s)/object(s) in the clip
+loop took:  68.79502964019775
+Segmenting clip: [1. 6.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  78.12154388427734
+Segmenting clip: [1.  6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  85.03054928779602
+Segmenting clip: [1. 7.]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 465867 groups removed 
+Overlap groups before filtering: 465896, after filtering: 29
+Found  1  mask(s)/object(s) in the clip
+loop took:  63.0062301158905
+Segmenting clip: [1.  7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.06901383399963379
+Segmenting clip: [1.5 0. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 327971 groups removed 
+Overlap groups before filtering: 327979, after filtering: 8
+Found  3  mask(s)/object(s) in the clip
+loop took:  61.844141483306885
+Segmenting clip: [1.5 0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  547  mask(s) remains
+Threshold: 1000 pixels, 987511 groups removed 
+Overlap groups before filtering: 987557, after filtering: 46
+Found  9  mask(s)/object(s) in the clip
+loop took:  103.70329928398132
+Segmenting clip: [1.5 1. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 997813 groups removed 
+Overlap groups before filtering: 997962, after filtering: 149
+Found  30  mask(s)/object(s) in the clip
+loop took:  65.80642032623291
+Segmenting clip: [1.5 1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 865276 groups removed 
+Overlap groups before filtering: 865410, after filtering: 134
+Found  57  mask(s)/object(s) in the clip
+loop took:  60.4514946937561
+Segmenting clip: [1.5 2. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 859839 groups removed 
+Overlap groups before filtering: 859972, after filtering: 133
+Found  49  mask(s)/object(s) in the clip
+loop took:  59.48652243614197
+Segmenting clip: [1.5 2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 894059 groups removed 
+Overlap groups before filtering: 894196, after filtering: 137
+Found  42  mask(s)/object(s) in the clip
+loop took:  60.171263217926025
+Segmenting clip: [1.5 3. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 979710 groups removed 
+Overlap groups before filtering: 979808, after filtering: 98
+Found  35  mask(s)/object(s) in the clip
+loop took:  65.03133749961853
+Segmenting clip: [1.5 3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 987478 groups removed 
+Overlap groups before filtering: 987575, after filtering: 97
+Found  50  mask(s)/object(s) in the clip
+loop took:  64.00480461120605
+Segmenting clip: [1.5 4. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 909287 groups removed 
+Overlap groups before filtering: 909379, after filtering: 92
+Found  56  mask(s)/object(s) in the clip
+loop took:  65.80363655090332
+Segmenting clip: [1.5 4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 941490 groups removed 
+Overlap groups before filtering: 941577, after filtering: 87
+Found  39  mask(s)/object(s) in the clip
+loop took:  69.53350472450256
+Segmenting clip: [1.5 5. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  512  mask(s) remains
+Threshold: 1000 pixels, 1029610 groups removed 
+Overlap groups before filtering: 1029709, after filtering: 99
+Found  9  mask(s)/object(s) in the clip
+loop took:  77.35857224464417
+Segmenting clip: [1.5 5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  379  mask(s) remains
+Threshold: 1000 pixels, 979323 groups removed 
+Overlap groups before filtering: 979372, after filtering: 49
+Found  3  mask(s)/object(s) in the clip
+loop took:  99.47558355331421
+Segmenting clip: [1.5 6. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  572  mask(s) remains
+Threshold: 1000 pixels, 563458 groups removed 
+Overlap groups before filtering: 563483, after filtering: 25
+Found  6  mask(s)/object(s) in the clip
+loop took:  89.91228604316711
+Segmenting clip: [1.5 6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  90.80429744720459
+Segmenting clip: [1.5 7. ]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 465867 groups removed 
+Overlap groups before filtering: 465896, after filtering: 29
+Found  1  mask(s)/object(s) in the clip
+loop took:  75.10299968719482
+Segmenting clip: [1.5 7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.0669562816619873
+Segmenting clip: [2. 0.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  564  mask(s) remains
+Threshold: 1000 pixels, 911185 groups removed 
+Overlap groups before filtering: 911250, after filtering: 65
+Found  4  mask(s)/object(s) in the clip
+loop took:  82.9188642501831
+Segmenting clip: [2.  0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1037441 groups removed 
+Overlap groups before filtering: 1037552, after filtering: 111
+Found  9  mask(s)/object(s) in the clip
+loop took:  82.54256057739258
+Segmenting clip: [2. 1.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 980039 groups removed 
+Overlap groups before filtering: 980159, after filtering: 120
+Found  39  mask(s)/object(s) in the clip
+loop took:  74.29838299751282
+Segmenting clip: [2.  1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 990586 groups removed 
+Overlap groups before filtering: 990717, after filtering: 131
+Found  44  mask(s)/object(s) in the clip
+loop took:  66.15060758590698
+Segmenting clip: [2. 2.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 951616 groups removed 
+Overlap groups before filtering: 951754, after filtering: 138
+Found  35  mask(s)/object(s) in the clip
+loop took:  69.30595111846924
+Segmenting clip: [2.  2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 912009 groups removed 
+Overlap groups before filtering: 912142, after filtering: 133
+Found  39  mask(s)/object(s) in the clip
+loop took:  71.5942714214325
+Segmenting clip: [2. 3.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 926724 groups removed 
+Overlap groups before filtering: 926817, after filtering: 93
+Found  48  mask(s)/object(s) in the clip
+loop took:  74.90402889251709
+Segmenting clip: [2.  3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 941275 groups removed 
+Overlap groups before filtering: 941400, after filtering: 125
+Found  47  mask(s)/object(s) in the clip
+loop took:  74.80059766769409
+Segmenting clip: [2. 4.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 996154 groups removed 
+Overlap groups before filtering: 996267, after filtering: 113
+Found  36  mask(s)/object(s) in the clip
+loop took:  72.34287858009338
+Segmenting clip: [2.  4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 954474 groups removed 
+Overlap groups before filtering: 954582, after filtering: 108
+Found  40  mask(s)/object(s) in the clip
+loop took:  72.58950304985046
+Segmenting clip: [2. 5.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1002699 groups removed 
+Overlap groups before filtering: 1002850, after filtering: 151
+Found  23  mask(s)/object(s) in the clip
+loop took:  80.1724202632904
+Segmenting clip: [2.  5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 983410 groups removed 
+Overlap groups before filtering: 983534, after filtering: 124
+Found  18  mask(s)/object(s) in the clip
+loop took:  82.30446338653564
+Segmenting clip: [2. 6.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  296  mask(s) remains
+Threshold: 1000 pixels, 987066 groups removed 
+Overlap groups before filtering: 987181, after filtering: 115
+Found  1  mask(s)/object(s) in the clip
+loop took:  76.50350069999695
+Segmenting clip: [2.  6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  541  mask(s) remains
+Threshold: 1000 pixels, 914337 groups removed 
+Overlap groups before filtering: 914374, after filtering: 37
+Found  2  mask(s)/object(s) in the clip
+loop took:  116.23416876792908
+Segmenting clip: [2. 7.]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  575  mask(s) remains
+Threshold: 1000 pixels, 417361 groups removed 
+Overlap groups before filtering: 417397, after filtering: 36
+Found  2  mask(s)/object(s) in the clip
+loop took:  88.25699543952942
+Segmenting clip: [2.  7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.07064247131347656
+Segmenting clip: [2.5 0. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  505  mask(s) remains
+Threshold: 1000 pixels, 1039871 groups removed 
+Overlap groups before filtering: 1039946, after filtering: 75
+Found  8  mask(s)/object(s) in the clip
+loop took:  97.42491555213928
+Segmenting clip: [2.5 0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 975696 groups removed 
+Overlap groups before filtering: 975821, after filtering: 125
+Found  44  mask(s)/object(s) in the clip
+loop took:  83.63132381439209
+Segmenting clip: [2.5 1. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 995311 groups removed 
+Overlap groups before filtering: 995427, after filtering: 116
+Found  45  mask(s)/object(s) in the clip
+loop took:  79.94968295097351
+Segmenting clip: [2.5 1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 956384 groups removed 
+Overlap groups before filtering: 956493, after filtering: 109
+Found  37  mask(s)/object(s) in the clip
+loop took:  79.31758570671082
+Segmenting clip: [2.5 2. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 956294 groups removed 
+Overlap groups before filtering: 956389, after filtering: 95
+Found  52  mask(s)/object(s) in the clip
+loop took:  82.10486793518066
+Segmenting clip: [2.5 2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 970010 groups removed 
+Overlap groups before filtering: 970107, after filtering: 97
+Found  58  mask(s)/object(s) in the clip
+loop took:  83.82483410835266
+Segmenting clip: [2.5 3. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 965864 groups removed 
+Overlap groups before filtering: 965961, after filtering: 97
+Found  51  mask(s)/object(s) in the clip
+loop took:  87.13547945022583
+Segmenting clip: [2.5 3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 964601 groups removed 
+Overlap groups before filtering: 964740, after filtering: 139
+Found  55  mask(s)/object(s) in the clip
+loop took:  85.25248098373413
+Segmenting clip: [2.5 4. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1005422 groups removed 
+Overlap groups before filtering: 1005578, after filtering: 156
+Found  36  mask(s)/object(s) in the clip
+loop took:  81.52261161804199
+Segmenting clip: [2.5 4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 960286 groups removed 
+Overlap groups before filtering: 960408, after filtering: 122
+Found  54  mask(s)/object(s) in the clip
+loop took:  83.06417107582092
+Segmenting clip: [2.5 5. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 940467 groups removed 
+Overlap groups before filtering: 940595, after filtering: 128
+Found  46  mask(s)/object(s) in the clip
+loop took:  86.09167194366455
+Segmenting clip: [2.5 5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 695192 groups removed 
+Overlap groups before filtering: 695287, after filtering: 95
+Found  59  mask(s)/object(s) in the clip
+loop took:  84.4601821899414
+Segmenting clip: [2.5 6. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 881053 groups removed 
+Overlap groups before filtering: 881167, after filtering: 114
+Found  50  mask(s)/object(s) in the clip
+loop took:  89.08435869216919
+Segmenting clip: [2.5 6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  430  mask(s) remains
+Threshold: 1000 pixels, 1017695 groups removed 
+Overlap groups before filtering: 1017829, after filtering: 134
+Found  8  mask(s)/object(s) in the clip
+loop took:  91.5216875076294
+Segmenting clip: [2.5 7. ]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  398  mask(s) remains
+Threshold: 1000 pixels, 969481 groups removed 
+Overlap groups before filtering: 969511, after filtering: 30
+Found  2  mask(s)/object(s) in the clip
+loop took:  114.39427661895752
+Segmenting clip: [2.5 7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.07329392433166504
+Segmenting clip: [3. 0.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1013867 groups removed 
+Overlap groups before filtering: 1013979, after filtering: 112
+Found  17  mask(s)/object(s) in the clip
+loop took:  95.84186244010925
+Segmenting clip: [3.  0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 956383 groups removed 
+Overlap groups before filtering: 956503, after filtering: 120
+Found  59  mask(s)/object(s) in the clip
+loop took:  93.12631368637085
+Segmenting clip: [3. 1.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 941390 groups removed 
+Overlap groups before filtering: 941528, after filtering: 138
+Found  47  mask(s)/object(s) in the clip
+loop took:  91.68150115013123
+Segmenting clip: [3.  1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 884142 groups removed 
+Overlap groups before filtering: 884265, after filtering: 123
+Found  47  mask(s)/object(s) in the clip
+loop took:  89.18017363548279
+Segmenting clip: [3. 2.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 854090 groups removed 
+Overlap groups before filtering: 854193, after filtering: 103
+Found  61  mask(s)/object(s) in the clip
+loop took:  91.24206256866455
+Segmenting clip: [3.  2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 910529 groups removed 
+Overlap groups before filtering: 910639, after filtering: 110
+Found  66  mask(s)/object(s) in the clip
+loop took:  94.88645958900452
+Segmenting clip: [3. 3.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1006602 groups removed 
+Overlap groups before filtering: 1006687, after filtering: 85
+Found  39  mask(s)/object(s) in the clip
+loop took:  98.6360878944397
+Segmenting clip: [3.  3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1005718 groups removed 
+Overlap groups before filtering: 1005829, after filtering: 111
+Found  40  mask(s)/object(s) in the clip
+loop took:  99.64845871925354
+Segmenting clip: [3. 4.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 995824 groups removed 
+Overlap groups before filtering: 995990, after filtering: 166
+Found  27  mask(s)/object(s) in the clip
+loop took:  95.43660950660706
+Segmenting clip: [3.  4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1005692 groups removed 
+Overlap groups before filtering: 1005821, after filtering: 129
+Found  33  mask(s)/object(s) in the clip
+loop took:  99.59980535507202
+Segmenting clip: [3. 5.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 956211 groups removed 
+Overlap groups before filtering: 956361, after filtering: 150
+Found  42  mask(s)/object(s) in the clip
+loop took:  97.68228936195374
+Segmenting clip: [3.  5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 935583 groups removed 
+Overlap groups before filtering: 935717, after filtering: 134
+Found  58  mask(s)/object(s) in the clip
+loop took:  99.47705674171448
+Segmenting clip: [3. 6.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1000836 groups removed 
+Overlap groups before filtering: 1000953, after filtering: 117
+Found  36  mask(s)/object(s) in the clip
+loop took:  94.75505876541138
+Segmenting clip: [3.  6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 905319 groups removed 
+Overlap groups before filtering: 905433, after filtering: 114
+Found  35  mask(s)/object(s) in the clip
+loop took:  103.20658826828003
+Segmenting clip: [3. 7.]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 953640 groups removed 
+Overlap groups before filtering: 953718, after filtering: 78
+Found  12  mask(s)/object(s) in the clip
+loop took:  94.89370846748352
+Segmenting clip: [3.  7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.05341315269470215
+Segmenting clip: [3.5 0. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  346  mask(s) remains
+Threshold: 1000 pixels, 1017125 groups removed 
+Overlap groups before filtering: 1017258, after filtering: 133
+Found  5  mask(s)/object(s) in the clip
+loop took:  99.32874894142151
+Segmenting clip: [3.5 0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1026698 groups removed 
+Overlap groups before filtering: 1026783, after filtering: 85
+Found  21  mask(s)/object(s) in the clip
+loop took:  105.97474980354309
+Segmenting clip: [3.5 1. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 971580 groups removed 
+Overlap groups before filtering: 971661, after filtering: 81
+Found  63  mask(s)/object(s) in the clip
+loop took:  100.4217357635498
+Segmenting clip: [3.5 1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 934290 groups removed 
+Overlap groups before filtering: 934403, after filtering: 113
+Found  42  mask(s)/object(s) in the clip
+loop took:  103.0362639427185
+Segmenting clip: [3.5 2. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 708212 groups removed 
+Overlap groups before filtering: 708306, after filtering: 94
+Found  62  mask(s)/object(s) in the clip
+loop took:  106.32782626152039
+Segmenting clip: [3.5 2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 959148 groups removed 
+Overlap groups before filtering: 959258, after filtering: 110
+Found  59  mask(s)/object(s) in the clip
+loop took:  100.8643274307251
+Segmenting clip: [3.5 3. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 979871 groups removed 
+Overlap groups before filtering: 979970, after filtering: 99
+Found  51  mask(s)/object(s) in the clip
+loop took:  105.30916213989258
+Segmenting clip: [3.5 3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 954277 groups removed 
+Overlap groups before filtering: 954359, after filtering: 82
+Found  53  mask(s)/object(s) in the clip
+loop took:  112.41368412971497
+Segmenting clip: [3.5 4. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1005319 groups removed 
+Overlap groups before filtering: 1005426, after filtering: 107
+Found  33  mask(s)/object(s) in the clip
+loop took:  106.73066520690918
+Segmenting clip: [3.5 4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1005522 groups removed 
+Overlap groups before filtering: 1005635, after filtering: 113
+Found  25  mask(s)/object(s) in the clip
+loop took:  110.86685395240784
+Segmenting clip: [3.5 5. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 959226 groups removed 
+Overlap groups before filtering: 959356, after filtering: 130
+Found  53  mask(s)/object(s) in the clip
+loop took:  107.20116376876831
+Segmenting clip: [3.5 5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 879463 groups removed 
+Overlap groups before filtering: 879583, after filtering: 120
+Found  41  mask(s)/object(s) in the clip
+loop took:  109.6667013168335
+Segmenting clip: [3.5 6. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 937302 groups removed 
+Overlap groups before filtering: 937421, after filtering: 119
+Found  32  mask(s)/object(s) in the clip
+loop took:  107.94934153556824
+Segmenting clip: [3.5 6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 840066 groups removed 
+Overlap groups before filtering: 840187, after filtering: 121
+Found  37  mask(s)/object(s) in the clip
+loop took:  110.62120127677917
+Segmenting clip: [3.5 7. ]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 978494 groups removed 
+Overlap groups before filtering: 978585, after filtering: 91
+Found  6  mask(s)/object(s) in the clip
+loop took:  115.87549066543579
+Segmenting clip: [3.5 7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.052545785903930664
+Segmenting clip: [4. 0.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  565  mask(s) remains
+Threshold: 1000 pixels, 590538 groups removed 
+Overlap groups before filtering: 590560, after filtering: 22
+Found  9  mask(s)/object(s) in the clip
+loop took:  125.86432552337646
+Segmenting clip: [4.  0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  520  mask(s) remains
+Threshold: 1000 pixels, 883593 groups removed 
+Overlap groups before filtering: 883645, after filtering: 52
+Found  21  mask(s)/object(s) in the clip
+loop took:  126.90561366081238
+Segmenting clip: [4. 1.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1029341 groups removed 
+Overlap groups before filtering: 1029412, after filtering: 71
+Found  12  mask(s)/object(s) in the clip
+loop took:  125.56709027290344
+Segmenting clip: [4.  1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1026455 groups removed 
+Overlap groups before filtering: 1026573, after filtering: 118
+Found  11  mask(s)/object(s) in the clip
+loop took:  112.79948282241821
+Segmenting clip: [4. 2.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 850624 groups removed 
+Overlap groups before filtering: 850723, after filtering: 99
+Found  66  mask(s)/object(s) in the clip
+loop took:  107.30476713180542
+Segmenting clip: [4.  2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 869386 groups removed 
+Overlap groups before filtering: 869496, after filtering: 110
+Found  74  mask(s)/object(s) in the clip
+loop took:  111.73824906349182
+Segmenting clip: [4. 3.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 922122 groups removed 
+Overlap groups before filtering: 922247, after filtering: 125
+Found  66  mask(s)/object(s) in the clip
+loop took:  112.826975107193
+Segmenting clip: [4.  3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 850972 groups removed 
+Overlap groups before filtering: 851091, after filtering: 119
+Found  65  mask(s)/object(s) in the clip
+loop took:  117.7290551662445
+Segmenting clip: [4. 4.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 946690 groups removed 
+Overlap groups before filtering: 946827, after filtering: 137
+Found  58  mask(s)/object(s) in the clip
+loop took:  122.45439863204956
+Segmenting clip: [4.  4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 977495 groups removed 
+Overlap groups before filtering: 977641, after filtering: 146
+Found  44  mask(s)/object(s) in the clip
+loop took:  112.36707997322083
+Segmenting clip: [4. 5.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 926753 groups removed 
+Overlap groups before filtering: 926902, after filtering: 149
+Found  46  mask(s)/object(s) in the clip
+loop took:  116.00778770446777
+Segmenting clip: [4.  5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 872837 groups removed 
+Overlap groups before filtering: 872959, after filtering: 122
+Found  40  mask(s)/object(s) in the clip
+loop took:  121.95555877685547
+Segmenting clip: [4. 6.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 965374 groups removed 
+Overlap groups before filtering: 965514, after filtering: 140
+Found  27  mask(s)/object(s) in the clip
+loop took:  122.41355657577515
+Segmenting clip: [4.  6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1026580 groups removed 
+Overlap groups before filtering: 1026658, after filtering: 78
+Found  14  mask(s)/object(s) in the clip
+loop took:  121.24050402641296
+Segmenting clip: [4. 7.]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  553  mask(s) remains
+Threshold: 1000 pixels, 915197 groups removed 
+Overlap groups before filtering: 915228, after filtering: 31
+Found  9  mask(s)/object(s) in the clip
+loop took:  147.33108568191528
+Segmenting clip: [4.  7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.041849613189697266
+Segmenting clip: [4.5 0. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  145.3092257976532
+Segmenting clip: [4.5 0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  553  mask(s) remains
+Threshold: 1000 pixels, 531776 groups removed 
+Overlap groups before filtering: 531785, after filtering: 9
+Found  5  mask(s)/object(s) in the clip
+loop took:  150.85736083984375
+Segmenting clip: [4.5 1. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  545  mask(s) remains
+Threshold: 1000 pixels, 615506 groups removed 
+Overlap groups before filtering: 615537, after filtering: 31
+Found  9  mask(s)/object(s) in the clip
+loop took:  155.71095204353333
+Segmenting clip: [4.5 1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  537  mask(s) remains
+Threshold: 1000 pixels, 1030728 groups removed 
+Overlap groups before filtering: 1030773, after filtering: 45
+Found  14  mask(s)/object(s) in the clip
+loop took:  152.34491348266602
+Segmenting clip: [4.5 2. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1010831 groups removed 
+Overlap groups before filtering: 1010906, after filtering: 75
+Found  27  mask(s)/object(s) in the clip
+loop took:  148.2434642314911
+Segmenting clip: [4.5 2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 863500 groups removed 
+Overlap groups before filtering: 863614, after filtering: 114
+Found  46  mask(s)/object(s) in the clip
+loop took:  139.41045451164246
+Segmenting clip: [4.5 3. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 962948 groups removed 
+Overlap groups before filtering: 963081, after filtering: 133
+Found  44  mask(s)/object(s) in the clip
+loop took:  135.59609174728394
+Segmenting clip: [4.5 3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 966378 groups removed 
+Overlap groups before filtering: 966524, after filtering: 146
+Found  39  mask(s)/object(s) in the clip
+loop took:  136.11021161079407
+Segmenting clip: [4.5 4. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 941744 groups removed 
+Overlap groups before filtering: 941861, after filtering: 117
+Found  51  mask(s)/object(s) in the clip
+loop took:  138.03413462638855
+Segmenting clip: [4.5 4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 940877 groups removed 
+Overlap groups before filtering: 941004, after filtering: 127
+Found  57  mask(s)/object(s) in the clip
+loop took:  129.79805970191956
+Segmenting clip: [4.5 5. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 843907 groups removed 
+Overlap groups before filtering: 844031, after filtering: 124
+Found  61  mask(s)/object(s) in the clip
+loop took:  127.13827872276306
+Segmenting clip: [4.5 5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 730461 groups removed 
+Overlap groups before filtering: 730597, after filtering: 136
+Found  66  mask(s)/object(s) in the clip
+loop took:  145.82223391532898
+Segmenting clip: [4.5 6. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1024589 groups removed 
+Overlap groups before filtering: 1024728, after filtering: 139
+Found  12  mask(s)/object(s) in the clip
+loop took:  138.75268077850342
+Segmenting clip: [4.5 6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  478  mask(s) remains
+Threshold: 1000 pixels, 949712 groups removed 
+Overlap groups before filtering: 949747, after filtering: 35
+Found  2  mask(s)/object(s) in the clip
+loop took:  153.9084153175354
+Segmenting clip: [4.5 7. ]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  571  mask(s) remains
+Threshold: 1000 pixels, 621988 groups removed 
+Overlap groups before filtering: 622015, after filtering: 27
+Found  2  mask(s)/object(s) in the clip
+loop took:  185.7128608226776
+Segmenting clip: [4.5 7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.0772392749786377
+Segmenting clip: [5. 0.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  156.83126640319824
+Segmenting clip: [5.  0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  162.38946175575256
+Segmenting clip: [5. 1.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  161.7732937335968
+Segmenting clip: [5.  1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  568  mask(s) remains
+Threshold: 1000 pixels, 499997 groups removed 
+Overlap groups before filtering: 500011, after filtering: 14
+Found  2  mask(s)/object(s) in the clip
+loop took:  165.64095830917358
+Segmenting clip: [5. 2.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  556  mask(s) remains
+Threshold: 1000 pixels, 661065 groups removed 
+Overlap groups before filtering: 661105, after filtering: 40
+Found  15  mask(s)/object(s) in the clip
+loop took:  167.16689467430115
+Segmenting clip: [5.  2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  533  mask(s) remains
+Threshold: 1000 pixels, 1029106 groups removed 
+Overlap groups before filtering: 1029148, after filtering: 42
+Found  26  mask(s)/object(s) in the clip
+loop took:  158.95934057235718
+Segmenting clip: [5. 3.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 810628 groups removed 
+Overlap groups before filtering: 810709, after filtering: 81
+Found  31  mask(s)/object(s) in the clip
+loop took:  164.21961069107056
+Segmenting clip: [5.  3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 871348 groups removed 
+Overlap groups before filtering: 871483, after filtering: 135
+Found  40  mask(s)/object(s) in the clip
+loop took:  160.8942892551422
+Segmenting clip: [5. 4.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 931689 groups removed 
+Overlap groups before filtering: 931811, after filtering: 122
+Found  53  mask(s)/object(s) in the clip
+loop took:  138.96571588516235
+Segmenting clip: [5.  4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 931730 groups removed 
+Overlap groups before filtering: 931837, after filtering: 107
+Found  59  mask(s)/object(s) in the clip
+loop took:  149.61341071128845
+Segmenting clip: [5. 5.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 945180 groups removed 
+Overlap groups before filtering: 945283, after filtering: 103
+Found  41  mask(s)/object(s) in the clip
+loop took:  149.70451378822327
+Segmenting clip: [5.  5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 810981 groups removed 
+Overlap groups before filtering: 811122, after filtering: 141
+Found  50  mask(s)/object(s) in the clip
+loop took:  150.09293699264526
+Segmenting clip: [5. 6.]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  551  mask(s) remains
+Threshold: 1000 pixels, 1035983 groups removed 
+Overlap groups before filtering: 1036080, after filtering: 97
+Found  2  mask(s)/object(s) in the clip
+loop took:  159.91733694076538
+Segmenting clip: [5.  6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  567  mask(s) remains
+Threshold: 1000 pixels, 702680 groups removed 
+Overlap groups before filtering: 702713, after filtering: 33
+Found  4  mask(s)/object(s) in the clip
+loop took:  196.604736328125
+Segmenting clip: [5. 7.]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 465867 groups removed 
+Overlap groups before filtering: 465896, after filtering: 29
+Found  1  mask(s)/object(s) in the clip
+loop took:  162.63279104232788
+Segmenting clip: [5.  7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.041289567947387695
+Segmenting clip: [5.5 0. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  188.11681175231934
+Segmenting clip: [5.5 0.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  177.83299803733826
+Segmenting clip: [5.5 1. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  180.21969389915466
+Segmenting clip: [5.5 1.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  182.8740668296814
+Segmenting clip: [5.5 2. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 468397 groups removed 
+Overlap groups before filtering: 468415, after filtering: 18
+Found  1  mask(s)/object(s) in the clip
+loop took:  187.72676825523376
+Segmenting clip: [5.5 2.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  555  mask(s) remains
+Threshold: 1000 pixels, 532778 groups removed 
+Overlap groups before filtering: 532791, after filtering: 13
+Found  10  mask(s)/object(s) in the clip
+loop took:  189.87358164787292
+Segmenting clip: [5.5 3. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  529  mask(s) remains
+Threshold: 1000 pixels, 863800 groups removed 
+Overlap groups before filtering: 863874, after filtering: 74
+Found  4  mask(s)/object(s) in the clip
+loop took:  185.35808277130127
+Segmenting clip: [5.5 3.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  547  mask(s) remains
+Threshold: 1000 pixels, 1027398 groups removed 
+Overlap groups before filtering: 1027470, after filtering: 72
+Found  13  mask(s)/object(s) in the clip
+loop took:  171.95700931549072
+Segmenting clip: [5.5 4. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1020122 groups removed 
+Overlap groups before filtering: 1020225, after filtering: 103
+Found  29  mask(s)/object(s) in the clip
+loop took:  171.01592779159546
+Segmenting clip: [5.5 4.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 935151 groups removed 
+Overlap groups before filtering: 935268, after filtering: 117
+Found  59  mask(s)/object(s) in the clip
+loop took:  170.97881698608398
+Segmenting clip: [5.5 5. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 876015 groups removed 
+Overlap groups before filtering: 876139, after filtering: 124
+Found  54  mask(s)/object(s) in the clip
+loop took:  170.834623336792
+Segmenting clip: [5.5 5.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 1019830 groups removed 
+Overlap groups before filtering: 1019942, after filtering: 112
+Found  10  mask(s)/object(s) in the clip
+loop took:  178.28100419044495
+Segmenting clip: [5.5 6. ]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  535  mask(s) remains
+Threshold: 1000 pixels, 871366 groups removed 
+Overlap groups before filtering: 871392, after filtering: 26
+Found  6  mask(s)/object(s) in the clip
+loop took:  215.7780475616455
+Segmenting clip: [5.5 6.5]
+Cropped from (7096, 8141, 3) to (1024, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 452507 groups removed 
+Overlap groups before filtering: 452523, after filtering: 16
+Found  1  mask(s)/object(s) in the clip
+loop took:  204.41256141662598
+Segmenting clip: [5.5 7. ]
+Cropped from (7096, 8141, 3) to (1024, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 465867 groups removed 
+Overlap groups before filtering: 465896, after filtering: 29
+Found  1  mask(s)/object(s) in the clip
+loop took:  189.12422037124634
+Segmenting clip: [5.5 7.5]
+Cropped from (7096, 8141, 3) to (1024, 461, 3)
+This crop is too small
+loop took:  0.04367518424987793
+Segmenting clip: [6. 0.]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 302797 groups removed 
+Overlap groups before filtering: 302813, after filtering: 16
+Found  1  mask(s)/object(s) in the clip
+loop took:  190.04412031173706
+Segmenting clip: [6.  0.5]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 302797 groups removed 
+Overlap groups before filtering: 302813, after filtering: 16
+Found  1  mask(s)/object(s) in the clip
+loop took:  186.44552397727966
+Segmenting clip: [6. 1.]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 302797 groups removed 
+Overlap groups before filtering: 302813, after filtering: 16
+Found  1  mask(s)/object(s) in the clip
+loop took:  213.28659224510193
+Segmenting clip: [6.  1.5]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 302797 groups removed 
+Overlap groups before filtering: 302813, after filtering: 16
+Found  1  mask(s)/object(s) in the clip
+loop took:  274.913850069046
+Segmenting clip: [6. 2.]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 302797 groups removed 
+Overlap groups before filtering: 302813, after filtering: 16
+Found  1  mask(s)/object(s) in the clip
+loop took:  365.202800989151
+Segmenting clip: [6.  2.5]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 302797 groups removed 
+Overlap groups before filtering: 302813, after filtering: 16
+Found  1  mask(s)/object(s) in the clip
+loop took:  294.6397349834442
+Segmenting clip: [6. 3.]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 354169 groups removed 
+Overlap groups before filtering: 354191, after filtering: 22
+Found  2  mask(s)/object(s) in the clip
+loop took:  331.829313993454
+Segmenting clip: [6.  3.5]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  538  mask(s) remains
+Threshold: 1000 pixels, 615196 groups removed 
+Overlap groups before filtering: 615228, after filtering: 32
+Found  9  mask(s)/object(s) in the clip
+loop took:  384.2791006565094
+Segmenting clip: [6. 4.]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  503  mask(s) remains
+Threshold: 1000 pixels, 928872 groups removed 
+Overlap groups before filtering: 928908, after filtering: 36
+Found  32  mask(s)/object(s) in the clip
+loop took:  415.4342315196991
+Segmenting clip: [6.  4.5]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 965170 groups removed 
+Overlap groups before filtering: 965219, after filtering: 49
+Found  25  mask(s)/object(s) in the clip
+loop took:  407.48398661613464
+Segmenting clip: [6. 5.]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 948695 groups removed 
+Overlap groups before filtering: 948797, after filtering: 102
+Found  16  mask(s)/object(s) in the clip
+loop took:  426.8862545490265
+Segmenting clip: [6.  5.5]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  388  mask(s) remains
+Threshold: 1000 pixels, 941425 groups removed 
+Overlap groups before filtering: 941457, after filtering: 32
+Found  8  mask(s)/object(s) in the clip
+loop took:  469.5370526313782
+Segmenting clip: [6. 6.]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  574  mask(s) remains
+Threshold: 1000 pixels, 530714 groups removed 
+Overlap groups before filtering: 530733, after filtering: 19
+Found  2  mask(s)/object(s) in the clip
+loop took:  391.94050431251526
+Segmenting clip: [6.  6.5]
+Cropped from (7096, 8141, 3) to (952, 1024, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 302797 groups removed 
+Overlap groups before filtering: 302813, after filtering: 16
+Found  1  mask(s)/object(s) in the clip
+loop took:  420.9324896335602
+Segmenting clip: [6. 7.]
+Cropped from (7096, 8141, 3) to (952, 973, 3)
+First pass SAM:  1728  mask(s) found
+Filtered by highest predicted iou per seed point,  576  mask(s) remains
+Threshold: 1000 pixels, 293572 groups removed 
+Overlap groups before filtering: 293581, after filtering: 9
+Found  1  mask(s)/object(s) in the clip
+loop took:  406.240282535553
+Segmenting clip: [6.  7.5]
+Cropped from (7096, 8141, 3) to (952, 461, 3)
+This crop is too small
+loop took:  0.04412436485290527
+Segmenting clip: [6.5 0. ]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.037465810775756836
+Segmenting clip: [6.5 0.5]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.03159475326538086
+Segmenting clip: [6.5 1. ]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.031868934631347656
+Segmenting clip: [6.5 1.5]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.031586647033691406
+Segmenting clip: [6.5 2. ]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.03183126449584961
+Segmenting clip: [6.5 2.5]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.03158378601074219
+Segmenting clip: [6.5 3. ]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.03185558319091797
+Segmenting clip: [6.5 3.5]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.031607627868652344
+Segmenting clip: [6.5 4. ]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.03188610076904297
+Segmenting clip: [6.5 4.5]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.0315396785736084
+Segmenting clip: [6.5 5. ]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.03191208839416504
+Segmenting clip: [6.5 5.5]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.03159451484680176
+Segmenting clip: [6.5 6. ]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.03184843063354492
+Segmenting clip: [6.5 6.5]
+Cropped from (7096, 8141, 3) to (440, 1024, 3)
+This crop is too small
+loop took:  0.031546592712402344
+Segmenting clip: [6.5 7. ]
+Cropped from (7096, 8141, 3) to (440, 973, 3)
+This crop is too small
+loop took:  0.03192949295043945
+Segmenting clip: [6.5 7.5]
+Cropped from (7096, 8141, 3) to (440, 461, 3)
+This crop is too small
+loop took:  0.031542301177978516
+script took:  23701.275898218155
+Loaded parameters from json
+{'OutDIR': '/DATA/vito/output/Ravi3_run_dw4/', 'DataDIR': '/DATA/vito/data/', 'DatasetName': 'Ravi/*', 'fid': 1, 'crop_size': 1024, 'resample_factor': 0.25}
+Ravi3_orthomosaic_clip_02mm.tif imported
+Image size: (28382, 32563, 3)
+Loaded preprocessing parameters from json
+{'Downsample': {'fxy': 0.25}}
+Preprocessing finished
+Currently running on GPU
+Model vit_h
+Traceback (most recent call last):
+  File "code/Third_pass.py", line 104, in <module>
+    all_reseg=np.load(OutDIR+'all_mask_merged_windows.npy', allow_pickle=True)
+  File "/DATA/vito/.venv/lib/python3.8/site-packages/numpy/lib/npyio.py", line 405, in load
+    fid = stack.enter_context(open(os_fspath(file), "rb"))
+FileNotFoundError: [Errno 2] No such file or directory: '/DATA/vito/output/Ravi3_run_dw4/all_mask_merged_windows.npy'
+Performing first pass and second pass clipwise segmentation
+Completed
+Merging windows
+Completed
+Searching potential missing objects and performing third pass segmentation
+Completed
+Run took:  377.167649269104

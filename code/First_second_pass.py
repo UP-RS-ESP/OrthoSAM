@@ -32,10 +32,10 @@ try:#attempt to load saved init_para
     OutDIR=sys.argv[1]
     with open(OutDIR+'init_para.json', 'r') as json_file:
         init_para = json.load(json_file)
-    print('Loaded json')
+    print('Loaded parameters from json')
     print(init_para)
 except:#use defined init_para
-    print('Using default')
+    print('Using default parameters')
     print(init_para)
     OutDIR=init_para.get('OutDIR')
     # create dir if output dir not exist
@@ -44,7 +44,7 @@ except:#use defined init_para
 
 OutDIR=init_para.get('OutDIR')
 DataDIR=init_para.get('DataDIR')
-fn_img = glob.glob(DataDIR+init_para.get('DatasetName'))
+DSname=init_para.get('DatasetName')
 fid=init_para.get('fid')
 
 #defining clips
@@ -68,18 +68,10 @@ except:#use defined init_para
 
 #Prep
 #load image
-fn_img.sort()
-image = cv2.imread(fn_img[fid])
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-image = image#[100:-200,500:-1000]
-print(fn_img[fid].split("/")[-1]+' imported')
+image=fnc.load_image(DataDIR,DSname,fid)
 print('Image size:', image.shape)
-#image=(np.load(DataDIR+'example/rgb.npy')*255).astype(np.uint8)
-#seg_ids=np.load(DataDIR+'example/segment_ids.npy')
-
-clipi=np.arange(0,(image.shape[0]*resample_factor)//crop_size+1,0.5)
-clipj=np.arange(0,(image.shape[1]*resample_factor)//crop_size+1,0.5)
-clipij=np.array(np.meshgrid(clipi, clipj)).T.reshape(-1,2)
+clipij=fnc.definte_clips(image.shape[0],image.shape[1],resample_factor,crop_size)
+image=fnc.preprocessing_roulette(image, pre_para)
 
 #setup SAM
 MODEL_TYPE = "vit_h"
@@ -100,9 +92,6 @@ else:
 sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH)
 sam.to(device=DEVICE)
 mask_generator = SamAutomaticMaskGenerator(sam)
-
-#containers
-all_reseg=[]
 
 def filter_by_pred_iou_and_size_per_seedpoint(masks,size_threshold=0.4,crop_size=crop_size):
     seed_point=np.array([mask['point_coords'][0] for mask in masks])
@@ -245,8 +234,8 @@ def Guided_second_pass_SAM(cleaned_groups,tm=0.5,ts=0.5):
     list_of_cleaned_groups_reseg_score=[mask['score'] for mask in cleaned_groups_reseg]
     return list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score
 
-image=fnc.preprocessing_roulette(image, pre_para)
-
+#containers
+all_reseg=[]
 for ij_idx in clipij:
     start_loop = time.time()
     print(f'Segmenting clip: {ij_idx}')
@@ -317,3 +306,4 @@ for ij_idx in clipij:
     print('loop took: ', end_loop-start_loop)
 end_script = time.time()
 print('script took: ', end_script-start_script)
+print('First and second pass SAM completed. Output saved to '+OutDIR)

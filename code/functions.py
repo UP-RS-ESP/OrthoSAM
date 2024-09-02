@@ -686,3 +686,20 @@ def nms(lst_msk,lst_score):
     lst_msk_nms=[lst_msk[i] for i in keep]
     lst_score_nms=[lst_score[i] for i in keep]
     return lst_msk_nms,lst_score_nms
+
+def definte_clips(x,y,resample_factor,crop_size):
+    clipi=np.arange(0,(x*resample_factor)//crop_size+1,0.5)
+    clipj=np.arange(0,(y*resample_factor)//crop_size+1,0.5)
+    clipij=np.array(np.meshgrid(clipi, clipj)).T.reshape(-1,2)
+    return clipij
+
+def load_image(DataDIR,DSname,fid):
+    fn_img = glob.glob(DataDIR+DSname)
+    fn_img.sort()
+    if fn_img[fid][-3:]=='npy':
+        image=(np.load(fn_img[fid])*255).astype(np.uint8)
+    else:
+        image = cv2.imread(fn_img[fid])
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    print(fn_img[fid].split("/")[-1]+' imported')
+    return image
