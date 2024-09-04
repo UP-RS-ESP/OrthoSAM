@@ -61,7 +61,7 @@ pre_para={'Downsample': {'fxy':resample_factor},
         }
 try:#attempt to load saved init_para
     with open(OutDIR+'pre_para.json', 'r') as json_file:
-        init_para = json.load(json_file)
+        pre_para = json.load(json_file)
     print('Loaded preprocessing parameters from json')
     print(pre_para)
 except:#use defined init_para
@@ -96,8 +96,17 @@ else:
 sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH)
 sam.to(device=DEVICE)
 mask_generator = SamAutomaticMaskGenerator(sam)
-
-all_reseg=np.load(OutDIR+'all_mask_merged_windows.npy', allow_pickle=True)
+try:
+    all_reseg=np.load(OutDIR+'all_mask_merged_windows.npy', allow_pickle=True)
+except:
+    fn_save = glob.glob(OutDIR+'all_mask_merged_windows_*.npy')
+    fn_save.sort()
+    all_reseg=[]
+    for fn in fn_save[:-1]:
+        print(fn)
+        all_reseg+=np.load(fn, allow_pickle=True).tolist()
+    
+#ar_masks=all_reseg.astype(np.uint8)
 print(len(all_reseg),' mask(s) loaded')
 ar_masks=np.stack([mask['mask'].astype(np.uint8) for mask in all_reseg]).astype(np.uint8)
 
@@ -153,11 +162,11 @@ if len(list_of_no_mask_area_mask)>0:
         plt.plot(bx, by, '-b', linewidth=2.5)
         width, length=np.max(bx)-np.min(bx),np.max(by)-np.min(by)
         print(f'Void {i} width: {width} length: {length}')
-        if ((np.max([width,length])*0.9)<=crop_size):
+        if ((np.max([width,length]))<=(crop_size*0.9)):
             print(f'Downsample not necessary')
             reseg_fxy.append(1)
         else:
-            factor=int((np.max([length,width])*0.9)//crop_size)+1
+            factor=int((np.max([length,width]))//(crop_size*0.9))+1
             print(f'Downsampled by factor of {factor} required')
             reseg_fxy.append(factor)
     plt.title('Void in clean SAM masks')
@@ -170,11 +179,11 @@ if len(list_of_no_mask_area_mask)>0:
     plt.savefig(OutDIR+'void.png')
     plt.show()
 
-    if ((np.max([Big_width,Big_length])*0.9)<=crop_size):
+    if ((np.max([Big_width,Big_length]))<=(crop_size*0.9)):
         print(f'Downsample not necessary for all voids to fit in one go')
         reseg_fxy.append(1)
     else:
-        factor=int((np.max([Big_length,Big_width])*0.9)//crop_size)+1
+        factor=int((np.max([Big_length,Big_width]))//(crop_size*0.9))+1
         print(f'Downsampled by factor of {factor} required for all voids to fit in one go')
         reseg_fxy.append(factor)
 
@@ -320,11 +329,27 @@ if len(list_of_no_mask_area_mask)>0:
             del void_pointed_reseg_resized, void_pointed_reseg
 
 
+    id_mask = np.sum([ar_masks[i]*(i+1) for i in range(ar_masks.shape[0])],axis=0)
+    print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_id.npy...')
+    np.save(OutDIR+'all_mask_merged_windows_id',id_mask)
+    print('Saved')
     #saving mask
-    saving_void_filled=[]
-    for mask in ar_masks:
-        saving_void_filled.append({'mask':mask})
-    np.save(OutDIR+'all_reseg_mask_void_filled',np.hstack(saving_void_filled))
+    if ar_masks.shape[0]<1000:
+        print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_void_filled.npy...')
+        saving_merged=[]
+        for mask in range(ar_masks.shape[0]):
+            saving_merged.append({'mask':ar_masks[mask]})
+        np.save(OutDIR+'all_mask_merged_windows_void_filled.npy',saving_merged)
+    else:
+        batch_size=1000
+        batches=ar_masks.shape[0]//batch_size
+        print(f'Splitting to {batches} saves')
+        for i in range(batches):
+            saving_merged=[]
+            for msk in np.arange(i*1000,(i+1)*1000):
+                saving_merged.append({'mask':ar_masks[i]})
+            np.save(OutDIR+f'all_mask_merged_windows_void_filled_{i}.npy',saving_merged)
+    print('Saved')
 
     plt.figure(figsize=(20,20))
     plt.subplot(2,2,1)

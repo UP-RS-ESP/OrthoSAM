@@ -7,6 +7,7 @@ import time
 import sys
 import json
 from tqdm import tqdm
+import pickle
 
 start_script = time.time()
 
@@ -51,7 +52,7 @@ pre_para={'Downsample': {'fxy':resample_factor},
         }
 try:#attempt to load saved init_para
     with open(OutDIR+'pre_para.json', 'r') as json_file:
-        init_para = json.load(json_file)
+        pre_para = json.load(json_file)
     print('Loaded preprocessing parameters from json')
     print(pre_para)
 except:#use defined init_para
@@ -61,18 +62,20 @@ except:#use defined init_para
 image=fnc.preprocessing_roulette(image, pre_para)
 print('Resampled to: ', image.shape)
 
-print('Loading masks.....')
+print('Loading clips.....')
 all_reseg=np.load(OutDIR+'all_reseg_mask.npy', allow_pickle=True)
 print(len(all_reseg),' clips imported')
+nms_stops = [len(all_reseg) * i // 4 for i in range(1, 4)]
 
+msk_count=0
 try:
     #Merging windows
     Aggregate_masks_noedge=[]
     pred_iou_noedge=[]
-    for clip_window in tqdm(all_reseg,'Merging and resizing clips:', unit='clips'):
+    for w_count,clip_window in tqdm(enumerate(all_reseg),'Merging and resizing clips:', total=len(all_reseg), unit='clips'):
         i=clip_window['i']
         j=clip_window['j']
-        for mask,score in tqdm(zip(clip_window['mask'], clip_window['mask pred iou']), f'Merging and resizing masks in clip {i,j}:',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
+        for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in clip {i,j}:',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
             if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
                 resize=np.zeros(image.shape[:-1])
                 Valid_area=resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)].shape
@@ -82,18 +85,23 @@ try:
                     resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
                 Aggregate_masks_noedge.append(resize.astype(np.uint8))
                 pred_iou_noedge.append(score)
+                msk_count+=1
+        if w_count in nms_stops:
+            Aggregate_masks_noedge, pred_iou_noedge=fnc.nms(Aggregate_masks_noedge,pred_iou_noedge)
 except Exception as error:
     print("An exception occurred:", error)
 
-print(f'{len(Aggregate_masks_noedge)} masks found')
+print(f'{msk_count} masks found')
 Aggregate_masks_noedge_nms,_=fnc.nms(Aggregate_masks_noedge,pred_iou_noedge)
 print(f'NMS filtered, {len(Aggregate_masks_noedge_nms)} masks remains')
+del Aggregate_masks_noedge,pred_iou_noedge
 
 stacked_Aggregate_masks_noedge_nms = np.zeros_like(Aggregate_masks_noedge_nms[0], dtype=np.uint8)
-
+id_mask = np.zeros_like(Aggregate_masks_noedge_nms[0], dtype=np.uint16)
 # Sum in chunks
-for mask in Aggregate_masks_noedge_nms:
+for i,mask in enumerate(Aggregate_masks_noedge_nms):
     stacked_Aggregate_masks_noedge_nms += mask.astype(np.uint8)
+    id_mask[mask==1] = i
 
 plt.figure(figsize=(20,15))
 plt.subplot(1,3,1)
@@ -105,7 +113,7 @@ plt.subplot(1,3,2)
 plt.imshow(image)
 plt.imshow(stacked_Aggregate_masks_noedge_nms!=0,alpha=0.6)
 #plt.axis('off')
-plt.title('No edge non zeros', fontsize=20)
+plt.title(f'No edge non zeros, {len(Aggregate_masks_noedge_nms)} mask(s)', fontsize=20)
 plt.subplot(1,3,3)
 plt.imshow(image)
 plt.imshow(stacked_Aggregate_masks_noedge_nms>1,alpha=0.6)
@@ -115,12 +123,31 @@ plt.tight_layout()
 plt.savefig(OutDIR+'Merged_mask.png')
 plt.show()
 
-print('Saving masks.....')
-ar_masks=np.stack(Aggregate_masks_noedge_nms).astype(np.uint8)
-saving_merged=[]
-for mask in ar_masks:
-    saving_merged.append({'mask':mask})
-np.save(OutDIR+'all_mask_merged_windows',np.hstack(saving_merged))
+
+print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_id.npy...')
+np.save(OutDIR+'all_mask_merged_windows_id',id_mask)
+print('Saved')
+
+
+if len(Aggregate_masks_noedge_nms)<1000:
+    print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows.npy...')
+    saving_merged=[]
+    for mask in Aggregate_masks_noedge_nms:
+        saving_merged.append({'mask':mask})
+    np.save(OutDIR+'all_mask_merged_windows.npy',Aggregate_masks_noedge_nms)
+else:
+    batch_size=1000
+    batches=len(Aggregate_masks_noedge_nms)//batch_size+1
+    print(f'Splitting to {batches} saves')
+    for i in range(batches):
+        saving_merged=[]
+        if i!=batches:
+            for mask in Aggregate_masks_noedge_nms[i*batch_size:(i+1)*batch_size]:
+                saving_merged.append({'mask':mask})
+        else:
+            for mask in Aggregate_masks_noedge_nms[i*batch_size:]:
+                saving_merged.append({'mask':mask})
+        np.save(OutDIR+f'all_mask_merged_windows_{i}.npy',saving_merged)
 print('Saved')
 
 end_script = time.time()
