@@ -19,6 +19,7 @@ import time
 from skimage.morphology import binary_dilation
 import json
 import sys
+import pandas as pd
 
 start_script = time.time()
 
@@ -28,7 +29,9 @@ init_para={'OutDIR': '/DATA/vito/output/Ravi2_fnc_dw8/',
       'DatasetName': 'Ravi/*',
       'fid': 0,
       'crop_size': 1024,
-      'resample_factor': 1/8
+      'resample_factor': 1/8,
+      'dilation_size':15,
+      'min_size_factor':0.0001
       }
 
 try:#attempt to load saved init_para
@@ -49,6 +52,8 @@ fid=init_para.get('fid')
 #defining clips
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
+dilation_size=init_para.get('dilation_size')
+min_size_factor=init_para.get('min_size_factor')
 
 image=fnc.load_image(DataDIR,DSname,fid)
 print('Image size:', image.shape)
@@ -72,10 +77,9 @@ except:#use defined init_para
 image=fnc.preprocessing_roulette(image, pre_para)
 print('Preprocessing finished')
 #process related var
-#original 5,5
-dilation_size=15
+#original 5,5dilation_size=15
 #for 3000x3000, 10000    ####need to be adaptive, consider 10% of image size
-min_void_size=image.shape[0]*image.shape[1]*0.001
+min_void_size=image.shape[0]*image.shape[1]*min_size_factor
 
 #setup SAM
 MODEL_TYPE = "vit_h"
@@ -96,25 +100,26 @@ else:
 sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH)
 sam.to(device=DEVICE)
 mask_generator = SamAutomaticMaskGenerator(sam)
-try:
-    all_reseg=np.load(OutDIR+'all_mask_merged_windows.npy', allow_pickle=True)
-except:
-    fn_save = glob.glob(OutDIR+'all_mask_merged_windows_*.npy')
-    fn_save.sort()
-    all_reseg=[]
-    for fn in fn_save[:-1]:
-        print(fn)
-        all_reseg+=np.load(fn, allow_pickle=True).tolist()
+#try:
+#    all_reseg=np.load(OutDIR+'all_mask_merged_windows.npy', allow_pickle=True)
+#except:
+#    fn_save = glob.glob(OutDIR+'all_mask_merged_windows_*.npy')
+#    fn_save.sort()
+#    all_reseg=[]
+#    for fn in fn_save[:-1]:
+#        print(fn)
+#        all_reseg+=np.load(fn, allow_pickle=True).tolist()
     
 #ar_masks=all_reseg.astype(np.uint8)
-print(len(all_reseg),' mask(s) loaded')
-ar_masks=np.stack([mask['mask'].astype(np.uint8) for mask in all_reseg]).astype(np.uint8)
+ar_masks=np.array(np.load(OutDIR+'all_mask_merged_windows_id.npy', allow_pickle=True))
+print(np.max(ar_masks),' mask(s) loaded')
+
 
 #identify void
 kernel = np.ones((dilation_size, dilation_size), np.uint8)
 #stacked_Aggregate_masks_noedge_nms_eroded=binary_dilation(stacked_Aggregate_masks_noedge_nms>=1, kernel)
 #no_mask_area=label(stacked_Aggregate_masks_noedge_nms_eroded,1,False,1)
-stacked_Aggregate_masks_noedge_nms_eroded=binary_dilation(np.sum(ar_masks,axis=0)>=1, kernel)
+stacked_Aggregate_masks_noedge_nms_eroded=binary_dilation(ar_masks>=1, kernel)
 no_mask_area=label(stacked_Aggregate_masks_noedge_nms_eroded,1,False,1)
 
 regions=regionprops(no_mask_area)
@@ -162,11 +167,11 @@ if len(list_of_no_mask_area_mask)>0:
         plt.plot(bx, by, '-b', linewidth=2.5)
         width, length=np.max(bx)-np.min(bx),np.max(by)-np.min(by)
         print(f'Void {i} width: {width} length: {length}')
-        if ((np.max([width,length]))<=(crop_size*0.9)):
+        if ((np.max([width,length]))<=(crop_size*0.8)):
             print(f'Downsample not necessary')
             reseg_fxy.append(1)
         else:
-            factor=int((np.max([length,width]))//(crop_size*0.9))+1
+            factor=int((np.max([length,width]))//(crop_size*0.8))+1
             print(f'Downsampled by factor of {factor} required')
             reseg_fxy.append(factor)
     plt.title('Void in clean SAM masks')
@@ -179,11 +184,11 @@ if len(list_of_no_mask_area_mask)>0:
     plt.savefig(OutDIR+'void.png')
     plt.show()
 
-    if ((np.max([Big_width,Big_length]))<=(crop_size*0.9)):
+    if ((np.max([Big_width,Big_length]))<=(crop_size*0.8)):
         print(f'Downsample not necessary for all voids to fit in one go')
         reseg_fxy.append(1)
     else:
-        factor=int((np.max([Big_length,Big_width]))//(crop_size*0.9))+1
+        factor=int((np.max([Big_length,Big_width]))//(crop_size*0.8))+1
         print(f'Downsampled by factor of {factor} required for all voids to fit in one go')
         reseg_fxy.append(factor)
 
@@ -209,10 +214,9 @@ if len(list_of_no_mask_area_mask)>0:
         image_dw=fnc.preprocessing_roulette(image, pre_para)
 
         #define the window
-        xmin=all_void_x0*fxy-512
-        ymin=all_void_y0*fxy-512
-        ji=xmin/1024
-        ii=ymin/1024
+        xmin,ymin=x0*fxy-crop_size/2,y0*fxy-crop_size/2
+        ji=xmin/crop_size
+        ii=ymin/crop_size
         if ji<0:
             ji=0
         if ii<0:
@@ -221,7 +225,7 @@ if len(list_of_no_mask_area_mask)>0:
         #prepare image
         pre_para={'Downsample': {'fxy':fxy},
                 'Crop': {'crop size': crop_size, 'j':ji,'i':ii},
-                'Gaussian': {'kernel size':3}
+                #'Gaussian': {'kernel size':3}
                 # #'CLAHE':{'clip limit':2}#
                 # #'Downsample': {'fxy':4},
                 # #'Buffering': {'crop size': crop_size}
@@ -262,23 +266,24 @@ if len(list_of_no_mask_area_mask)>0:
                 else:
                     resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
                 #upsampling back to original resolution
-                resize=fnc.downsample_fnc(resize,{'target_size':image.shape[:-1][::-1]}).astype(np.uint8)
+                resize=fnc.resample_fnc(resize,{'target_size':image.shape[:-1][::-1]}).astype('bool')
                 void_pointed_reseg_resized.append(resize)
-        if len(void_pointed_reseg_resized)!=0:
-            ar_masks=np.vstack((ar_masks,np.stack(void_pointed_reseg_resized)))
+        #if len(void_pointed_reseg_resized)!=0:
+        #    ar_masks=np.vstack((ar_masks,np.stack(void_pointed_reseg_resized)))
         #list_of_mask_centroid = [fnc.get_centroid(ar_masks[i]) for i in range(ar_masks.shape[0])]
-        del void_pointed_reseg_resized, void_pointed_reseg
+        del void_pointed_reseg
     else:
         print('Performing third pass SAM per void')
+        #void_pointed_reseg=[]
+        void_pointed_reseg_resized=[]
         for i in range(ar_no_mask_area.shape[0]):
-            void_pointed_reseg=[]
             y0, x0 =list_of_no_mask_area_centroid[i]
             fxy=1/reseg_fxy[i]
             pre_para={'Downsample': {'fxy':fxy}}
             image_dw=fnc.preprocessing_roulette(image, pre_para)
-            xmin,ymin=x0*fxy-512,y0*fxy-512
-            ji=xmin/1024
-            ii=ymin/1024
+            xmin,ymin=x0*fxy-crop_size/2,y0*fxy-crop_size/2
+            ji=xmin/crop_size
+            ii=ymin/crop_size
             if ji<0:
                 ji=0
             if ii<0:
@@ -287,7 +292,7 @@ if len(list_of_no_mask_area_mask)>0:
             #prepare image
             pre_para={'Downsample': {'fxy':fxy},
                     'Crop': {'crop size': crop_size, 'j':ji,'i':ii},
-                    'Gaussian': {'kernel size':3}
+                    #'Gaussian': {'kernel size':3}
                     # #'CLAHE':{'clip limit':2}#
                     # #'Downsample': {'fxy':4},
                     # #'Buffering': {'crop size': crop_size}
@@ -310,70 +315,162 @@ if len(list_of_no_mask_area_mask)>0:
                 point_labels=input_label,
                 multimask_output=True,)
             best_idx=np.argmax(scores)#pick the mask with highest score
-            void_pointed_reseg.append(partmasks[best_idx])
-
-            void_pointed_reseg_resized=[]
-            for mask in void_pointed_reseg:
-                if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
-                    resize=np.zeros(image_dw.shape[:-1])
-                    Valid_area=resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)].shape
-                    if Valid_area==(crop_size,crop_size):
-                        resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)]=mask
-                    else:
-                        resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
-                    resize=fnc.downsample_fnc(resize,{'target_size':image.shape[:-1][::-1]}).astype(np.uint8)
-                    void_pointed_reseg_resized.append(resize)
-            if len(void_pointed_reseg_resized)!=0:
-                ar_masks=np.vstack((ar_masks,np.stack(void_pointed_reseg_resized)))
+            #void_pointed_reseg.append(partmasks[best_idx])
+            mask=partmasks[best_idx]
+            
+            #for mask in void_pointed_reseg:
+            if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
+                resize=np.zeros(image_dw.shape[:-1])
+                Valid_area=resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)].shape
+                if Valid_area==(crop_size,crop_size):
+                    resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)]=mask
+                else:
+                    resize[int(crop_size*ii):int(crop_size*ii+crop_size),int(crop_size*ji):int(crop_size*ji+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
+                resize=fnc.resample_fnc(resize,{'target_size':image.shape[:-1][::-1]}).astype('bool')
+                void_pointed_reseg_resized.append(resize)
+            #if len(void_pointed_reseg_resized)!=0:
+            #    ar_masks=np.vstack((ar_masks,np.stack(void_pointed_reseg_resized)))
             #list_of_mask_centroid = [fnc.get_centroid(ar_masks[i]) for i in range(ar_masks.shape[0])]
-            del void_pointed_reseg_resized, void_pointed_reseg
 
 
-    id_mask = np.sum([ar_masks[i]*(i+1) for i in range(ar_masks.shape[0])],axis=0)
-    print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_id.npy...')
-    np.save(OutDIR+'all_mask_merged_windows_id',id_mask)
-    print('Saved')
-    #saving mask
-    if ar_masks.shape[0]<1000:
-        print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_void_filled.npy...')
-        saving_merged=[]
-        for mask in range(ar_masks.shape[0]):
-            saving_merged.append({'mask':ar_masks[mask]})
-        np.save(OutDIR+'all_mask_merged_windows_void_filled.npy',saving_merged)
-    else:
-        batch_size=1000
-        batches=ar_masks.shape[0]//batch_size
-        print(f'Splitting to {batches} saves')
-        for i in range(batches):
+    if len(void_pointed_reseg_resized)!=0:
+        id_mask = np.sum([void_pointed_reseg_resized[i]*(i+1) for i in range(len(void_pointed_reseg_resized))],axis=0)
+        print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_id.npy...')
+        np.save(OutDIR+'all_mask_thid_pass_id',id_mask)
+        print('Saved')
+        #saving mask
+        if len(void_pointed_reseg_resized)<1000:
+            print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_void_filled.npy...')
             saving_merged=[]
-            for msk in np.arange(i*1000,(i+1)*1000):
-                saving_merged.append({'mask':ar_masks[i]})
-            np.save(OutDIR+f'all_mask_merged_windows_void_filled_{i}.npy',saving_merged)
-    print('Saved')
+            for mask in range(len(void_pointed_reseg_resized)):
+                saving_merged.append({'mask':void_pointed_reseg_resized[mask].astype('bool')})
+            np.save(OutDIR+'all_mask_third_pass.npy',saving_merged)
+        else:
+            batch_size=1000
+            batches=len(void_pointed_reseg_resized)//batch_size+1
+            print(f'Splitting to {batches} saves')
+            for i in range(batches):
+                saving_merged=[]
+                if i!=batches:
+                    for msk in np.arange(i*1000,(i+1)*1000):
+                        saving_merged.append({'mask':void_pointed_reseg_resized[i].astype('bool')})
+                else:
+                    for msk in np.arange(i*1000,len(void_pointed_reseg_resized)):
+                        saving_merged.append({'mask':void_pointed_reseg_resized[i].astype('bool')})
+                np.save(OutDIR+f'all_mask_third_pass_{i}.npy',saving_merged)
+        print('Saved')
 
-    plt.figure(figsize=(20,20))
-    plt.subplot(2,2,1)
-    plt.imshow(image)
-    plt.imshow(np.sum(ar_masks,axis=0),alpha=0.6)
-    plt.axis('off')
-    plt.title(f'No edge nms Stacked after\nmerging downsampled mask\nmax overlap: {np.max(np.sum(ar_masks,axis=0))}', fontsize=20)
-    plt.subplot(2,2,2)
-    plt.imshow(image)
-    plt.imshow(np.sum(ar_masks,axis=0)>0,alpha=0.6)
-    plt.axis('off')
-    plt.title('Masked area after nms and\nmerging downsampled mask', fontsize=20)
-    plt.subplot(2,2,3)
-    plt.imshow(np.sum([ar_masks[i]*(i+1) for i in range(ar_masks.shape[0])],axis=0), cmap='nipy_spectral')
-    plt.axis('off')
-    plt.title(f'Mask area after nms and\nmerging downsampled mask\n No. of mask: {ar_masks.shape[0]}', fontsize=20)
-    plt.subplot(2,2,4)
-    plt.imshow(image)
-    plt.imshow(np.sum(ar_masks,axis=0)>1,alpha=0.6)
-    plt.axis('off')
-    plt.title('Overlapping area after nms and\nmerging downsampled mask', fontsize=20)
-    plt.tight_layout()
-    plt.savefig(OutDIR+'Merged_masks_withvoid.png')
-    plt.show()
+        plt.figure(figsize=(20,20))
+        plt.subplot(2,2,1)
+        plt.imshow(image)
+        plt.imshow((np.sum(void_pointed_reseg_resized,axis=0)),alpha=0.6)
+        plt.axis('off')
+        plt.title(f'No edge nms Stacked after\nmerging downsampled mask\nmax overlap: {np.max(np.sum(void_pointed_reseg_resized,axis=0))}', fontsize=20)
+        plt.subplot(2,2,2)
+        plt.imshow(image)
+        plt.imshow((ar_masks+np.sum(void_pointed_reseg_resized,axis=0))>0,alpha=0.6)
+        plt.axis('off')
+        plt.title('Masked area after nms and\nmerging downsampled mask', fontsize=20)
+        plt.subplot(2,2,3)
+        plt.imshow(ar_masks+id_mask, cmap='nipy_spectral')
+        plt.axis('off')
+        plt.title(f'Mask area after nms and\nmerging downsampled mask\n No. of mask: {np.max(ar_masks)+len(void_pointed_reseg_resized)}', fontsize=20)
+        plt.subplot(2,2,4)
+        plt.imshow(image)
+        plt.imshow((np.sum(void_pointed_reseg_resized,axis=0)+ar_masks!=0)>1,alpha=0.6)
+        plt.axis('off')
+        plt.title('Overlapping area after nms and\nmerging downsampled mask', fontsize=20)
+        plt.tight_layout()
+        plt.savefig(OutDIR+'Merged_masks_withvoid.png')
+        plt.show()
+
+        #calculate stats and save
+        print('Calculating stats')
+        stats=fnc.create_stats_df(void_pointed_reseg_resized)
+        loaded_stats = pd.read_hdf(OutDIR + 'stats_df.h5')
+        max_label = loaded_stats['label'].max()
+        stats['label'] += max_label
+        stats = pd.concat([stats, loaded_stats], ignore_index=True)
+        stats.to_hdf(OutDIR+'stats_df_thirdpass.h5', key='df', mode='w')
+        print('Stats saved')
+
+        from scipy.stats import gaussian_kde
+        loged = True 
+
+        plt.figure(figsize=(16, 10))
+        plt.subplot(2,2,1)
+        for df in [stats]:
+            if loged:
+                plt.xscale('log')
+            data = df['area']
+
+            kde = gaussian_kde(data)
+            x = np.linspace(min(data), max(data), 1000)
+            kde_values = kde(x)
+            plt.plot(x, kde_values)
+
+        plt.xlabel('Area (pixel)')
+        plt.ylabel('Density')
+        plt.title('Density Plot of Area')
+        plt.grid()
+
+        plt.subplot(2,2,2)
+        loged = True
+        for df in [stats]:
+            if loged:
+                plt.xscale('log')
+                #plt.yscale('log')
+            data = df['area']
+
+            frequencies, bin_edges = np.histogram(data, bins=30)
+            bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
+            plt.plot(bin_midpoints, frequencies)
+
+        plt.xlabel('Area (pixel)')
+        plt.ylabel('Frequency')
+        plt.title('Frequency Plot of Area')
+        plt.grid()
+
+        loged=False
+        plt.subplot(2,2,3)
+        for df in [stats]:
+            if loged:
+                plt.xscale('log')
+            data = df['area']
+
+            kde = gaussian_kde(data)
+            x = np.linspace(min(data), max(data), 1000)
+            kde_values = kde(x)
+            plt.plot(x, kde_values)
+
+        plt.xlabel('Area (pixel)')
+        plt.ylabel('Density')
+        plt.title('Density Plot of Area (nms)')
+        plt.grid()
+
+        plt.subplot(2,2,4)
+        loged = False
+        for df in [stats]:
+            if loged:
+                #plt.xscale('log')
+                plt.yscale('log')
+            data = df['area']
+
+            frequencies, bin_edges = np.histogram(data, bins=30)
+            bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
+            plt.plot(bin_midpoints, frequencies)
+
+        plt.xlabel('Area (pixel)')
+        plt.ylabel('Frequency')
+        plt.title('Frequency Plot of Area (nms)')
+        plt.legend()
+        plt.grid()
+        plt.suptitle(f'Thid_pass { len(np.unique(stats))} object(s)')
+        plt.tight_layout()
+        plt.savefig(OutDIR+'size_distribution_thidpass.png')
+        plt.show()
+    else:
+        print('Void(s) identified but no valid mask was found')
 else:
     print('No void found. Minimum size threshold or dilation parameter may need to be adjusted')
 end_script = time.time()

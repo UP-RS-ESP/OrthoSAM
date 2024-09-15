@@ -65,8 +65,12 @@ print('Resampled to: ', image.shape)
 print('Loading clips.....')
 all_reseg=np.load(OutDIR+'all_reseg_mask.npy', allow_pickle=True)
 print(len(all_reseg),' clips imported')
-nms_stops = [len(all_reseg) * i // 4 for i in range(1, 4)]
-
+#nms_stops = [len(all_reseg) * i // 10 for i in range(1, 10)]
+#nms_stops = np.arange(20,len(all_reseg),20).tolist()
+if np.max(image.shape[:2])>1024:
+    shrink_mask=True
+else:
+    shrink_mask=False
 msk_count=0
 try:
     #Merging windows
@@ -83,11 +87,14 @@ try:
                     resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask
                 else:
                     resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
-                Aggregate_masks_noedge.append(resize.astype(np.uint8))
+                if shrink_mask:
+                    Aggregate_masks_noedge.append(fnc.resample_fnc(resize,{'target_size': (1024,1024)}).astype('bool'))
+                else:
+                    Aggregate_masks_noedge.append(resize.astype('bool'))
                 pred_iou_noedge.append(score)
                 msk_count+=1
-        if w_count in nms_stops:
-            Aggregate_masks_noedge, pred_iou_noedge=fnc.nms(Aggregate_masks_noedge,pred_iou_noedge)
+        #if w_count in nms_stops:
+        Aggregate_masks_noedge, pred_iou_noedge=fnc.nms(Aggregate_masks_noedge,pred_iou_noedge)
 except Exception as error:
     print("An exception occurred:", error)
 
@@ -100,7 +107,7 @@ stacked_Aggregate_masks_noedge_nms = np.zeros_like(Aggregate_masks_noedge_nms[0]
 id_mask = np.zeros_like(Aggregate_masks_noedge_nms[0], dtype=np.uint16)
 # Sum in chunks
 for i,mask in enumerate(Aggregate_masks_noedge_nms):
-    stacked_Aggregate_masks_noedge_nms += mask.astype(np.uint8)
+    stacked_Aggregate_masks_noedge_nms += mask#.astype(np.uint8)
     id_mask[mask==1] = i
 
 plt.figure(figsize=(20,15))
@@ -123,6 +130,87 @@ plt.tight_layout()
 plt.savefig(OutDIR+'Merged_mask.png')
 plt.show()
 
+#calculate stats and save
+print('Calculating stats')
+stats=fnc.create_stats_df(Aggregate_masks_noedge_nms)
+stats.to_hdf(OutDIR+'stats_df.h5', key='df', mode='w')
+print('Stats saved')
+
+from scipy.stats import gaussian_kde
+loged = True 
+
+plt.figure(figsize=(16, 10))
+plt.subplot(2,2,1)
+for df in [stats]:
+    if loged:
+        plt.xscale('log')
+    data = df['area']
+
+    kde = gaussian_kde(data)
+    x = np.linspace(min(data), max(data), 1000)
+    kde_values = kde(x)
+    plt.plot(x, kde_values)
+
+plt.xlabel('Area (pixel)')
+plt.ylabel('Density')
+plt.title('Density Plot of Area')
+plt.grid()
+
+plt.subplot(2,2,2)
+loged = True
+for df in [stats]:
+    if loged:
+        plt.xscale('log')
+        #plt.yscale('log')
+    data = df['area']
+
+    frequencies, bin_edges = np.histogram(data, bins=30)
+    bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
+    plt.plot(bin_midpoints, frequencies)
+
+plt.xlabel('Area (pixel)')
+plt.ylabel('Frequency')
+plt.title('Frequency Plot of Area')
+plt.grid()
+
+loged=False
+plt.subplot(2,2,3)
+for df in [stats]:
+    if loged:
+        plt.xscale('log')
+    data = df['area']
+
+    kde = gaussian_kde(data)
+    x = np.linspace(min(data), max(data), 1000)
+    kde_values = kde(x)
+    plt.plot(x, kde_values)
+
+plt.xlabel('Area (pixel)')
+plt.ylabel('Density')
+plt.title('Density Plot of Area (nms)')
+plt.grid()
+
+plt.subplot(2,2,4)
+loged = False
+for df in [stats]:
+    if loged:
+        #plt.xscale('log')
+        plt.yscale('log')
+    data = df['area']
+
+    frequencies, bin_edges = np.histogram(data, bins=30)
+    bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
+    plt.plot(bin_midpoints, frequencies)
+
+plt.xlabel('Area (pixel)')
+plt.ylabel('Frequency')
+plt.title('Frequency Plot of Area (nms)')
+plt.legend()
+plt.grid()
+plt.suptitle(f'{ len(np.unique(stats))} object(s)')
+plt.tight_layout()
+plt.savefig(OutDIR+'size_distribution.png')
+plt.show()
 
 print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_id.npy...')
 np.save(OutDIR+'all_mask_merged_windows_id',id_mask)
@@ -133,7 +221,7 @@ if len(Aggregate_masks_noedge_nms)<1000:
     print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows.npy...')
     saving_merged=[]
     for mask in Aggregate_masks_noedge_nms:
-        saving_merged.append({'mask':mask})
+        saving_merged.append({'mask':mask.astype('bool')})
     np.save(OutDIR+'all_mask_merged_windows.npy',Aggregate_masks_noedge_nms)
 else:
     batch_size=1000
@@ -143,10 +231,10 @@ else:
         saving_merged=[]
         if i!=batches:
             for mask in Aggregate_masks_noedge_nms[i*batch_size:(i+1)*batch_size]:
-                saving_merged.append({'mask':mask})
+                saving_merged.append({'mask':mask.astype('bool')})
         else:
             for mask in Aggregate_masks_noedge_nms[i*batch_size:]:
-                saving_merged.append({'mask':mask})
+                saving_merged.append({'mask':mask.astype('bool')})
         np.save(OutDIR+f'all_mask_merged_windows_{i}.npy',saving_merged)
 print('Saved')
 

@@ -26,7 +26,9 @@ init_para={'OutDIR': '/DATA/vito/output/Ravi2_fnc_dw8/',
       'DatasetName': 'Ravi/*',
       'fid': 0,
       'crop_size': 1024,
-      'resample_factor': 1/8
+      'resample_factor': 1/8,
+      'point_per_side': 24,
+      'window_step':0.5
       }
 try:#attempt to load saved init_para
     OutDIR=sys.argv[1]
@@ -46,6 +48,8 @@ OutDIR=init_para.get('OutDIR')
 DataDIR=init_para.get('DataDIR')
 DSname=init_para.get('DatasetName')
 fid=init_para.get('fid')
+pps=init_para.get('point_per_side')
+window_step=init_para.get('window_step')
 
 #defining clips
 crop_size=init_para.get('crop_size')
@@ -70,7 +74,7 @@ except:#use defined init_para
 #load image
 image=fnc.load_image(DataDIR,DSname,fid)
 print('Image size:', image.shape)
-clipij=fnc.definte_clips(image.shape[0],image.shape[1],resample_factor,crop_size)
+clipij=fnc.define_clips(image.shape[0],image.shape[1],resample_factor,crop_size,window_step)
 image=fnc.preprocessing_roulette(image, pre_para)
 
 #setup SAM
@@ -112,7 +116,8 @@ def filter_by_pred_iou_and_size_per_seedpoint(masks,size_threshold=0.4,crop_size
             # if mask is very large compared to size of the image (credit:segment everygrain) modified from 0.1 to 0.4
             if mask_area / (crop_size ** 2) <= size_threshold:
                 break
-            pick += 1
+            else:
+                pick += 1
         if pick<len(idx):
             highest_pred_iou_by_point.append(masks[idx[pick]+i0])
         i+=1
@@ -194,11 +199,14 @@ def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded):
             list_of_nooverlap_mask=np.setdiff1d(np.arange(len(list_of_masks)), all_grouped_masks)
         else:
             list_of_nooverlap_mask=[]
-    else:
+    elif len(unique_groups_thresholded)>0:
         cleaned_groups=unique_groups_thresholded
         all_grouped_masks=np.unique(np.hstack(cleaned_groups))
         list_of_nooverlap_mask=np.setdiff1d(np.arange(len(list_of_masks)), all_grouped_masks)
         #list_of_nooverlap_mask=np.unique(np.hstack(unique_groups_thresholded))
+    else:
+        cleaned_groups=None
+        list_of_nooverlap_mask=np.arange(len(list_of_masks))
     return cleaned_groups, list_of_nooverlap_mask
 
 def Guided_second_pass_SAM(cleaned_groups,tm=0.5,ts=0.5):
@@ -230,7 +238,7 @@ def Guided_second_pass_SAM(cleaned_groups,tm=0.5,ts=0.5):
                 best_idx=np.argmax(scores)#pick the mask with highest score
                 cleaned_groups_reseg.append({'mask':partmasks[best_idx],'score':scores[best_idx],'logit':logits[best_idx],'group':k})
     
-    list_of_cleaned_groups_reseg_masks = [fnc.clean_mask(mask['mask'].astype(np.uint8)) for mask in cleaned_groups_reseg]
+    list_of_cleaned_groups_reseg_masks = [fnc.clean_mask(mask['mask'].astype('bool')) for mask in cleaned_groups_reseg]
     list_of_cleaned_groups_reseg_score=[mask['score'] for mask in cleaned_groups_reseg]
     return list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score
 
@@ -250,60 +258,86 @@ for ij_idx in clipij:
                 #'Buffering': {'crop size': crop_size}
                 }
         temp_image=fnc.preprocessing_roulette(image, pre_para)
-        if (temp_image.shape[0]>500 and temp_image.shape[1]>500):
-            #clear gpu ram
-            gc.collect()
-            torch.cuda.empty_cache()
+        if (temp_image.shape[0]>(crop_size//4) and temp_image.shape[1]>(crop_size//4)):
+            if len(np.unique(temp_image))>1:
+                #clear gpu ram
+                gc.collect()
+                torch.cuda.empty_cache()
 
-            #SAM segmentation
-            mask_generator = SamAutomaticMaskGenerator(
-                model=sam,
-                points_per_side=24,
-                pred_iou_thresh=0,
-                stability_score_thresh=0,#iou by varying cutoff in binary conversion
-                box_nms_thresh=0.3,#The box IoU cutoff used by non-maximal suppression to filter duplicate masks
-                crop_n_layers=0,#cut into 2**n crops
-                crop_nms_thresh=0,#The box IoU cutoff used by non-maximal suppression to filter duplicate masks between crops
-                crop_n_points_downscale_factor=1,
-                crop_overlap_ratio=0,
-                #min_mask_region_area=2000,
-            )
-            predictor = SamPredictor(sam)
-            predictor.set_image(temp_image)
+                #SAM segmentation
+                mask_generator = SamAutomaticMaskGenerator(
+                    model=sam,
+                    points_per_side=pps,
+                    pred_iou_thresh=0,
+                    stability_score_thresh=0,#iou by varying cutoff in binary conversion
+                    box_nms_thresh=0.3,#The box IoU cutoff used by non-maximal suppression to filter duplicate masks
+                    crop_n_layers=0,#cut into 2**n crops
+                    crop_nms_thresh=0,#The box IoU cutoff used by non-maximal suppression to filter duplicate masks between crops
+                    crop_n_points_downscale_factor=1,
+                    crop_overlap_ratio=0,
+                    #min_mask_region_area=2000,
+                )
+                predictor = SamPredictor(sam)
+                predictor.set_image(temp_image)
 
-            with torch.no_grad():
-                masks = mask_generator.generate(temp_image)
-            print('First pass SAM: ', len(masks),' mask(s) found')
+                with torch.no_grad():
+                    masks = mask_generator.generate(temp_image)
+                print('First pass SAM: ', len(masks),' mask(s) found')
 
-            #post processing
-            #filter output mask per point by select highest pred iou mask
-            masks=filter_by_pred_iou_and_size_per_seedpoint(masks)
-            print('Filtered by highest predicted iou per seed point, ', len(masks),' mask(s) remains')
+                #post processing
+                #filter output mask per point by select highest pred iou mask
+                masks=filter_by_pred_iou_and_size_per_seedpoint(masks)
+                print('Filtered by highest predicted iou per seed point, ', len(masks),' mask(s) remains')
 
-            list_of_pred_iou = [mask['predicted_iou'] for mask in masks]
-            list_of_masks = [fnc.clean_mask(mask['segmentation'].astype(np.uint8)) for mask in masks]#remove small disconnected parts
-            #grouping overlaps
-            group_overlap_area, unique_groups, list_overlap = Groupping_masks(list_of_masks)
-            unique_groups_thresholded = filter_groupping_by_intersection(group_overlap_area,unique_groups, list_overlap)
-            cleaned_groups, list_of_nooverlap_mask = checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded)
-            list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = Guided_second_pass_SAM(cleaned_groups)
-            list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
-            print('Found ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the clip')
-            #saving outputs
-            all_reseg.append({'mask':list_of_cleaned_groups_reseg_masks,
-                            'nms mask':list_of_cleaned_groups_reseg_masks_nms,
-                            'mask pred iou':list_of_cleaned_groups_reseg_score,
-                            'nms mask pred iou': list_of_cleaned_groups_reseg_score_nms,
-                            'i':ii,
-                            'j':ji,
-                            'crop size':crop_size})
-            np.save(OutDIR+'all_reseg_mask',np.hstack(all_reseg))
+                list_of_pred_iou = [mask['predicted_iou'] for mask in masks]
+                list_of_masks = [fnc.clean_mask(mask['segmentation'].astype('bool')) for mask in masks]#remove small disconnected parts
+                no_area_after_cleaning=np.array([np.sum(mask)==0 for mask in list_of_masks])
+                if np.any(no_area_after_cleaning):
+                    list_of_masks = [mask for mask, keep in zip(list_of_masks, ~no_area_after_cleaning) if keep]
+                    list_of_pred_iou = [iou for iou, keep in zip(list_of_pred_iou, ~no_area_after_cleaning) if keep]
+                #remove background/edge mask
+                flattened_rgb=np.sum(temp_image,axis=2)
+                not_background_mask=np.array([np.any(flattened_rgb[mask.astype('bool')]>0) for mask in list_of_masks])
+                if not np.all(not_background_mask):
+                    list_of_masks = [mask for mask, keep in zip(list_of_masks, not_background_mask) if keep]
+                    list_of_pred_iou = [mask for mask, keep in zip(list_of_pred_iou, not_background_mask) if keep]
+                    print('Background masks removed')
+
+                if len(list_of_masks)>0:
+                    #grouping overlaps
+                    group_overlap_area, unique_groups, list_overlap = Groupping_masks(list_of_masks)
+                    unique_groups_thresholded = filter_groupping_by_intersection(group_overlap_area,unique_groups, list_overlap)
+                    cleaned_groups, list_of_nooverlap_mask = checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded)
+                    if cleaned_groups:
+                        list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = Guided_second_pass_SAM(cleaned_groups)
+                        if len(list_of_nooverlap_mask)>0:
+                            for m in list_of_nooverlap_mask:
+                                list_of_cleaned_groups_reseg_masks.append(list_of_masks[m].astype('bool'))
+                                list_of_cleaned_groups_reseg_score.append(list_of_pred_iou[m])
+                            list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
+                        print('Found ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the clip')
+                    else:
+                        list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = list_of_masks, list_of_pred_iou
+                        list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
+                    #saving outputs
+                    all_reseg.append({#'mask':list_of_cleaned_groups_reseg_masks,
+                                    'nms mask':list_of_cleaned_groups_reseg_masks_nms,
+                                    #'mask pred iou':list_of_cleaned_groups_reseg_score,
+                                    'nms mask pred iou': list_of_cleaned_groups_reseg_score_nms,
+                                    'i':ii,
+                                    'j':ji,
+                                    'crop size':crop_size})
+                else:
+                    print('No valid mask were found')
+            else:
+                print('This crop is bacground/edge')
         else:
             print('This crop is too small')            
     else:
         print('Exceeded image boundary')
     end_loop = time.time()
     print('loop took: ', end_loop-start_loop)
+np.save(OutDIR+'all_reseg_mask',np.hstack(all_reseg))
 end_script = time.time()
 print('script took: ', end_script-start_script)
 print('First and second pass SAM completed. Output saved to '+OutDIR)

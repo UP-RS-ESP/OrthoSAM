@@ -392,7 +392,7 @@ def Lpull_fnc(input, para_in):
     output = cv2.cvtColor(merged_lab, cv2.COLOR_LAB2RGB)
     return output
 
-def downsample_fnc(input, para_in):
+def resample_fnc(input, para_in):
     para={'fxy':1,
           'method': None,
           'target_size': (0, 0)}
@@ -418,7 +418,7 @@ def downsample_fnc(input, para_in):
         else:
             output=cv2.resize(input.astype(np.uint8), (0, 0), fx = fxy, fy = fxy)
     else:
-        print('Not downsampling')
+        print('Not resampling')
         output=input
     return output
 
@@ -452,7 +452,7 @@ def load_roulette(input, process, para_in):
     elif process=='Lpull':
         output = Lpull_fnc(input,para_in)
     elif process=='Downsample':
-        output = downsample_fnc(input,para_in)
+        output = resample_fnc(input,para_in)
     elif process=='Buffering':
         output = buffering_fnc(input,para_in)
     else:
@@ -642,14 +642,25 @@ def find_bounding_boxes(binary_mask):
 
 def create_stats_df(masks):
     if type(masks)==np.ndarray:
-        ids=masks.shape[0]
+        if len(masks.shape)==3:
+            max_id=masks.shape[0]
+            ids=np.arange(max_id)
+            from_id=False
+        else:
+            ids=np.unique(masks)
+            from_id=True
     elif type(masks)==list:
-        ids=len(masks)
+        max_id=len(masks)
+        ids=np.arange(max_id)
+        from_id=False
     all_stats=[]
 
     
-    for i in range(ids):
-        label_img = label(masks[i])
+    for i in ids:
+        if not from_id:
+            label_img = label(masks[i])
+        else:
+            label_img = label(masks==i)
         l = len(np.unique(label_img))
 
         regions = regionprops(label_img)
@@ -660,36 +671,40 @@ def create_stats_df(masks):
             regions = regionprops(label_img)
             # Sort regions by area
             regions = sorted(regions, key=lambda x: x.area, reverse=True)
-        y0, x0=regions[0].centroid
+        if len(regions)>0:
+            y0, x0=regions[0].centroid
 
-        all_stats.append({'label':i,'area':regions[0].area
-                            ,'centroid y':y0,'centroid x':x0
-                            , 'major axis length': regions[0].axis_major_length
-                            , 'minor axis length': regions[0].axis_minor_length
-                            , 'orientation': regions[0].orientation
-                            , 'perimeter': regions[0].perimeter
-                            , 'bbox':regions[0].bbox})
+            all_stats.append({'label':i,'area':regions[0].area
+                                ,'centroid y':y0,'centroid x':x0
+                                , 'major axis length': regions[0].axis_major_length
+                                , 'minor axis length': regions[0].axis_minor_length
+                                , 'orientation': regions[0].orientation
+                                , 'perimeter': regions[0].perimeter
+                                , 'bbox':regions[0].bbox})
     stats_df=pd.DataFrame(all_stats)
     return stats_df
     
 def nms(lst_msk,lst_score):
-    #NMS filtering
-    if torch.cuda.is_available():
-        DEVICE = torch.device('cuda:0')
+    if len(lst_msk)>1:
+        #NMS filtering
+        if torch.cuda.is_available():
+            DEVICE = torch.device('cuda:0')
+        else:
+            DEVICE = torch.device('cpu')
+        bboxes = torch.tensor([find_bounding_boxes(mask) for mask in lst_msk], device=DEVICE, dtype=torch.float)
+        scores = torch.tensor(lst_score, device=DEVICE, dtype=torch.float)
+        labels = torch.zeros_like(bboxes[:, 0])
+
+        keep = batched_nms(bboxes, scores, labels, 0.3)
+        lst_msk_nms=[lst_msk[i] for i in keep]
+        lst_score_nms=[lst_score[i] for i in keep]
+        return lst_msk_nms,lst_score_nms
     else:
-        DEVICE = torch.device('cpu')
-    bboxes = torch.tensor([find_bounding_boxes(mask) for mask in lst_msk], device=DEVICE, dtype=torch.float)
-    scores = torch.tensor(lst_score, device=DEVICE, dtype=torch.float)
-    labels = torch.zeros_like(bboxes[:, 0])
+        return lst_msk,lst_score
 
-    keep = batched_nms(bboxes, scores, labels, 0.3)
-    lst_msk_nms=[lst_msk[i] for i in keep]
-    lst_score_nms=[lst_score[i] for i in keep]
-    return lst_msk_nms,lst_score_nms
-
-def definte_clips(x,y,resample_factor,crop_size):
-    clipi=np.arange(0,(x*resample_factor)//crop_size+1,0.5)
-    clipj=np.arange(0,(y*resample_factor)//crop_size+1,0.5)
+def define_clips(x,y,resample_factor,crop_size, window_step=0.5):
+    clipi=np.arange(0,(x*resample_factor)//crop_size+1,window_step)
+    clipj=np.arange(0,(y*resample_factor)//crop_size+1,window_step)
     clipij=np.array(np.meshgrid(clipi, clipj)).T.reshape(-1,2)
     return clipij
 
@@ -703,3 +718,19 @@ def load_image(DataDIR,DSname,fid):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     print(fn_img[fid].split("/")[-1]+' imported')
     return image
+
+def set_sam(MODEL_TYPE,DataDIR):
+    if torch.cuda.is_available():
+        DEVICE = torch.device('cuda:0')
+        print('Currently running on GPU\nModel '+MODEL_TYPE)
+    else:
+        DEVICE = torch.device('cpu')
+        print('Currently running on CPU\nModel '+MODEL_TYPE)
+
+    if MODEL_TYPE == 'vit_h':
+        CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_h_4b8939.pth'
+    elif MODEL_TYPE == 'vit_l':
+        CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_l_0b3195.pth'
+    else:
+        CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_b_01ec64.pth'
+    return DEVICE, CHECKPOINT_PATH
