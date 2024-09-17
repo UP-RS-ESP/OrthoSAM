@@ -79,19 +79,7 @@ image=fnc.preprocessing_roulette(image, pre_para)
 
 #setup SAM
 MODEL_TYPE = "vit_h"
-if torch.cuda.is_available():
-    DEVICE = torch.device('cuda:0')
-    print('Currently running on GPU\nModel '+MODEL_TYPE)
-else:
-    DEVICE = torch.device('cpu')
-    print('Currently running on CPU\nModel '+MODEL_TYPE)
-
-if MODEL_TYPE == 'vit_h':
-    CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_h_4b8939.pth'
-elif MODEL_TYPE == 'vit_l':
-    CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_l_0b3195.pth'
-else:
-    CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_b_01ec64.pth'
+DEVICE, CHECKPOINT_PATH=fnc.set_sam(MODEL_TYPE,DataDIR)
 
 sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH)
 sam.to(device=DEVICE)
@@ -320,13 +308,14 @@ for ij_idx in clipij:
                         list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = list_of_masks, list_of_pred_iou
                         list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
                     #saving outputs
-                    all_reseg.append({#'mask':list_of_cleaned_groups_reseg_masks,
-                                    'nms mask':list_of_cleaned_groups_reseg_masks_nms,
-                                    #'mask pred iou':list_of_cleaned_groups_reseg_score,
-                                    'nms mask pred iou': list_of_cleaned_groups_reseg_score_nms,
-                                    'i':ii,
-                                    'j':ji,
-                                    'crop size':crop_size})
+                    msk_dic={#'mask':list_of_cleaned_groups_reseg_masks,
+                             'nms mask':list_of_cleaned_groups_reseg_masks_nms,
+                             #'mask pred iou':list_of_cleaned_groups_reseg_score,
+                             'nms mask pred iou': list_of_cleaned_groups_reseg_score_nms,
+                             'i':ii,'j':ji,
+                             'crop size':crop_size}
+                    np.save(OutDIR+f'chunks/chunk_{int(ii*100)}_{int(ji*100)}',[msk_dic])
+                    all_reseg.append(msk_dic)
                 else:
                     print('No valid mask were found')
             else:
@@ -337,7 +326,7 @@ for ij_idx in clipij:
         print('Exceeded image boundary')
     end_loop = time.time()
     print('loop took: ', end_loop-start_loop)
-np.save(OutDIR+'all_reseg_mask',np.hstack(all_reseg))
+#np.save(OutDIR+'all_reseg_mask',np.hstack(all_reseg))
 end_script = time.time()
 print('script took: ', end_script-start_script)
 print('First and second pass SAM completed. Output saved to '+OutDIR)

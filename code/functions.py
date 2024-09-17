@@ -12,6 +12,7 @@ from skimage.measure import label, regionprops
 import math
 from torchvision.ops.boxes import batched_nms
 import pandas as pd
+import psutil
 
 def samplot(image, mask_generator, label=None, ax=None):
     '''
@@ -638,8 +639,10 @@ def find_bounding_boxes(binary_mask):
         y_min, x_min = positions.min(dim=0)[0]
         y_max, x_max = positions.max(dim=0)[0]
         bboxes.append([x_min.item(), y_min.item(), x_max.item() + 1, y_max.item() + 1])
-    return bboxes[0]
-
+    if len(bboxes)>0:
+        return bboxes[0]
+    else:
+        return None
 def create_stats_df(masks):
     if type(masks)==np.ndarray:
         if len(masks.shape)==3:
@@ -691,8 +694,9 @@ def nms(lst_msk,lst_score):
             DEVICE = torch.device('cuda:0')
         else:
             DEVICE = torch.device('cpu')
-        bboxes = torch.tensor([find_bounding_boxes(mask) for mask in lst_msk], device=DEVICE, dtype=torch.float)
-        scores = torch.tensor(lst_score, device=DEVICE, dtype=torch.float)
+        b=[find_bounding_boxes(mask) for mask in lst_msk]
+        bboxes = torch.tensor([bb for bb in b if bb], device=DEVICE, dtype=torch.float)
+        scores = torch.tensor([score for i,score in enumerate(lst_score) if b[i]], device=DEVICE, dtype=torch.float)
         labels = torch.zeros_like(bboxes[:, 0])
 
         keep = batched_nms(bboxes, scores, labels, 0.3)
@@ -734,3 +738,9 @@ def set_sam(MODEL_TYPE,DataDIR):
     else:
         CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_b_01ec64.pth'
     return DEVICE, CHECKPOINT_PATH
+
+def get_memory_usage():
+    process = psutil.Process()
+    mem_info = process.memory_info()
+    # Convert from bytes to MB
+    return mem_info.rss / (1024 * 1024)

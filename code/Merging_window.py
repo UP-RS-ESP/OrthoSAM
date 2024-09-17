@@ -8,6 +8,7 @@ import sys
 import json
 from tqdm import tqdm
 import pickle
+import psutil
 
 start_script = time.time()
 
@@ -63,23 +64,32 @@ image=fnc.preprocessing_roulette(image, pre_para)
 print('Resampled to: ', image.shape)
 
 print('Loading clips.....')
-all_reseg=np.load(OutDIR+'all_reseg_mask.npy', allow_pickle=True)
-print(len(all_reseg),' clips imported')
-#nms_stops = [len(all_reseg) * i // 10 for i in range(1, 10)]
+
+clips_pths = glob.glob(OutDIR+f'chunks/chunk_*')
+clips_pths.sort()
+
+
+print(len(clips_pths),' clips imported')
+
+
+#nms_stops = [len(clips_pths) * i // 20 for i in range(1, 20)]
 #nms_stops = np.arange(20,len(all_reseg),20).tolist()
-if np.max(image.shape[:2])>1024:
-    shrink_mask=True
+shrink_t=2048
+if np.max(image.shape[:2])>shrink_t:
+    shrink_mask=np.max(image.shape[:2])//shrink_t
 else:
     shrink_mask=False
 msk_count=0
+
 try:
     #Merging windows
     Aggregate_masks_noedge=[]
     pred_iou_noedge=[]
-    for w_count,clip_window in tqdm(enumerate(all_reseg),'Merging and resizing clips:', total=len(all_reseg), unit='clips'):
+    for w_count,pth in tqdm(enumerate(clips_pths),f'Merging and resizing clips', total=len(clips_pths), unit='clips'):
+        clip_window=np.load(pth, allow_pickle=True)[0]
         i=clip_window['i']
         j=clip_window['j']
-        for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in clip {i,j}:',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
+        for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in clip {i,j} (RAM: {fnc.get_memory_usage():.2f} MB, {msk_count} masks)',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
             if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
                 resize=np.zeros(image.shape[:-1])
                 Valid_area=resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)].shape
@@ -88,11 +98,13 @@ try:
                 else:
                     resize[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*j+crop_size)]=mask[:Valid_area[0],:Valid_area[1]]
                 if shrink_mask:
-                    Aggregate_masks_noedge.append(fnc.resample_fnc(resize,{'target_size': (1024,1024)}).astype('bool'))
+                    Aggregate_masks_noedge.append(fnc.resample_fnc(resize,{'fxy': 1/shrink_mask}).astype('bool'))
                 else:
                     Aggregate_masks_noedge.append(resize.astype('bool'))
                 pred_iou_noedge.append(score)
                 msk_count+=1
+        clip_window.clear()
+
         #if w_count in nms_stops:
         Aggregate_masks_noedge, pred_iou_noedge=fnc.nms(Aggregate_masks_noedge,pred_iou_noedge)
 except Exception as error:
@@ -109,8 +121,8 @@ id_mask = np.zeros_like(Aggregate_masks_noedge_nms[0], dtype=np.uint16)
 for i,mask in enumerate(Aggregate_masks_noedge_nms):
     stacked_Aggregate_masks_noedge_nms += mask#.astype(np.uint8)
     id_mask[mask==1] = i
-
-plt.figure(figsize=(20,15))
+image=fnc.resample_fnc(image,{'fxy': 1/shrink_mask})
+plt.figure(figsize=(20,5))
 plt.subplot(1,3,1)
 plt.imshow(image)
 plt.imshow(stacked_Aggregate_masks_noedge_nms,alpha=0.6)
@@ -125,7 +137,7 @@ plt.subplot(1,3,3)
 plt.imshow(image)
 plt.imshow(stacked_Aggregate_masks_noedge_nms>1,alpha=0.6)
 plt.axis('off')
-plt.title('Overlapping area after nms', fontsize=20)
+plt.title(f'Overlapping area after nms \nmasks downsampled by factor of {shrink_mask}', fontsize=20)
 plt.tight_layout()
 plt.savefig(OutDIR+'Merged_mask.png')
 plt.show()
@@ -205,24 +217,23 @@ for df in [stats]:
 plt.xlabel('Area (pixel)')
 plt.ylabel('Frequency')
 plt.title('Frequency Plot of Area (nms)')
-plt.legend()
 plt.grid()
-plt.suptitle(f'{ len(np.unique(stats))} object(s)')
+plt.suptitle(f'{ len(stats)} object(s), masks downsampled by factor of {shrink_mask}')
 plt.tight_layout()
 plt.savefig(OutDIR+'size_distribution.png')
 plt.show()
 
-print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_id.npy...')
-np.save(OutDIR+'all_mask_merged_windows_id',id_mask)
+print(f'Saving id mask to '+OutDIR+'Merged/all_mask_merged_windows_id.npy...')
+np.save(OutDIR+'Merged/all_mask_merged_windows_id',id_mask)
 print('Saved')
 
 
 if len(Aggregate_masks_noedge_nms)<1000:
-    print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows.npy...')
+    print(f'Saving id mask to '+OutDIR+'Merged/all_mask_merged_windows.npy...')
     saving_merged=[]
     for mask in Aggregate_masks_noedge_nms:
         saving_merged.append({'mask':mask.astype('bool')})
-    np.save(OutDIR+'all_mask_merged_windows.npy',Aggregate_masks_noedge_nms)
+    np.save(OutDIR+'Merged/all_mask_merged_windows.npy',Aggregate_masks_noedge_nms)
 else:
     batch_size=1000
     batches=len(Aggregate_masks_noedge_nms)//batch_size+1
@@ -235,7 +246,7 @@ else:
         else:
             for mask in Aggregate_masks_noedge_nms[i*batch_size:]:
                 saving_merged.append({'mask':mask.astype('bool')})
-        np.save(OutDIR+f'all_mask_merged_windows_{i}.npy',saving_merged)
+        np.save(OutDIR+f'Merged/all_mask_merged_windows_{i}.npy',saving_merged)
 print('Saved')
 
 end_script = time.time()

@@ -83,19 +83,7 @@ min_void_size=image.shape[0]*image.shape[1]*min_size_factor
 
 #setup SAM
 MODEL_TYPE = "vit_h"
-if torch.cuda.is_available():
-    DEVICE = torch.device('cuda:0')
-    print('Currently running on GPU\nModel '+MODEL_TYPE)
-else:
-    DEVICE = torch.device('cpu')
-    print('Currently running on CPU\nModel '+MODEL_TYPE)
-
-if MODEL_TYPE == 'vit_h':
-    CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_h_4b8939.pth'
-elif MODEL_TYPE == 'vit_l':
-    CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_l_0b3195.pth'
-else:
-    CHECKPOINT_PATH = DataDIR+'MetaSAM/sam_vit_b_01ec64.pth'
+DEVICE, CHECKPOINT_PATH=fnc.set_sam(MODEL_TYPE,DataDIR)
 
 sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH)
 sam.to(device=DEVICE)
@@ -111,7 +99,7 @@ mask_generator = SamAutomaticMaskGenerator(sam)
 #        all_reseg+=np.load(fn, allow_pickle=True).tolist()
     
 #ar_masks=all_reseg.astype(np.uint8)
-ar_masks=np.array(np.load(OutDIR+'all_mask_merged_windows_id.npy', allow_pickle=True))
+ar_masks=np.array(np.load(OutDIR+'Merged/all_mask_merged_windows_id.npy', allow_pickle=True))
 print(np.max(ar_masks),' mask(s) loaded')
 
 
@@ -123,6 +111,12 @@ stacked_Aggregate_masks_noedge_nms_eroded=binary_dilation(ar_masks>=1, kernel)
 no_mask_area=label(stacked_Aggregate_masks_noedge_nms_eroded,1,False,1)
 
 regions=regionprops(no_mask_area)
+
+shrink_t=2048
+if np.max(image.shape[:2])>shrink_t:
+    shrink_mask=np.max(image.shape[:2])//shrink_t
+else:
+    shrink_mask=False
 
 list_of_no_mask_area_centroid=[]
 list_of_no_mask_area_mask=[]
@@ -334,9 +328,12 @@ if len(list_of_no_mask_area_mask)>0:
 
 
     if len(void_pointed_reseg_resized)!=0:
+        if shrink_mask:
+            void_pointed_reseg_resized=[fnc.resample_fnc(mask,{'fxy': 1/shrink_mask}) for mask in void_pointed_reseg_resized]
+            image=fnc.resample_fnc(image,{'fxy': 1/shrink_mask})
         id_mask = np.sum([void_pointed_reseg_resized[i]*(i+1) for i in range(len(void_pointed_reseg_resized))],axis=0)
-        print(f'Saving id mask to '+OutDIR+'all_mask_merged_windows_id.npy...')
-        np.save(OutDIR+'all_mask_thid_pass_id',id_mask)
+        print(f'Saving id mask to '+OutDIR+'Third/all_mask_merged_windows_id.npy...')
+        np.save(OutDIR+'Third/all_mask_thid_pass_id',id_mask)
         print('Saved')
         #saving mask
         if len(void_pointed_reseg_resized)<1000:
@@ -344,7 +341,7 @@ if len(list_of_no_mask_area_mask)>0:
             saving_merged=[]
             for mask in range(len(void_pointed_reseg_resized)):
                 saving_merged.append({'mask':void_pointed_reseg_resized[mask].astype('bool')})
-            np.save(OutDIR+'all_mask_third_pass.npy',saving_merged)
+            np.save(OutDIR+'Third/all_mask_third_pass.npy',saving_merged)
         else:
             batch_size=1000
             batches=len(void_pointed_reseg_resized)//batch_size+1
@@ -357,7 +354,7 @@ if len(list_of_no_mask_area_mask)>0:
                 else:
                     for msk in np.arange(i*1000,len(void_pointed_reseg_resized)):
                         saving_merged.append({'mask':void_pointed_reseg_resized[i].astype('bool')})
-                np.save(OutDIR+f'all_mask_third_pass_{i}.npy',saving_merged)
+                np.save(OutDIR+f'Third/all_mask_third_pass_{i}.npy',saving_merged)
         print('Saved')
 
         plt.figure(figsize=(20,20))
