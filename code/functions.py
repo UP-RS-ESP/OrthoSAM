@@ -13,6 +13,7 @@ import math
 from torchvision.ops.boxes import batched_nms
 import pandas as pd
 import psutil
+import os
 
 def samplot(image, mask_generator, label=None, ax=None):
     '''
@@ -405,19 +406,19 @@ def resample_fnc(input, para_in):
     if target_size!=(0,0):
         if method:
             if method=='area':
-                output=cv2.resize(input.astype(np.uint8), target_size, interpolation = cv2.INTER_AREA)
+                output=cv2.resize(input, target_size, interpolation = cv2.INTER_AREA)
             elif method=='nearest':
-                output=cv2.resize(input.astype(np.uint8), target_size, interpolation = cv2.INTER_NEAREST)
+                output=cv2.resize(input, target_size, interpolation = cv2.INTER_NEAREST)
         else:
-            output=cv2.resize(input.astype(np.uint8), target_size)
+            output=cv2.resize(input, target_size)
     elif fxy!=1:
         if method:
             if method=='area':
-                output=cv2.resize(input.astype(np.uint8), (0, 0), fx = fxy, fy = fxy, interpolation = cv2.INTER_AREA)
+                output=cv2.resize(input, (0, 0), fx = fxy, fy = fxy, interpolation = cv2.INTER_AREA)
             elif method=='nearest':
-                output=cv2.resize(input.astype(np.uint8), (0, 0), fx = fxy, fy = fxy, interpolation = cv2.INTER_NEAREST)
+                output=cv2.resize(input, (0, 0), fx = fxy, fy = fxy, interpolation = cv2.INTER_NEAREST)
         else:
-            output=cv2.resize(input.astype(np.uint8), (0, 0), fx = fxy, fy = fxy)
+            output=cv2.resize(input, (0, 0), fx = fxy, fy = fxy)
     else:
         print('Not resampling')
         output=input
@@ -643,7 +644,7 @@ def find_bounding_boxes(binary_mask):
         return bboxes[0]
     else:
         return None
-def create_stats_df(masks):
+def create_stats_df(masks,resample_factor=1):
     if type(masks)==np.ndarray:
         if len(masks.shape)==3:
             max_id=masks.shape[0]
@@ -677,16 +678,16 @@ def create_stats_df(masks):
         if len(regions)>0:
             y0, x0=regions[0].centroid
 
-            all_stats.append({'label':i,'area':regions[0].area
-                                ,'centroid y':y0,'centroid x':x0
-                                , 'major axis length': regions[0].axis_major_length
-                                , 'minor axis length': regions[0].axis_minor_length
+            all_stats.append({'label':i,'area':regions[0].area/resample_factor
+                                ,'centroid y':y0/resample_factor,'centroid x':x0/resample_factor
+                                , 'major axis length': regions[0].axis_major_length/resample_factor
+                                , 'minor axis length': regions[0].axis_minor_length/resample_factor
                                 , 'orientation': regions[0].orientation
-                                , 'perimeter': regions[0].perimeter
-                                , 'bbox':regions[0].bbox})
+                                , 'perimeter': regions[0].perimeter/resample_factor
+                                , 'bbox':[box/resample_factor for box in regions[0].bbox]})
     stats_df=pd.DataFrame(all_stats)
     return stats_df
-    
+        
 def nms(lst_msk,lst_score):
     if len(lst_msk)>1:
         #NMS filtering
@@ -744,3 +745,194 @@ def get_memory_usage():
     mem_info = process.memory_info()
     # Convert from bytes to MB
     return mem_info.rss / (1024 * 1024)
+
+def get_image_patches(image, crop_size, overlap):
+
+    H, W = image.shape[:2]
+    patch_h, patch_w = crop_size, crop_size
+    stride_h, stride_w = patch_h - overlap, patch_w - overlap
+
+    patches = {}
+    i, j = 0, 0
+    for y in range(0, H - overlap, stride_h):
+        j = 0
+        for x in range(0, W - overlap, stride_w):
+            patch = image[y:y + patch_h, x:x + patch_w]
+            patches[(i, j)] = patch
+            j += 1
+        i += 1
+
+    return patches
+
+def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
+
+    temp_untile = np.zeros_like(id_mask, dtype=np.uint16)
+    patch_h, patch_w = crop_size, crop_size
+    stride_h, stride_w = patch_h - overlap, patch_w - overlap
+
+    start_y = original_i * stride_h
+    start_x = original_j * stride_w
+
+    temp_untile[start_y:start_y + patch_h, start_x:start_x + patch_w] = patch
+
+    return temp_untile
+
+def mask_in_valid_box(mask,b, ij_idx, max_ij):
+    if ij_idx[0]==max_ij[0]:
+        y0,y1=b,-1
+    elif ij_idx[0]==0:
+        y0,y1=0,-b
+    else:
+        y0,y1=b,-b
+
+    if ij_idx[1]==max_ij[1]:#if it is the last tile, valid box should cover the entire 
+        x0,x1=b,-1
+    elif ij_idx[1]==0:
+        x0,x1=0,-b
+    else:
+        x0,x1=b,-b
+
+    area_in_box=np.sum(mask[y0:y1,x0:x1])
+    total_area=np.sum(mask)
+    if (total_area-area_in_box)==0:
+        return True
+    elif (total_area-area_in_box)<area_in_box:
+        return True
+    else:
+        return False
+    
+def create_dir_ifnotexist(OutDIR):
+    if not os.path.exists(OutDIR[:-1]):
+        os.makedirs(OutDIR[:-1])
+    if not os.path.exists(OutDIR+'chunks'):
+        os.makedirs(OutDIR+'chunks')
+    if not os.path.exists(OutDIR+'Merged'):
+        os.makedirs(OutDIR+'Merged')
+    if not os.path.exists(OutDIR+'Third'):
+        os.makedirs(OutDIR+'Third')
+
+import matplotlib.patches as patches
+def plot_tiling_with_overlap(image, crop_size, overlap):
+    """
+    Plot the tiling of the image and highlight the overlapping areas.
+    
+    Parameters:
+    - image: 2D or 3D NumPy array (H, W, C) or (H, W).
+    - crop_size: Tuple (height, width) specifying the size of each patch.
+    - overlap: The number of pixels overlapping between patches.
+    """
+    H, W = image.shape[:2]
+    patch_h, patch_w = crop_size
+    stride_h, stride_w = patch_h - overlap, patch_w - overlap
+
+    plt.imshow(image)
+
+    # Add patches and highlight overlaps
+    for i, y in enumerate(range(0, H - overlap, stride_h)):
+        for j, x in enumerate(range(0, W - overlap, stride_w)):
+            # Draw the patch as a rectangle
+            rect = patches.Rectangle((x, y), patch_w, patch_h, linewidth=1, edgecolor='r', facecolor='none')
+            plt.gca().add_patch(rect)
+            
+            # Highlight the overlapping area
+            if overlap > 0:
+                # Overlap along x direction
+                if x + patch_w < W:
+                    overlap_rect_x = patches.Rectangle((x + patch_w - overlap, y), overlap, patch_h, 
+                                                       linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_x)
+                # Overlap along y direction
+                if y + patch_h < H:
+                    overlap_rect_y = patches.Rectangle((x, y + patch_h - overlap), patch_w, overlap, 
+                                                       linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_y)
+                # Overlap corner (both x and y)
+                if (x + patch_w < W) and (y + patch_h < H):
+                    overlap_rect_xy = patches.Rectangle((x + patch_w - overlap, y + patch_h - overlap), overlap, overlap,
+                                                        linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_xy)
+
+    # Set the axis limits and title
+    plt.xlim([0, W])
+    plt.ylim([H, 0])
+    plt.title("Tiling with Overlaps (highlighted in yellow)")
+
+
+
+def get_patch_coordinates(i, j, crop_size, overlap):
+    """
+    Calculate the top-left corner (x0, y0) of a patch based on (i, j) indices.
+
+    Parameters:
+    - i, j: Indices of the patch in the tiling (row, column).
+    - crop_size: Tuple (height, width) specifying the size of each patch.
+    - overlap: The number of pixels overlapping between patches.
+
+    Returns:
+    - x0, y0: The top-left corner coordinates of the patch in the original image.
+    """
+    patch_h, patch_w = crop_size
+    x0 = j * (patch_w - overlap)
+    y0 = i * (patch_h - overlap)
+    return x0, y0
+
+def plot_grid_in_patches(image, crop_size, overlap, grid_points):
+    """
+    Plot the tiling of the image and add a grid of points in each patch.
+    
+    Parameters:
+    - image: 2D or 3D NumPy array (H, W, C) or (H, W).
+    - crop_size: Tuple (height, width) specifying the size of each patch.
+    - overlap: The number of pixels overlapping between patches.
+    - grid_points: Number of points along x and y axes in each patch.
+    """
+    H, W = image.shape[:2]
+    patch_h, patch_w = crop_size
+    stride_h, stride_w = patch_h - overlap, patch_w - overlap
+
+    plt.imshow(image)
+    
+    for i, y in enumerate(range(0, H - overlap, stride_h)):
+        for j, x in enumerate(range(0, W - overlap, stride_w)):
+            # Calculate top-left (x0, y0) of each patch
+            x0, y0 = get_patch_coordinates(i, j, crop_size, overlap)
+            
+            # Draw the patch as a rectangle
+            rect = patches.Rectangle((x0, y0), patch_w, patch_h, linewidth=1, edgecolor='r', facecolor='none')
+            plt.gca().add_patch(rect)
+            
+            # Plot the grid of points inside the patch
+            margin_x = patch_w * 0.1  # 10% margin from the edges
+            margin_y = patch_h * 0.1  # 10% margin from the edges
+            grid_spacing_x = (patch_w - 2 * margin_x) / (grid_points - 1)
+            grid_spacing_y = (patch_h - 2 * margin_y) / (grid_points - 1)
+            
+            for gx in range(grid_points):
+                for gy in range(grid_points):
+                    point_x = x0 + margin_x + gx * grid_spacing_x
+                    point_y = y0 + margin_y + gy * grid_spacing_y
+                    plt.plot(point_x, point_y, 'ro', markersize=2)  # Plot blue dots
+            
+            # Highlight the overlapping area (optional)
+            if overlap > 0:
+                # Overlap along x direction
+                if x0 + patch_w < W:
+                    overlap_rect_x = patches.Rectangle((x0 + patch_w - overlap, y0), overlap, patch_h, 
+                                                       linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_x)
+                # Overlap along y direction
+                if y0 + patch_h < H:
+                    overlap_rect_y = patches.Rectangle((x0, y0 + patch_h - overlap), patch_w, overlap, 
+                                                       linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_y)
+                # Overlap corner (both x and y)
+                if (x0 + patch_w < W) and (y0 + patch_h < H):
+                    overlap_rect_xy = patches.Rectangle((x0 + patch_w - overlap, y0 + patch_h - overlap), overlap, overlap,
+                                                        linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_xy)
+
+    # Set the axis limits and title
+    plt.xlim([0, W])
+    plt.ylim([H, 0])
+    plt.title(f"Tiling with {grid_points}x{grid_points} Point Grid in Each Patch")
+
