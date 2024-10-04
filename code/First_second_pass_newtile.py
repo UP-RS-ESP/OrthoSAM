@@ -59,10 +59,10 @@ stb_t=init_para.get('stability_t')
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
 
-pre_para={'Downsample': {'fxy':resample_factor},
+pre_para={'Resample': {'fxy':resample_factor},
         #'Gaussian': {'kernel size':3}
         #'CLAHE':{'clip limit':2}#,
-        #'Downsample': {'fxy':4},
+        #'Resample': {'fxy':4},
         #'Buffering': {'crop size': crop_size}
         }
 try:#attempt to load saved init_para
@@ -78,7 +78,6 @@ except:#use defined init_para
 #load image
 image=fnc.load_image(DataDIR,DSname,fid)
 print('Image size:', image.shape)
-#clipij=fnc.define_clips(image.shape[0],image.shape[1],resample_factor,crop_size,window_step)
 image=fnc.preprocessing_roulette(image, pre_para)
 
 patches = fnc.get_image_patches(image, crop_size, 2*b)
@@ -244,7 +243,6 @@ def Guided_second_pass_SAM(cleaned_groups,tm=0.5,ts=0.5):
     return list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score
 
 #containers
-all_reseg=[]
 stats_list=[]
 for ij_idx in patch_keys:
     start_loop = time.time()
@@ -298,6 +296,7 @@ for ij_idx in patch_keys:
 
             if len(list_of_masks)>0:
                 #grouping overlaps
+                list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms=[],[]
                 group_overlap_area, unique_groups, list_overlap = Groupping_masks(list_of_masks)
                 unique_groups_thresholded = filter_groupping_by_intersection(group_overlap_area,unique_groups, list_overlap)
                 cleaned_groups, list_of_nooverlap_mask = checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded)
@@ -308,29 +307,29 @@ for ij_idx in patch_keys:
                             list_of_cleaned_groups_reseg_masks.append(list_of_masks[m].astype('bool'))
                             list_of_cleaned_groups_reseg_score.append(list_of_pred_iou[m])
                         list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
-                    print('Found ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the clip')
+                        print('Found ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the clip')
                 else:
                     list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = list_of_masks, list_of_pred_iou
                     list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
                 
                 #valid box
-                keep = [fnc.mask_in_valid_box(mask,b, ij_idx, max_ij) for mask in list_of_cleaned_groups_reseg_masks_nms]
-                list_of_cleaned_groups_reseg_masks_nms=[list_of_cleaned_groups_reseg_masks_nms[i] for i,k in enumerate(keep) if k]
-                list_of_cleaned_groups_reseg_score_nms=[list_of_cleaned_groups_reseg_score_nms[i] for i,k in enumerate(keep) if k]
                 if len(list_of_cleaned_groups_reseg_masks_nms)>0:
-                    chunk_stats=fnc.create_stats_df(list_of_cleaned_groups_reseg_masks_nms,resample_factor)
-                    chunk_stats['centroid y'] += (ij_idx[1]*(crop_size-2*b))/resample_factor
-                    chunk_stats['centroid x'] += (ij_idx[0]*(crop_size-2*b))/resample_factor
-                    stats_list.append(chunk_stats)
-                    #saving outputs
-                    msk_dic={#'mask':list_of_cleaned_groups_reseg_masks,
-                                'nms mask':list_of_cleaned_groups_reseg_masks_nms,
-                                #'mask pred iou':list_of_cleaned_groups_reseg_score,
-                                'nms mask pred iou': list_of_cleaned_groups_reseg_score_nms,
-                                'ij':ij_idx,
-                                'crop size':crop_size}
-                    np.save(OutDIR+f'chunks/chunk_{int(ij_idx[0])}_{int(ij_idx[1])}',[msk_dic])
-                    all_reseg.append(msk_dic)
+                    keep = [fnc.mask_in_valid_box(mask,b, ij_idx, max_ij) for mask in list_of_cleaned_groups_reseg_masks_nms]
+                    list_of_cleaned_groups_reseg_masks_nms=[list_of_cleaned_groups_reseg_masks_nms[i] for i,k in enumerate(keep) if k]
+                    list_of_cleaned_groups_reseg_score_nms=[list_of_cleaned_groups_reseg_score_nms[i] for i,k in enumerate(keep) if k]
+                    if len(list_of_cleaned_groups_reseg_masks_nms)>0:
+                        chunk_stats=fnc.create_stats_df(list_of_cleaned_groups_reseg_masks_nms,resample_factor)
+                        chunk_stats['centroid y'] += (ij_idx[1]*(crop_size-2*b))/resample_factor
+                        chunk_stats['centroid x'] += (ij_idx[0]*(crop_size-2*b))/resample_factor
+                        stats_list.append(chunk_stats)
+                        #saving outputs
+                        msk_dic={#'mask':list_of_cleaned_groups_reseg_masks,
+                                    'nms mask':list_of_cleaned_groups_reseg_masks_nms,
+                                    #'mask pred iou':list_of_cleaned_groups_reseg_score,
+                                    'nms mask pred iou': list_of_cleaned_groups_reseg_score_nms,
+                                    'ij':ij_idx,'crop size':crop_size}
+                        np.save(OutDIR+f'chunks/chunk_{int(ij_idx[0])}_{int(ij_idx[1])}',[msk_dic])
+                        del msk_dic, list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms
                 else:
                     print('No valid mask were found')
             else:

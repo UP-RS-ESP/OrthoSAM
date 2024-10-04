@@ -1,25 +1,19 @@
 import torch
-import cv2
 from segment_anything import sam_model_registry, SamPredictor
 from segment_anything import SamAutomaticMaskGenerator_mod2 as SamAutomaticMaskGenerator
 import numpy as np
 import matplotlib.pyplot as plt
-import glob
 import torch
 import functions as fnc
 from importlib import reload
 import gc
 from skimage.measure import label, regionprops
-from collections import Counter
 from torchvision.ops.boxes import batched_nms
 from sklearn.neighbors import KDTree
-import matplotlib.colors as mcolors
-import os
 import time
 from skimage.morphology import binary_dilation
 import json
 import sys
-import pandas as pd
 
 start_script = time.time()
 
@@ -53,7 +47,7 @@ org_shape=image.shape
 print('Image size:', image.shape)
 
 image=fnc.preprocessing_roulette(image, pre_para)
-print('Preprocessing finished')
+print('Preprocessed')
 #process related var
 #original 5,5dilation_size=15
 #for 3000x3000, 10000    ####need to be adaptive, consider 10% of image size
@@ -118,13 +112,13 @@ if len(list_of_no_mask_area_mask)>0:
         plt.plot(x0, y0, '.g', markersize=15)
         plt.plot(bx, by, '-b', linewidth=2.5)
         width, length=np.max(bx)-np.min(bx),np.max(by)-np.min(by)
-        print(f'Void {i} width: {width} length: {length}')
+        #print(f'Void {i} width: {width} length: {length}')
         if ((np.max([width,length]))<=(crop_size*0.8)):
-            print(f'Downsample not necessary')
+            #print(f'Downsample not necessary')
             reseg_fxy.append(1)
         else:
             factor=int((np.max([length,width]))//(crop_size*0.8))+1
-            print(f'Downsampled by factor of {factor} required')
+            #print(f'Downsampled by factor of {factor} required')
             reseg_fxy.append(factor)
     plt.title('Void in clean SAM masks')
 
@@ -162,7 +156,7 @@ if len(list_of_no_mask_area_mask)>0:
     if onego==True:#do a comple reseg
         print('Performing third pass SAM in one go')
         fxy=1/reseg_fxy[-1]
-        pre_para={'Downsample': {'fxy':fxy}}
+        pre_para={'Resample': {'fxy':fxy}}
         image_dw=fnc.preprocessing_roulette(image, pre_para)
 
         #define the window
@@ -175,11 +169,11 @@ if len(list_of_no_mask_area_mask)>0:
             ii=0
 
         #prepare image
-        pre_para={'Downsample': {'fxy':fxy},
+        pre_para={'Resample': {'fxy':fxy},
                 'Crop': {'crop size': crop_size, 'j':ji,'i':ii},
                 #'Gaussian': {'kernel size':3}
                 # #'CLAHE':{'clip limit':2}#
-                # #'Downsample': {'fxy':4},
+                # #'Resample': {'fxy':4},
                 # #'Buffering': {'crop size': crop_size}
                     }
         temp_image=fnc.preprocessing_roulette(image, pre_para)
@@ -229,7 +223,7 @@ if len(list_of_no_mask_area_mask)>0:
         for i in range(ar_no_mask_area.shape[0]):
             y0, x0 =list_of_no_mask_area_centroid[i]
             fxy=1/reseg_fxy[i]
-            pre_para={'Downsample': {'fxy':fxy}}
+            pre_para={'Resample': {'fxy':fxy}}
             image_dw=fnc.preprocessing_roulette(image, pre_para)
             xmin,ymin=x0*fxy-crop_size/2,y0*fxy-crop_size/2
             ji=xmin/crop_size
@@ -240,11 +234,11 @@ if len(list_of_no_mask_area_mask)>0:
                 ii=0
 
             #prepare image
-            pre_para={'Downsample': {'fxy':fxy},
+            pre_para={'Resample': {'fxy':fxy},
                     'Crop': {'crop size': crop_size, 'j':ji,'i':ii},
                     #'Gaussian': {'kernel size':3}
                     # #'CLAHE':{'clip limit':2}#
-                    # #'Downsample': {'fxy':4},
+                    # #'Resample': {'fxy':4},
                     # #'Buffering': {'crop size': crop_size}
                         }
             temp_image=fnc.preprocessing_roulette(image, pre_para)

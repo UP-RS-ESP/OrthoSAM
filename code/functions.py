@@ -453,7 +453,7 @@ def load_roulette(input, process, para_in):
         output = clahe_fnc(input,para_in)
     elif process=='Lpull':
         output = Lpull_fnc(input,para_in)
-    elif process=='Downsample':
+    elif process=='Resample':
         output = resample_fnc(input,para_in)
     elif process=='Buffering':
         output = buffering_fnc(input,para_in)
@@ -475,7 +475,7 @@ def preprocessing_roulette(input, process_para):
     Lpull:
     para={'thres': 60, 'pull': 60}
 
-    Downsample:
+    Resample:
     para={'fxy':2, 'method': None}
     
     Buffer:
@@ -771,20 +771,10 @@ def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
 
     start_y = original_i * stride
     start_x = original_j * stride
-
-    x,y=-1,-1
-    if (start_y + crop_size)>id_mask.shape[0]:
-        y=id_mask.shape[0]-start_y
-    if (start_x + crop_size)>id_mask.shape[1]:
-        x=id_mask.shape[1]-start_x
-    if (x==-1 and y==-1):
-        temp_untile[start_y:start_y + crop_size, start_x:start_x + crop_size] = patch
-    elif (x!=-1 and y!=-1):
-        temp_untile[start_y:start_y + crop_size, start_x:start_x + crop_size] = patch[:y,:x]
-    elif (x!=-1):
-        temp_untile[start_y:start_y + crop_size, start_x:start_x + crop_size] = patch[:,:x]
-    elif (y!=-1):
-        temp_untile[start_y:start_y + crop_size, start_x:start_x + crop_size] = patch[:y]
+    try:
+        temp_untile[start_y:start_y + patch.shape[0], start_x:start_x + patch.shape[1]] = patch
+    except:
+        pass
     return temp_untile
 
 def mask_in_valid_box(mask,b, ij_idx, max_ij):
