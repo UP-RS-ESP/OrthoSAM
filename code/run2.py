@@ -116,7 +116,7 @@ for para in para_list:
         json.dump(pre_para, json_file, indent=4)
 
     print('Performing first pass and second pass clipwise segmentation')
-    subprocess.run(["python", first_second_run, OutDIR])
+    #subprocess.run(["python", first_second_run, OutDIR])
 
     print('Merging windows')
     subprocess.run(["python", Merging_window, OutDIR])

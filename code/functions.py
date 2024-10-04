@@ -767,14 +767,24 @@ def get_image_patches(image, crop_size, overlap):
 def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
 
     temp_untile = np.zeros_like(id_mask, dtype=np.uint16)
-    patch_h, patch_w = crop_size, crop_size
-    stride_h, stride_w = patch_h - overlap, patch_w - overlap
+    stride = crop_size - overlap
 
-    start_y = original_i * stride_h
-    start_x = original_j * stride_w
+    start_y = original_i * stride
+    start_x = original_j * stride
 
-    temp_untile[start_y:start_y + patch_h, start_x:start_x + patch_w] = patch
-
+    x,y=-1,-1
+    if (start_y + crop_size)>id_mask.shape[0]:
+        y=id_mask.shape[0]-start_y
+    if (start_x + crop_size)>id_mask.shape[1]:
+        x=id_mask.shape[1]-start_x
+    if (x==-1 and y==-1):
+        temp_untile[start_y:start_y + crop_size, start_x:start_x + crop_size] = patch
+    elif (x!=-1 and y!=-1):
+        temp_untile[start_y:start_y + crop_size, start_x:start_x + crop_size] = patch[:y,:x]
+    elif (x!=-1):
+        temp_untile[start_y:start_y + crop_size, start_x:start_x + crop_size] = patch[:,:x]
+    elif (y!=-1):
+        temp_untile[start_y:start_y + crop_size, start_x:start_x + crop_size] = patch[:y]
     return temp_untile
 
 def mask_in_valid_box(mask,b, ij_idx, max_ij):

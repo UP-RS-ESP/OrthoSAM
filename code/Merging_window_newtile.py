@@ -53,26 +53,26 @@ clips_pths.sort()
 print(len(clips_pths),' clips imported')
 
 msk_count=0
-id_mask = np.zeros_like(image[:,:,0], dtype=np.uint16)
-stack_mask = np.zeros_like(image[:,:,0], dtype=np.uint16)
-try:
-    #Merging windows
-    Aggregate_masks_noedge=[]
-    pred_iou_noedge=[]
-    for w_count,pth in tqdm(enumerate(clips_pths),f'Merging and resizing clips', total=len(clips_pths), unit='clips'):
-        clip_window=np.load(pth, allow_pickle=True)[0]
-        i,j=clip_window['ij']
+id_mask = np.zeros_like(image[:,:,0], dtype=np.uint32)
+stack_mask = np.zeros_like(image[:,:,0], dtype=np.uint32)
+#try:
+#Merging windows
+Aggregate_masks_noedge=[]
+pred_iou_noedge=[]
+for w_count,pth in tqdm(enumerate(clips_pths),f'Merging and resizing clips', total=len(clips_pths), unit='clips'):
+    clip_window=np.load(pth, allow_pickle=True)[0]
+    i,j=clip_window['ij']
 
-        for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in clip {i,j} (RAM: {fnc.get_memory_usage():.2f} MB, {msk_count} masks)',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
-            if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
-                resized = fnc.untile(id_mask, mask, i, j, crop_size, 2*b)
-                msk_count+=1
-                id_mask[resized!=0]=(msk_count)
-                stack_mask+=resized
-                #pred_iou_noedge.append(score)
-        clip_window.clear()
-except Exception as error:
-    print("An exception occurred:", error)
+    for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in clip {i,j} (RAM: {fnc.get_memory_usage():.2f} MB, {msk_count} masks)',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
+        if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
+            resized = fnc.untile(id_mask, mask, i, j, crop_size, 2*b)
+            msk_count+=1
+            id_mask[resized!=0]=(msk_count)
+            stack_mask+=resized
+            #pred_iou_noedge.append(score)
+    clip_window.clear()
+#except Exception as error:
+#    print("An exception occurred:", error)
 
 #shuffle id
 unique_labels = np.unique(id_mask)
