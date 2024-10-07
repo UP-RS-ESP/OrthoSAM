@@ -936,3 +936,11 @@ def plot_grid_in_patches(image, crop_size, overlap, grid_points):
     plt.ylim([H, 0])
     plt.title(f"Tiling with {grid_points}x{grid_points} Point Grid in Each Patch")
 
+def area_radi(mask, min_pixel, min_radi):
+    labels = label(mask)
+    regions = regionprops(labels)
+    regions = sorted(regions, key=lambda x: x.area, reverse=True)
+    if (regions[0].area>min_pixel and regions[0].axis_minor_length>min_radi):
+        return True
+    else:
+        return False

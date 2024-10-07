@@ -40,7 +40,8 @@ fid=init_para.get('fid')
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
 dilation_size=init_para.get('dilation_size')
-min_size_factor=init_para.get('min_size_factor')
+min_pixel=(init_para.get('resolution(mm)')**2)/init_para.get('expected_min_size(sqmm)')
+min_radi=init_para.get('min_radius')
 
 image=fnc.load_image(DataDIR,DSname,fid)
 org_shape=image.shape
@@ -51,7 +52,7 @@ print('Preprocessed')
 #process related var
 #original 5,5dilation_size=15
 #for 3000x3000, 10000    ####need to be adaptive, consider 10% of image size
-min_void_size=image.shape[0]*image.shape[1]*min_size_factor
+
 
 #setup SAM
 MODEL_TYPE = "vit_h"
@@ -76,7 +77,7 @@ list_of_no_mask_area_mask=[]
 list_of_no_mask_area_bbox=[]
 for i,region in enumerate(regions):
     # take regions with large enough areas
-    if (region.area > min_void_size):
+    if (region.area > min_pixel):
         mask=np.array(no_mask_area==(i+1))
         y0, x0 =region.centroid
         minr, minc, maxr, maxc = region.bbox

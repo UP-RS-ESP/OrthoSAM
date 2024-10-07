@@ -16,6 +16,7 @@ import json
 import sys
 import subprocess
 import cv2
+import tqdm
 
 start_script = time.time()
 
@@ -43,7 +44,8 @@ third_b_resmpale=init_para.get('third_b_resample_factor')
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
 dilation_size=init_para.get('dilation_size')
-min_size_factor=init_para.get('min_size_factor')
+min_pixel=(init_para.get('resolution(mm)')**2)/init_para.get('expected_min_size(sqmm)')
+min_radi=init_para.get('min_radius')
 
 image=fnc.load_image(DataDIR,DSname,fid)
 org_shape=image.shape
@@ -51,8 +53,6 @@ print('Image size:', image.shape)
 
 image=fnc.preprocessing_roulette(image, pre_para)
 print('Preprocessing finished')
-#process related var
-min_void_size=image.shape[0]*image.shape[1]*min_size_factor
 
 ar_masks=np.array(np.load(OutDIR+'Merged/all_mask_merged_windows_id.npy', allow_pickle=True))
 print(len(np.unique(ar_masks)),' mask(s) loaded')
@@ -73,7 +73,7 @@ list_of_no_mask_area_mask=[]
 list_of_no_mask_area_bbox=[]
 for i,region in enumerate(regions):
     # take regions with large enough areas
-    if (region.area > min_void_size):
+    if (region.area > min_pixel):
         mask=np.array(no_mask_area==(i+1))
         y0, x0 =region.centroid
         minr, minc, maxr, maxc = region.bbox
@@ -105,7 +105,10 @@ if len(list_of_no_mask_area_mask)>0:
     plt.show()
 
     if third_b_resmpale==1:#if resmpale factor not specified
-        required_resampling=np.max(fxy)
+        if len(fxy)>0:
+            required_resampling=np.max(fxy)
+        else:
+            required_resampling=resample_factor/2
     else:
         required_resampling=third_b_resmpale
     
@@ -121,38 +124,39 @@ if len(list_of_no_mask_area_mask)>0:
     with open(OutDIR+'Third/'+'pre_para.json', 'w') as json_file:
         json.dump(third_pre_para, json_file, indent=4)
     print('Performing resampled first pass and second pass clipwise segmentation')
-    #subprocess.run(["python", first_second_run, OutDIR+'Third/'])
+    subprocess.run(["python", first_second_run, OutDIR+'Third/'])
     print('Merging windows')
     subprocess.run(["python", Merging_window, OutDIR+'Third/'])
 
     resampled_SAM=np.array(np.load(OutDIR+'Third/'+'Merged/all_mask_merged_windows_id.npy', allow_pickle=True))
     resampled_SAM=cv2.resize(resampled_SAM.astype(np.uint16), ar_masks.shape[::-1], interpolation = cv2.INTER_NEAREST)
 
-    print(stacked.shape)
-    print(resampled_SAM.shape)
-
     #finding mask that is only inside the void
-    ids_in_void,counts=np.unique(resampled_SAM[(stacked>0).astype('bool')], return_counts=True)
+    ids_in_void,counts_in_void=np.unique(resampled_SAM[(ar_masks==0).astype('bool')], return_counts=True)
+    ids_total,counts_total=np.unique(resampled_SAM, return_counts=True)
     valid_ids=[]
-    for id,count in zip(ids_in_void,counts):
-        if count>=(np.sum(resampled_SAM==id)*0.85):#if the object is at least 85% inside the voids
+    for id,count in tqdm.tqdm(zip(ids_in_void,counts_in_void), total=len(ids_in_void), unit='id'):
+        if count>=((counts_total[ids_total==id])*0.85):#if the object is at least 85% inside the voids
             valid_ids.append(id)
 
     if len(valid_ids)!=0:
+        
         largest_id=np.max(ar_masks)
 
-        id_mask = np.sum([resampled_SAM==id for id in valid_ids],axis=0)
+        mask = np.isin(resampled_SAM, valid_ids)
+        id_mask = np.where(mask, resampled_SAM, 0)
+        print(f'Third pass discovered {len(valid_ids)} new mask(s)')
         #id_mask[id_mask>0]+=largest_id
         
         plt.figure(figsize=(20,20))
         plt.subplot(2,2,1)
         plt.imshow(image)
-        plt.imshow(stacked,alpha=0.6)
+        plt.imshow(ar_masks,alpha=0.6)
         plt.axis('off')
         plt.title(f'First and second pass result, {len(np.unique(ar_masks))} mask(s)', fontsize=20)
         plt.subplot(2,2,2)
         plt.imshow(image)
-        plt.imshow((ar_masks+stacked)>0,alpha=0.6)
+        plt.imshow((ar_masks+id_mask)>0,alpha=0.6)
         plt.axis('off')
         plt.title(f'Masked area with third pass, resampled factor: {1/required_resampling}', fontsize=20)
         plt.subplot(2,2,3)
@@ -174,15 +178,15 @@ if len(list_of_no_mask_area_mask)>0:
             ar_masks[id_mask==id]=(id+largest_id)
         
         #shuffle id
-        unique_labels = np.unique(id_mask)
+        unique_labels = np.unique(ar_masks)
         if 0 in unique_labels:
             unique_labels = unique_labels[unique_labels != 0]
         shuffled_labels = np.random.permutation(unique_labels)
         label_mapping = dict(zip(unique_labels, shuffled_labels))
-        shuffled_mask = id_mask.copy()
+        shuffled_mask = ar_masks.copy()
         for old_label, new_label in label_mapping.items():
-            shuffled_mask[id_mask == old_label] = new_label
-        id_mask=shuffled_mask
+            shuffled_mask[ar_masks == old_label] = new_label
+        ar_masks=shuffled_mask
         
         print(f'Saving id mask to '+OutDIR+'Third/all_mask_merged_windows_id.npy...')
         np.save(OutDIR+'Third/all_mask_thid_pass_id',ar_masks)

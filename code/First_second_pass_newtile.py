@@ -31,7 +31,10 @@ init_para={'OutDIR': '/DATA/vito/output/Ravi2_fnc_dw8/',
       'point_per_side': 24,
       #'window_step':0.5,
       'b':15,
-      'stability_t':0.85
+      'stability_t':0.85,
+      'resolution(mm)': 0.2,
+      'expected_min_size(sqmm)': 100,
+      'min_radius': 10
       }
 try:#attempt to load saved init_para
     OutDIR=sys.argv[1]
@@ -58,6 +61,8 @@ stb_t=init_para.get('stability_t')
 #defining clips
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
+min_pixel=(init_para.get('resolution(mm)')**2)/init_para.get('expected_min_size(sqmm)')
+min_radi=init_para.get('min_radius')
 
 pre_para={'Resample': {'fxy':resample_factor},
         #'Gaussian': {'kernel size':3}
@@ -209,7 +214,7 @@ def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded):
         list_of_nooverlap_mask=np.arange(len(list_of_masks))
     return cleaned_groups, list_of_nooverlap_mask
 
-def Guided_second_pass_SAM(cleaned_groups,tm=0.5,ts=0.5):
+def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi,tm=0.5):
     ##problem--we are assuming that in each disconnected region there is only one object
     cleaned_groups_reseg=[]
     for k in range(len(cleaned_groups)):
@@ -226,7 +231,7 @@ def Guided_second_pass_SAM(cleaned_groups,tm=0.5,ts=0.5):
             regions.append(region) 
 
         for props in regions:
-            if props.area>100:#apply minimum area to filter out mini residuals
+            if (props.area>100):#apply minimum area to filter out mini residuals
                 y0, x0 = props.centroid
                 input_point = np.array([[x0,y0]])
                 input_label = np.array([1])
@@ -236,7 +241,8 @@ def Guided_second_pass_SAM(cleaned_groups,tm=0.5,ts=0.5):
                     point_labels=input_label,
                     multimask_output=True,)
                 best_idx=np.argmax(scores)#pick the mask with highest score
-                cleaned_groups_reseg.append({'mask':partmasks[best_idx],'score':scores[best_idx],'logit':logits[best_idx],'group':k})
+                if fnc.area_radi(partmasks[best_idx], min_pixel, min_radi):
+                    cleaned_groups_reseg.append({'mask':partmasks[best_idx],'score':scores[best_idx],'logit':logits[best_idx],'group':k})
     
     list_of_cleaned_groups_reseg_masks = [fnc.clean_mask(mask['mask'].astype('bool')) for mask in cleaned_groups_reseg]
     list_of_cleaned_groups_reseg_score=[mask['score'] for mask in cleaned_groups_reseg]
@@ -283,9 +289,13 @@ for ij_idx in patch_keys:
             list_of_pred_iou = [mask['predicted_iou'] for mask in masks]
             list_of_masks = [fnc.clean_mask(mask['segmentation'].astype('bool')) for mask in masks]#remove small disconnected parts
             no_area_after_cleaning=np.array([np.sum(mask)==0 for mask in list_of_masks])
+            area_radi=np.array([fnc.area_radi(mask, min_pixel, min_radi) for mask in list_of_masks])
             if np.any(no_area_after_cleaning):
                 list_of_masks = [mask for mask, keep in zip(list_of_masks, ~no_area_after_cleaning) if keep]
                 list_of_pred_iou = [iou for iou, keep in zip(list_of_pred_iou, ~no_area_after_cleaning) if keep]
+            if not np.all(area_radi):
+                list_of_masks = [mask for mask, keep in zip(list_of_masks, area_radi) if keep]
+                list_of_pred_iou = [iou for iou, keep in zip(list_of_pred_iou, area_radi) if keep]
             #remove background/edge mask
             flattened_rgb=np.sum(temp_image,axis=2)
             not_background_mask=np.array([np.any(flattened_rgb[mask.astype('bool')]>0) for mask in list_of_masks])
@@ -301,7 +311,7 @@ for ij_idx in patch_keys:
                 unique_groups_thresholded = filter_groupping_by_intersection(group_overlap_area,unique_groups, list_overlap)
                 cleaned_groups, list_of_nooverlap_mask = checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded)
                 if cleaned_groups:
-                    list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = Guided_second_pass_SAM(cleaned_groups)
+                    list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi)
                     if len(list_of_nooverlap_mask)>0:
                         for m in list_of_nooverlap_mask:
                             list_of_cleaned_groups_reseg_masks.append(list_of_masks[m].astype('bool'))
