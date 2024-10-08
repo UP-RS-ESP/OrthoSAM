@@ -53,7 +53,7 @@ para_list=[
       'min_radius': 10
       }
       ]
-for para in para_list:
+for para in para_list[1:]:
     start_run = time.time()
     if para.get('fid')==None:
         if not os.path.exists(para.get('DataDIR')+para.get('DatasetName')[:-1]):
@@ -92,10 +92,10 @@ for para in para_list:
         json.dump(pre_para, json_file, indent=4)
 
     print('Performing first pass and second pass clipwise segmentation')
-    subprocess.run(["python", first_second_run, OutDIR])
+    #subprocess.run(["python", first_second_run, OutDIR])
 
     print('Merging windows')
-    subprocess.run(["python", Merging_window, OutDIR])
+    #subprocess.run(["python", Merging_window, OutDIR])
 
     
     if not third_b:

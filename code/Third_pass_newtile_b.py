@@ -23,7 +23,7 @@ start_script = time.time()
 try:
     OutDIR=sys.argv[1]
 except:
-    OutDIR='/DATA/vito/output/Ravi2_run2_dw8_cp1024_pps48/'
+    OutDIR='/DATA/vito/output/Ravi3_run2_dw2_stb085_3b_minarea/'
 
 print('Loaded parameters from '+OutDIR)
 with open(OutDIR+'init_para.json', 'r') as json_file:
@@ -50,8 +50,8 @@ min_radi=init_para.get('min_radius')
 image=fnc.load_image(DataDIR,DSname,fid)
 org_shape=image.shape
 print('Image size:', image.shape)
-
 image=fnc.preprocessing_roulette(image, pre_para)
+
 print('Preprocessing finished')
 
 ar_masks=np.array(np.load(OutDIR+'Merged/all_mask_merged_windows_id.npy', allow_pickle=True))
@@ -71,7 +71,8 @@ regions=regionprops(no_mask_area)
 list_of_no_mask_area_centroid=[]
 list_of_no_mask_area_mask=[]
 list_of_no_mask_area_bbox=[]
-for i,region in enumerate(regions):
+
+for i,region in tqdm.tqdm(enumerate(regions), total=len(regions)):
     # take regions with large enough areas
     if (region.area > min_pixel):
         mask=np.array(no_mask_area==(i+1))
@@ -84,7 +85,20 @@ for i,region in enumerate(regions):
         list_of_no_mask_area_mask.append(no_mask_area==(i+1))
         list_of_no_mask_area_bbox.append([bx,by])
 
-if len(list_of_no_mask_area_mask)>0:
+for i,region in tqdm.tqdm(enumerate(regions), total=len(regions)):
+    # take regions with large enough areas
+    if (region.area > min_pixel):
+        mask=np.array(no_mask_area==(i+1))
+        y0, x0 =region.centroid
+        minr, minc, maxr, maxc = region.bbox
+        bx = (minc, maxc, maxc, minc, minc)
+        by = (minr, minr, maxr, maxr, minr)
+
+        list_of_no_mask_area_centroid.append((y0,x0))
+        list_of_no_mask_area_mask.append(no_mask_area==(i+1))
+        list_of_no_mask_area_bbox.append([bx,by])
+
+if len(regions)>0:
     print(f'{len(list_of_no_mask_area_mask)} void(s) found')
     ar_no_mask_area=np.stack(list_of_no_mask_area_mask)
     stacked=np.sum(ar_no_mask_area,axis=0)
@@ -111,6 +125,7 @@ if len(list_of_no_mask_area_mask)>0:
             required_resampling=resample_factor/2
     else:
         required_resampling=third_b_resmpale
+    print(f'Third pass resample factor: {required_resampling}')
     
     third_init_para=init_para.copy()
     third_init_para.update({'OutDIR': OutDIR+'Third/',
@@ -167,7 +182,7 @@ if len(list_of_no_mask_area_mask)>0:
         plt.imshow(image)
         plt.imshow(((id_mask!=0)+(ar_masks!=0))>1,alpha=0.6)
         plt.axis('off')
-        plt.title('Overlapping area', fontsize=20)
+        plt.title(f'Overlapping area, Overlap: {np.sum((id_mask!=0)+(ar_masks!=0)>1)}', fontsize=20)
         plt.tight_layout()
         plt.savefig(OutDIR+'Merged_masks_withvoid.png')
         plt.show()
