@@ -346,7 +346,7 @@ def crop_fnc(input, para_in):
         output = input[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*(j)+crop_size),:]
     else:
         output = input[int(crop_size*i):int(crop_size*i+crop_size),int(crop_size*j):int(crop_size*(j)+crop_size)]
-    print(f'Cropped from {input.shape} to {output.shape}')
+    #print(f'Cropped from {input.shape} to {output.shape}')
     return output
 def gaussian_fnc(input, para_in):
     para={'kernel size': 3}
@@ -778,14 +778,18 @@ def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
     return temp_untile
 
 def mask_in_valid_box(mask,b, ij_idx, max_ij):
-    if ij_idx[0]==max_ij[0]:
+    if (ij_idx[0]==max_ij[0] and ij_idx[0]==0):
+        y0,y1=0,-1
+    elif ij_idx[0]==max_ij[0]:
         y0,y1=b,-1
     elif ij_idx[0]==0:
         y0,y1=0,-b
     else:
         y0,y1=b,-b
 
-    if ij_idx[1]==max_ij[1]:#if it is the last tile, valid box should cover the entire 
+    if (ij_idx[1]==max_ij[1] and ij_idx[1]==0):
+        x0,x1=0,-1
+    elif ij_idx[1]==max_ij[1]:#if it is the last tile, valid box should cover the entire 
         x0,x1=b,-1
     elif ij_idx[1]==0:
         x0,x1=0,-b
@@ -944,3 +948,4 @@ def area_radi(mask, min_pixel, min_radi):
         return True
     else:
         return False
+    

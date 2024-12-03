@@ -40,7 +40,7 @@ fid=init_para.get('fid')
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
 dilation_size=init_para.get('dilation_size')
-min_pixel=(init_para.get('resolution(mm)')**2)/init_para.get('expected_min_size(sqmm)')
+min_pixel=(init_para.get('expected_min_size(sqmm)')/(init_para.get('resolution(mm)')**2))*resample_factor
 min_radi=init_para.get('min_radius')
 
 image=fnc.load_image(DataDIR,DSname,fid)
