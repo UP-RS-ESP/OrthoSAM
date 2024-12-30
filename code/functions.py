@@ -14,6 +14,7 @@ from torchvision.ops.boxes import batched_nms
 import pandas as pd
 import psutil
 import os
+from multiprocessing import Pool, Manager, cpu_count
 
 def samplot(image, mask_generator, label=None, ax=None):
     '''
@@ -540,7 +541,7 @@ def circle_colouring_specified(mask, RGB, RGB_edge):
 
 def add_guassian_noise_to_circle(array, mean ,std , mask=None, edge_std=None):
     '''
-    add guassian noise to the input image. if mask is given noise will not be added to the area outside the circle. takes mean and std
+    add guassian noise to the input image. if mask is given noise will not be added to the area outside the circle. if edge_std is given, different noise will be applied to the edge. mask is required for that.
     '''
     gaussian_noise = np.random.normal(mean, std, array.shape)
     if np.any(mask):
@@ -717,7 +718,8 @@ def load_image(DataDIR,DSname,fid):
     fn_img = glob.glob(DataDIR+DSname)
     fn_img.sort()
     if fn_img[fid][-3:]=='npy':
-        image=(np.load(fn_img[fid])*255).astype(np.uint8)
+        #image=(np.load(fn_img[fid])*255).astype(np.uint8)
+        image=(np.load(fn_img[fid])).astype(np.uint8)
     else:
         image = cv2.imread(fn_img[fid])
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -949,3 +951,68 @@ def area_radi(mask, min_pixel, min_radi):
     else:
         return False
     
+
+def compute_iou(args):
+    i, centroid, mask, ids, mask_ious, seg_masks_rs, seg_id = args
+    hit_id = int(mask[int(centroid[0]), int(centroid[1])])
+    current_iou = mask_ious[ids == hit_id]
+    iou_s = iou(seg_masks_rs == seg_id, mask == hit_id)
+    return i, hit_id, iou_s, current_iou
+
+def update_mask_ious_parallel(centroids, mask, ids, seg_masks_rs, seg_ids):
+    '''
+    multiprocessing mask iou
+    '''
+    mask_ious = np.zeros_like(ids).astype(np.float64)
+
+    # Prepare data for parallel processing
+    data = [(i, centroids[i], mask, ids, mask_ious, seg_masks_rs, seg_ids[i]) for i in range(len(centroids))]
+
+    # Use multiprocessing Pool
+    with Pool(cpu_count()) as pool:
+        results = pool.map(compute_iou, data)
+
+    # Update mask_ious with results
+    for i, hit_id, iou_s, current_iou in results:
+        if iou_s > current_iou:
+            mask_ious[ids == hit_id] = iou_s
+
+    return mask_ious
+
+def compute_iou_shared(args):
+    i, centroid, mask, ids, mask_ious_dict, seg_masks_rs, seg_id = args
+    hit_id = int(mask[int(centroid[0]), int(centroid[1])])
+    current_iou = mask_ious_dict.get(hit_id, 0.0) 
+    
+    iou_s = iou(seg_masks_rs == seg_id, mask == hit_id)
+    if np.sum(seg_masks_rs == seg_id)<np.sum(mask == hit_id):#negative for oversegmentation
+        iou_s=-iou_s
+    
+    # Update the dictionary only if IoU improves
+    if np.abs(iou_s) > np.abs(current_iou):
+        mask_ious_dict[hit_id] = iou_s
+
+def update_mask_ious_shared(centroids, mask, ids, seg_masks_rs, seg_ids):
+    '''
+    Multiprocessing mask IoU computation with shared memory
+    '''
+    with Manager() as manager:
+        # Create a shared dictionary for mask_ious
+        mask_ious_dict = manager.dict()
+
+        # Prepare data for parallel processing
+        data = [
+            (i, centroids[i], mask, ids, mask_ious_dict, seg_masks_rs, seg_ids[i]) 
+            for i in range(len(centroids))
+        ]
+
+        # Use multiprocessing Pool
+        with Pool(cpu_count()) as pool:
+            pool.map(compute_iou_shared, data)
+
+        # Convert the dictionary back to a NumPy array
+        mask_ious = np.zeros_like(ids).astype(np.float64)
+        for hit_id, iou_val in mask_ious_dict.items():
+            mask_ious[ids == hit_id] = iou_val
+
+        return mask_ious

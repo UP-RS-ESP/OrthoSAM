@@ -126,3 +126,6 @@ for para in para_list:
 
 for para in para_list:
     print(f'{para.get('OutDIR')} completed')
+
+noti='/DATA/vito/code/notification.py'
+subprocess.run(["python", noti, sys.argv[0]])
