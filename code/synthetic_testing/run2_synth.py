@@ -16,7 +16,13 @@ Third_pass_b = 'code/Third_pass_newtile_b.py'
 
 # Define the paths to the scripts you want to run
 #DS='ran_synth_08_bw'
-for DS in ['ran_synth_32_cl_std_00','ran_synth_32_cl_std_03','ran_synth_32_cl_std_06','ran_synth_32_cl_std_12','ran_synth_32_cl_std_24']:
+DSL=['ran_synth_64_bw'
+     ,'ran_synth_64_cl_std_00'
+     ,'ran_synth_64_cl_std_03'
+     ,'ran_synth_64_cl_std_06'
+     ,'ran_synth_64_cl_std_12'
+     ,'ran_synth_64_cl_std_24']
+for DS in DSL:
     if not os.path.exists(f'/DATA/vito/output/{DS}'):
         os.makedirs(f'/DATA/vito/output/{DS}')
     para_list=[]
@@ -96,6 +102,14 @@ for DS in ['ran_synth_32_cl_std_00','ran_synth_32_cl_std_03','ran_synth_32_cl_st
     for para in para_list:
         print(f'{para.get('OutDIR')} completed')
 
+ac_py = 'code/synthetic_testing/ran_synth_point_ac.py'
+for pth in DSL:
+        print('Working on '+pth)
+        if not os.path.exists('/DATA/vito/data/'+pth+'/'+pth):
+              os.makedirs('/DATA/vito/data/'+pth+'/'+pth)
+              print('Created '+'/DATA/vito/data/'+pth+'/'+pth)
+        print(pth)
+        subprocess.run(["python", ac_py, pth])
 
 noti='/DATA/vito/code/notification.py'
 subprocess.run(["python", noti, sys.argv[0]])

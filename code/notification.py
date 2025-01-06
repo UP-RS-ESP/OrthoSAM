@@ -13,6 +13,8 @@ def send_discord_alert(webhook_url, message):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-url='https://discord.com/api/webhooks/1322110114521415730/V_wCZ6s6PiPj48KOEybUya-amw3KZTH2iLAb411DxhLDVtez9My2DPu0SlNNK-wlszoJ'
+with open('code/DWH.txt', 'r') as file:
+    tail = file.readline().strip()
+head='https://discord.com/api/webhooks/'
 
-send_discord_alert(url, f"{script_name} has completed successfully!")
+send_discord_alert(head+tail, f"{script_name} has completed successfully!")

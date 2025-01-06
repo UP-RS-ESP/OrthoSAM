@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import random
 import os
 
-ran_color=True
-min_radi=32
+ran_color=False
+min_radi=64
 image_size=20000
 num_circles = 5000
 max_radi=1500
@@ -16,7 +16,6 @@ else:
     Dir=f'/DATA/vito/data/ran_synth_{min_radi}_bw/'
 if not os.path.exists(Dir[:-1]):
     os.makedirs(Dir[:-1])
-    os.makedirs(Dir+'ac')
     os.makedirs(Dir+'img')
     os.makedirs(Dir+'msk')
 for i in range(10):
