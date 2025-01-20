@@ -3,17 +3,23 @@ import cv2
 import matplotlib.pyplot as plt
 import random
 import os
+import sys
 
-ran_color=False
-min_radi=64
-image_size=20000
+min_radi=int(sys.argv[1])
+try:
+    if sys.argv[2]=='True':
+        ran_color=True
+except:
+    ran_color=False
+
+image_size=10000
 num_circles = 5000
-max_radi=1500
+max_radi=3000
 
 if ran_color:
-    Dir=f'/DATA/vito/data/ran_synth_{min_radi}_cl_std_00/'
+    Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_cl_std_00/'
 else:
-    Dir=f'/DATA/vito/data/ran_synth_{min_radi}_bw/'
+    Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_bw/'
 if not os.path.exists(Dir[:-1]):
     os.makedirs(Dir[:-1])
     os.makedirs(Dir+'img')

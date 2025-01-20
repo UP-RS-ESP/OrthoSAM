@@ -13,15 +13,26 @@ first_second_run = "code/First_second_pass_newtile.py"
 Merging_window = "code/Merging_window_newtile.py"
 Third_pass = 'code/Third_pass_newtile.py'
 Third_pass_b = 'code/Third_pass_newtile_b.py'
+noti='/DATA/vito/code/notification.py'
 
 # Define the paths to the scripts you want to run
 #DS='ran_synth_08_bw'
-DSL=['ran_synth_64_bw'
+DSL=['ran_synth_08_bw'
+     ,'ran_synth_16_bw'
+     ,'ran_synth_32_bw'
+     ,'ran_synth_64_bw'
      ,'ran_synth_64_cl_std_00'
      ,'ran_synth_64_cl_std_03'
      ,'ran_synth_64_cl_std_06'
      ,'ran_synth_64_cl_std_12'
-     ,'ran_synth_64_cl_std_24']
+     ,'ran_synth_64_cl_std_24'
+     ,'ran_synth_08_bw_rt'
+     #,'ran_synth_32_cl_std_00'
+     #,'ran_synth_32_cl_std_03'
+     #,'ran_synth_32_cl_std_06'
+     #,'ran_synth_32_cl_std_12'
+     #,'ran_synth_32_cl_std_24'
+     ]
 for DS in DSL:
     if not os.path.exists(f'/DATA/vito/output/{DS}'):
         os.makedirs(f'/DATA/vito/output/{DS}')
@@ -32,15 +43,15 @@ for DS in DSL:
                             'DatasetName': f'{DS}/img/*',
                             'fid': i,
                             'crop_size': 1024,
-                            'resample_factor': 1/4,
+                            'resample_factor': 1,
                             'point_per_side': 30,
                             'dilation_size':15,
                             'b':100,
                             'stability_t':0.85,
-                            'third_b_resample_factor':1/10, #None: use method A. 1: auto select resample rate.
+                            'third_b_resample_factor':1/12, #None: use method A. 1: auto select resample rate.
                             'resolution(mm)': 0.2,
-                            'expected_min_size(sqmm)': 100,
-                            'min_radius': 10
+                            'expected_min_size(sqmm)': 0,
+                            'min_radius': 0
                             }
                             )
 
@@ -99,8 +110,8 @@ for DS in DSL:
         end_run = time.time()
         print('Run took: ', end_run-start_run)
 
-    for para in para_list:
-        print(f'{para.get('OutDIR')} completed')
+    print(f'{DS} completed')
+    subprocess.run(["python", noti, DS])
 
 ac_py = 'code/synthetic_testing/ran_synth_point_ac.py'
 for pth in DSL:
@@ -111,5 +122,5 @@ for pth in DSL:
         print(pth)
         subprocess.run(["python", ac_py, pth])
 
-noti='/DATA/vito/code/notification.py'
+
 subprocess.run(["python", noti, sys.argv[0]])

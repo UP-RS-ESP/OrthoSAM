@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
@@ -7,8 +6,6 @@ import time
 import sys
 import json
 from tqdm import tqdm
-import pickle
-import psutil
 
 start_script = time.time()
 
@@ -41,8 +38,9 @@ image=fnc.load_image(DataDIR,DSname,fid)
 org_shape=image.shape
 print('Image size:', image.shape)
 
-image=fnc.preprocessing_roulette(image, pre_para)
-print('Resampled to: ', image.shape)
+if resample_factor!=1:
+    image=fnc.preprocessing_roulette(image, pre_para)
+    print('Resampled to: ', image.shape)
 
 print('Loading clips.....')
 

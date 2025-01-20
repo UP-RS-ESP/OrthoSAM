@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import functions as fnc
 
 min_radi=64
-for std in [3,6,12]:
+for std in [3,6,12,24]:
 
     Dir=f'/DATA/vito/data/ran_synth_{min_radi}_cl_std_{std:02}/'
 
