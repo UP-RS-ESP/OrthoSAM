@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import glob
 import torch
 import functions as fnc
-from importlib import reload
 import gc
 from skimage.measure import label, regionprops
 from collections import Counter
@@ -66,11 +65,7 @@ min_pixel=(init_para.get('expected_min_size(sqmm)')/(init_para.get('resolution(m
 min_radi=init_para.get('min_radius')
 print(f'Minimum expected size: {min_pixel} pixel')
 
-pre_para={'Resample': {'fxy':resample_factor},
-        #'Gaussian': {'kernel size':3}
-        #'CLAHE':{'clip limit':2}#,
-        #'Resample': {'fxy':4},
-        #'Buffering': {'crop size': crop_size}
+pre_para={'Resample': {'fxy':resample_factor}
         }
 try:#attempt to load saved init_para
     with open(OutDIR+'pre_para.json', 'r') as json_file:
@@ -100,7 +95,7 @@ sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH)
 sam.to(device=DEVICE)
 mask_generator = SamAutomaticMaskGenerator(sam)
 
-def filter_by_pred_iou_and_size_per_seedpoint(masks,size_threshold=0.4,crop_size=crop_size):
+def filter_by_pred_iou_and_size_per_seedpoint(masks,crop_size,size_threshold=0.4):
     seed_point=np.array([mask['point_coords'][0] for mask in masks])
     highest_pred_iou_by_point=[]
     i=0
@@ -161,7 +156,7 @@ def filter_groupping_by_intersection(group_overlap_area,unique_groups, list_over
         f'\nOverlap groups before filtering: {len(list_overlap)}, after filtering: {len(unique_groups_thresholded)}')
     return unique_groups_thresholded
 
-def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded):
+def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded, masks):
     #check if there is remaining ungroupped pairs
     checker=np.zeros(len(list_of_masks))
     for gp in unique_groups_thresholded:
@@ -216,7 +211,7 @@ def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded):
         list_of_nooverlap_mask=np.arange(len(list_of_masks))
     return cleaned_groups, list_of_nooverlap_mask
 
-def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi,tm=0.5):
+def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor,tm=0.5):
     ##problem--we are assuming that in each disconnected region there is only one object
     cleaned_groups_reseg=[]
     for k in range(len(cleaned_groups)):
@@ -287,7 +282,7 @@ with open(OutDIR+'chunks/output.txt', 'w') as f:
 
                     #post processing
                     #filter output mask per point by select highest pred iou mask
-                    masks=filter_by_pred_iou_and_size_per_seedpoint(masks)
+                    masks=filter_by_pred_iou_and_size_per_seedpoint(masks, crop_size)
                     print('Filtered by highest predicted iou per seed point, ', len(masks),' mask(s) remains')
 
                     list_of_pred_iou = [mask['predicted_iou'] for mask in masks]
@@ -307,25 +302,27 @@ with open(OutDIR+'chunks/output.txt', 'w') as f:
                         list_of_masks = [mask for mask, keep in zip(list_of_masks, not_background_mask) if keep]
                         list_of_pred_iou = [mask for mask, keep in zip(list_of_pred_iou, not_background_mask) if keep]
                         print('Background masks removed')
-
+                    
                     if len(list_of_masks)>0:
                         #grouping overlaps
                         list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms=[],[]
                         group_overlap_area, unique_groups, list_overlap = Groupping_masks(list_of_masks)
                         unique_groups_thresholded = filter_groupping_by_intersection(group_overlap_area,unique_groups, list_overlap)
-                        cleaned_groups, list_of_nooverlap_mask = checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded)
+                        cleaned_groups, list_of_nooverlap_mask = checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded, masks)
                         if cleaned_groups:
-                            list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi)
+                            list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor)
                             if len(list_of_nooverlap_mask)>0:
                                 for m in list_of_nooverlap_mask:
                                     list_of_cleaned_groups_reseg_masks.append(list_of_masks[m].astype('bool'))
                                     list_of_cleaned_groups_reseg_score.append(list_of_pred_iou[m])
-                                list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
-                                print('Found ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the clip')
+                            list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
+                            print('Found ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the clip')
                         else:
                             list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = list_of_masks, list_of_pred_iou
                             list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = fnc.nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
-                        
+                            print(f'No groups were found, found {len(list_of_cleaned_groups_reseg_masks)} mask(s) from the first pass')
+                            print(f'{len(list_of_cleaned_groups_reseg_masks_nms)} left after nms filtering')
+
                         #valid box
                         if len(list_of_cleaned_groups_reseg_masks_nms)>0:
                             keep = [fnc.mask_in_valid_box(mask,b, ij_idx, max_ij) for mask in list_of_cleaned_groups_reseg_masks_nms]

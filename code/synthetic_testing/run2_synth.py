@@ -15,18 +15,20 @@ Third_pass = 'code/Third_pass_newtile.py'
 Third_pass_b = 'code/Third_pass_newtile_b.py'
 noti='/DATA/vito/code/notification.py'
 
+ac_py = 'code/synthetic_testing/ran_synth_point_ac.py'
+
 # Define the paths to the scripts you want to run
 #DS='ran_synth_08_bw'
-DSL=['ran_synth_08_bw'
-     ,'ran_synth_16_bw'
-     ,'ran_synth_32_bw'
+DSL=[#'ran_synth_08_bw'
+     #,'ran_synth_16_bw'
+     'ran_synth_32_bw'
      ,'ran_synth_64_bw'
-     ,'ran_synth_64_cl_std_00'
-     ,'ran_synth_64_cl_std_03'
-     ,'ran_synth_64_cl_std_06'
-     ,'ran_synth_64_cl_std_12'
-     ,'ran_synth_64_cl_std_24'
-     ,'ran_synth_08_bw_rt'
+     #,'ran_synth_64_cl_std_00'
+     #,'ran_synth_64_cl_std_03'
+     #,'ran_synth_64_cl_std_06'
+     #,'ran_synth_64_cl_std_12'
+     #,'ran_synth_64_cl_std_24'
+     #,'ran_synth_08_bw_rt'
      #,'ran_synth_32_cl_std_00'
      #,'ran_synth_32_cl_std_03'
      #,'ran_synth_32_cl_std_06'
@@ -38,12 +40,12 @@ for DS in DSL:
         os.makedirs(f'/DATA/vito/output/{DS}')
     para_list=[]
     for i in range(10):
-        para_list.append({'OutDIR': f'/DATA/vito/output/{DS}/{DS}_{i:02}_dw4_cp1024_3b/',
+        para_list.append({'OutDIR': f'/DATA/vito/output/{DS}/{DS}_{i:02}_dw2_cp1024_3b/',
                             'DataDIR': '/DATA/vito/data/',
                             'DatasetName': f'{DS}/img/*',
                             'fid': i,
                             'crop_size': 1024,
-                            'resample_factor': 1,
+                            'resample_factor': 1/2,
                             'point_per_side': 30,
                             'dilation_size':15,
                             'b':100,
@@ -113,14 +115,13 @@ for DS in DSL:
     print(f'{DS} completed')
     subprocess.run(["python", noti, DS])
 
-ac_py = 'code/synthetic_testing/ran_synth_point_ac.py'
-for pth in DSL:
-        print('Working on '+pth)
-        if not os.path.exists('/DATA/vito/data/'+pth+'/'+pth):
-              os.makedirs('/DATA/vito/data/'+pth+'/'+pth)
-              print('Created '+'/DATA/vito/data/'+pth+'/'+pth)
-        print(pth)
-        subprocess.run(["python", ac_py, pth])
+    print('Working on '+DS)
+    if not os.path.exists('/DATA/vito/data/'+DS+'/'+DS):
+            os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
+            print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
+    print(DS)
+    subprocess.run(["python", ac_py, DS])
+    subprocess.run(["python", noti, DS])
 
 
 subprocess.run(["python", noti, sys.argv[0]])
