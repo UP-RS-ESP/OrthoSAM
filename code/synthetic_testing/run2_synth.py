@@ -14,41 +14,36 @@ Merging_window = "code/Merging_window_newtile.py"
 Third_pass = 'code/Third_pass_newtile.py'
 Third_pass_b = 'code/Third_pass_newtile_b.py'
 noti='/DATA/vito/code/notification.py'
-
 ac_py = 'code/synthetic_testing/ran_synth_point_ac.py'
 
-# Define the paths to the scripts you want to run
-#DS='ran_synth_08_bw'
-DSL=[#'ran_synth_08_bw'
-     #,'ran_synth_16_bw'
-     'ran_synth_32_bw'
+
+DSL=['ran_synth_08_bw'
+     ,'ran_synth_16_bw'
+     ,'ran_synth_32_bw'
      ,'ran_synth_64_bw'
-     #,'ran_synth_64_cl_std_00'
-     #,'ran_synth_64_cl_std_03'
-     #,'ran_synth_64_cl_std_06'
-     #,'ran_synth_64_cl_std_12'
-     #,'ran_synth_64_cl_std_24'
-     #,'ran_synth_08_bw_rt'
-     #,'ran_synth_32_cl_std_00'
-     #,'ran_synth_32_cl_std_03'
-     #,'ran_synth_32_cl_std_06'
-     #,'ran_synth_32_cl_std_12'
-     #,'ran_synth_32_cl_std_24'
+     ,'ran_synth_64_cl_std_00'
+     ,'ran_synth_64_cl_std_03'
+     ,'ran_synth_64_cl_std_06'
+     ,'ran_synth_64_cl_std_12'
+     ,'ran_synth_64_cl_std_24'
+     ,'ran_synth_08_bw_rt'
      ]
+
+
 for DS in DSL:
     if not os.path.exists(f'/DATA/vito/output/{DS}'):
         os.makedirs(f'/DATA/vito/output/{DS}')
     para_list=[]
-    for i in range(10):
-        para_list.append({'OutDIR': f'/DATA/vito/output/{DS}/{DS}_{i:02}_dw2_cp1024_3b/',
+    for i in range(1):
+        para_list.append({'OutDIR': f'/DATA/vito/output/{DS}/{DS}_{i:02}_b250/',
                             'DataDIR': '/DATA/vito/data/',
                             'DatasetName': f'{DS}/img/*',
                             'fid': i,
                             'crop_size': 1024,
-                            'resample_factor': 1/2,
+                            'resample_factor': 1,
                             'point_per_side': 30,
                             'dilation_size':15,
-                            'b':100,
+                            'b':250,
                             'stability_t':0.85,
                             'third_b_resample_factor':1/12, #None: use method A. 1: auto select resample rate.
                             'resolution(mm)': 0.2,
@@ -78,10 +73,6 @@ for DS in DSL:
                     print("Requires an index. Please try again.")
         resample_factor=para.get('resample_factor')
         pre_para={'Resample': {'fxy':resample_factor},
-                #'Gaussian': {'kernel size':3}
-                #'CLAHE':{'clip limit':2}#,
-                #'Downsample': {'fxy':4},
-                #'Buffering': {'crop size': crop_size}
                 }
         OutDIR=para.get('OutDIR')
         third_b=para.get('third_b_resample_factor')
@@ -123,5 +114,27 @@ for DS in DSL:
     subprocess.run(["python", ac_py, DS])
     subprocess.run(["python", noti, DS])
 
+    
+DSL=['ran_synth_01_10_bw'
+     #,'ran_synth_01_100_bw'
+     #,'ran_synth_02_3000_bw'
+     #,'ran_synth_04_3000_bw'
+     ,'ran_synth_01_10_cl_std_00'
+     ,'ran_synth_01_10_cl_std_03'
+     ,'ran_synth_01_10_cl_std_06'
+     ,'ran_synth_01_10_cl_std_12'
+     ,'ran_synth_01_10_cl_std_24'
+     ]
+
+
+for DS in DSL:
+    print('Working on '+DS)
+    if not os.path.exists('/DATA/vito/data/'+DS+'/'+DS):
+            os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
+            print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
+    print(DS)
+    subprocess.run(["python", ac_py, DS])
+    subprocess.run(["python", noti, DS])
 
 subprocess.run(["python", noti, sys.argv[0]])
+

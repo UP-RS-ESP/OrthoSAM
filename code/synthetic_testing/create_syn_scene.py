@@ -6,25 +6,33 @@ import os
 import sys
 
 min_radi=int(sys.argv[1])
+
 try:
-    if sys.argv[2]=='True':
+    max_radi=int(sys.argv[2])
+except:
+    max_radi=3000
+
+try:
+    if sys.argv[3]=='True':
         ran_color=True
+    else:
+        ran_color=False
 except:
     ran_color=False
 
 image_size=10000
 num_circles = 5000
-max_radi=3000
+
 
 if ran_color:
-    Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_cl_std_00/'
+    Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_{max_radi}_cl_std_00/'
 else:
-    Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_bw/'
+    Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_{max_radi}_bw/'
 if not os.path.exists(Dir[:-1]):
     os.makedirs(Dir[:-1])
     os.makedirs(Dir+'img')
     os.makedirs(Dir+'msk')
-for i in range(10):
+for i in range(1):
     image = np.zeros((image_size, image_size, 3), dtype=np.uint8)
 
     mask = np.zeros((image_size, image_size), dtype=np.uint16)

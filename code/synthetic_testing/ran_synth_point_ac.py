@@ -19,6 +19,8 @@ for fn_pth in fn:
     with open(fn_pth+'/init_para.json', 'r') as json_file:
         para_list.append(json.load(json_file))
 
+print(fn)
+
 
 for i,init_para in enumerate(para_list): 
 
@@ -42,8 +44,13 @@ for i,init_para in enumerate(para_list):
 
         image=fnc.preprocessing_roulette(image, pre_para)
         print('resampled to: ', image.shape)
-
-    seg_masks=np.array(np.load(OutDIR+'Third/all_mask_third_pass_id.npy', allow_pickle=True))
+    try:
+        seg_masks=np.array(np.load(OutDIR+'Third/all_mask_third_pass_id.npy', allow_pickle=True))
+        third=True
+    except:
+        seg_masks=np.array(np.load(OutDIR+'Merged/all_mask_merged_windows_id.npy', allow_pickle=True))
+        third=False
+        print('Third pass mask not found, merged first-second pass mask imported instead')
     print('Mask imported from '+OutDIR+'Third/all_mask_third_pass_id.npy')
     print('masks size:', seg_masks.shape)
     print(len(np.unique(seg_masks)),' mask(s) loaded')
@@ -83,4 +90,4 @@ for i,init_para in enumerate(para_list):
 
     print('Mean mask IoU: ')
     print(np.mean(np.abs(mask_ious)))
-    np.save(DataDIR+DSname[:-5]+file_pth+f'/point_based_ac_{i:02}.npy', {'point based':point_based_ac, 'iou':mask_ious, 'area':area,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks))})
+    np.save(DataDIR+DSname[:-5]+file_pth+f'/point_based_ac_{i:02}.npy', {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third})

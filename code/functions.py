@@ -539,9 +539,9 @@ def circle_colouring_specified(mask, RGB, RGB_edge):
     array[~mask,2] = RGB_edge[2]
     return array
 
-def add_guassian_noise_to_circle(array, mean ,std , mask=None, edge_std=None):
+def add_gaussian_noise_to_circle(array, mean ,std , mask=None, edge_std=None):
     '''
-    add guassian noise to the input image. if mask is given noise will not be added to the area outside the circle. if edge_std is given, different noise will be applied to the edge. mask is required for that.
+    add gaussian noise to the input image. if mask is given noise will not be added to the area outside the circle. if edge_std is given, different noise will be applied to the edge. mask is required for that.
     '''
     gaussian_noise = np.random.normal(mean, std, array.shape)
     if np.any(mask):
