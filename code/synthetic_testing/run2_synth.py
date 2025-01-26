@@ -15,18 +15,34 @@ Third_pass = 'code/Third_pass_newtile.py'
 Third_pass_b = 'code/Third_pass_newtile_b.py'
 noti='/DATA/vito/code/notification.py'
 ac_py = 'code/synthetic_testing/ran_synth_point_ac.py'
+DS='ran_synth_16_bw'
+if not os.path.exists('/DATA/vito/data/'+DS+'/'+DS):
+            os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
+            print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
+subprocess.run(["python", ac_py, 'ran_synth_16_bw'])
+subprocess.run(["python", noti, 'ran_synth_16_bw'])
 
-
-DSL=['ran_synth_08_bw'
-     ,'ran_synth_16_bw'
-     ,'ran_synth_32_bw'
-     ,'ran_synth_64_bw'
-     ,'ran_synth_64_cl_std_00'
-     ,'ran_synth_64_cl_std_03'
-     ,'ran_synth_64_cl_std_06'
-     ,'ran_synth_64_cl_std_12'
-     ,'ran_synth_64_cl_std_24'
-     ,'ran_synth_08_bw_rt'
+DSL=[#'ran_synth_08_bw'
+     #,'ran_synth_16_bw'
+     #,'ran_synth_32_bw'
+     #,'ran_synth_64_bw'
+     #,'ran_synth_64_cl_std_00'
+     #,'ran_synth_64_cl_std_03'
+     #,'ran_synth_64_cl_std_06'
+     #,'ran_synth_64_cl_std_12'
+     #,'ran_synth_64_cl_std_24'
+     #,'ran_synth_08_bw_rt'
+     #'ran_synth_01_10_bw'
+     'ran_synth_04_100_bw'
+     ,'ran_synth_08_100_bw'
+     #,'ran_synth_01_100_bw'
+     #,'ran_synth_02_3000_bw'
+     #,'ran_synth_04_3000_bw'
+     #,'ran_synth_01_10_cl_std_00'
+     #,'ran_synth_01_10_cl_std_03'
+     #,'ran_synth_01_10_cl_std_06'
+     #,'ran_synth_01_10_cl_std_12'
+     #,'ran_synth_01_10_cl_std_24'
      ]
 
 
@@ -114,27 +130,5 @@ for DS in DSL:
     subprocess.run(["python", ac_py, DS])
     subprocess.run(["python", noti, DS])
 
-    
-DSL=['ran_synth_01_10_bw'
-     #,'ran_synth_01_100_bw'
-     #,'ran_synth_02_3000_bw'
-     #,'ran_synth_04_3000_bw'
-     ,'ran_synth_01_10_cl_std_00'
-     ,'ran_synth_01_10_cl_std_03'
-     ,'ran_synth_01_10_cl_std_06'
-     ,'ran_synth_01_10_cl_std_12'
-     ,'ran_synth_01_10_cl_std_24'
-     ]
-
-
-for DS in DSL:
-    print('Working on '+DS)
-    if not os.path.exists('/DATA/vito/data/'+DS+'/'+DS):
-            os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
-            print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
-    print(DS)
-    subprocess.run(["python", ac_py, DS])
-    subprocess.run(["python", noti, DS])
 
 subprocess.run(["python", noti, sys.argv[0]])
-

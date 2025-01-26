@@ -90,4 +90,4 @@ for i,init_para in enumerate(para_list):
 
     print('Mean mask IoU: ')
     print(np.mean(np.abs(mask_ious)))
-    np.save(DataDIR+DSname[:-5]+file_pth+f'/point_based_ac_{i:02}.npy', {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third})
+    np.save(DataDIR+DSname[:-5]+file_pth+f'/point_based_ac_{i:02}.npy', {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third, 'init_para':init_para})
