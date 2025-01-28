@@ -61,7 +61,7 @@ for DS in DSL:
                             'dilation_size':15,
                             'b':250,
                             'stability_t':0.85,
-                            'third_b_resample_factor':1/12, #None: use method A. 1: auto select resample rate.
+                            'third_b_resample_factor':[1/12], #None: use method A. 1: auto select resample rate.
                             'resolution(mm)': 0.2,
                             'expected_min_size(sqmm)': 0,
                             'min_radius': 0
@@ -90,6 +90,7 @@ for DS in DSL:
         resample_factor=para.get('resample_factor')
         pre_para={'Resample': {'fxy':resample_factor},
                 }
+        
         OutDIR=para.get('OutDIR')
         third_b=para.get('third_b_resample_factor')
 
@@ -108,13 +109,13 @@ for DS in DSL:
         print('Merging windows')
         subprocess.run(["python", Merging_window, OutDIR])
 
-        
-        if not third_b:
-            print('Searching potential missing objects and performing third pass segmentation A')
-            subprocess.run(["python", Third_pass, OutDIR])
-        else:
-            print('Searching potential missing objects and performing third pass segmentation B')
-            subprocess.run(["python", Third_pass_b, OutDIR])
+        for n in range(len(third_b)):
+            if not third_b[n]:
+                print('Searching potential missing objects and performing third pass segmentation A')
+                subprocess.run(["python", Third_pass, OutDIR,f'{n}'])
+            else:
+                print('Searching potential missing objects and performing third pass segmentation B')
+                subprocess.run(["python", Third_pass_b, OutDIR,f'{n}'])
 
         end_run = time.time()
         print('Run took: ', end_run-start_run)

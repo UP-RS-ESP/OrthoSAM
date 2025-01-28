@@ -13,43 +13,28 @@ import json
 import pandas as pd
 from contextlib import redirect_stdout
 import First_second_fnc as FS_fnc
+import os
 start_script = time.time()
 
-#vars
-init_para={'OutDIR': '/DATA/vito/output/Ravi2_fnc_dw8/',
-      'DataDIR': '/DATA/vito/data/',
-      'DatasetName': 'Ravi/*',
-      'fid': 0,
-      'crop_size': 1024,
-      'resample_factor': 1/8,
-      'point_per_side': 24,
-      #'window_step':0.5,
-      'b':15,
-      'stability_t':0.85,
-      'resolution(mm)': 0.2,
-      'expected_min_size(sqmm)': 100,
-      'min_radius': 10
-      }
-try:#attempt to load saved init_para
-    OutDIR=sys.argv[1]
-    with open(OutDIR+'init_para.json', 'r') as json_file:
-        init_para = json.load(json_file)
-    print('Loaded parameters from json')
-    print(init_para)
-except:#use defined init_para
-    print('Using default parameters')
-    print(init_para)
-    OutDIR=init_para.get('OutDIR')
-    # create dir if output dir not exist
-    if not os.path.exists(OutDIR[:-1]):
-        os.makedirs(OutDIR[:-1])
 
-OutDIR=init_para.get('OutDIR')
+
+
+OutDIR=sys.argv[1]
+
+n_pass=len(os.listdir(OutDIR+'Merged'))
+if not os.path.exists(OutDIR+f'chunks/{n_pass}'):
+    os.makedirs(OutDIR+f'chunks/{n_pass}')
+with open(OutDIR+'init_para.json', 'r') as json_file:
+    init_para = json.load(json_file)[n_pass]
+print('Loaded parameters from json')
+print(init_para)
+
+
+#OutDIR=init_para.get('OutDIR')
 DataDIR=init_para.get('DataDIR')
 DSname=init_para.get('DatasetName')
 fid=init_para.get('fid')
 pps=init_para.get('point_per_side')
-#window_step=init_para.get('window_step')
 b=init_para.get('b')
 stb_t=init_para.get('stability_t')
 #defining clips
@@ -59,15 +44,16 @@ min_pixel=(init_para.get('expected_min_size(sqmm)')/(init_para.get('resolution(m
 min_radi=init_para.get('min_radius')
 print(f'Minimum expected size: {min_pixel} pixel')
 
-pre_para={'Resample': {'fxy':resample_factor}
-        }
-try:#attempt to load saved init_para
+
+try:#attempt to load saved pre_para
     with open(OutDIR+'pre_para.json', 'r') as json_file:
-        init_para = json.load(json_file)
+        pre_para = json.load(json_file)[n_pass]
+    pre_para.update({'Resample': {'fxy':resample_factor}})
     print('Loaded preprocessing parameters from json')
     print(pre_para)
 except:#use defined init_para
     print('Using preprocessing default')
+    pre_para={'Resample': {'fxy':resample_factor}}
     print(pre_para)
 
 #Prep
@@ -92,7 +78,7 @@ mask_generator = SamAutomaticMaskGenerator(sam)
 
 #containers
 stats_list=[]
-with open(OutDIR+'chunks/output.txt', 'w') as f:
+with open(OutDIR+f'chunks/{n_pass}/output.txt', 'w') as f:
     with redirect_stdout(f):
         for ij_idx in patch_keys:
             start_loop = time.time()
@@ -174,17 +160,17 @@ with open(OutDIR+'chunks/output.txt', 'w') as f:
                             list_of_cleaned_groups_reseg_masks_nms=[list_of_cleaned_groups_reseg_masks_nms[i] for i,k in enumerate(keep) if k]
                             list_of_cleaned_groups_reseg_score_nms=[list_of_cleaned_groups_reseg_score_nms[i] for i,k in enumerate(keep) if k]
                             if len(list_of_cleaned_groups_reseg_masks_nms)>0:
-                                chunk_stats=fnc.create_stats_df(list_of_cleaned_groups_reseg_masks_nms,resample_factor)
-                                chunk_stats['centroid y'] += (ij_idx[1]*(crop_size-2*b))/resample_factor
-                                chunk_stats['centroid x'] += (ij_idx[0]*(crop_size-2*b))/resample_factor
-                                stats_list.append(chunk_stats)
+                                #chunk_stats=fnc.create_stats_df(list_of_cleaned_groups_reseg_masks_nms,resample_factor)
+                                #chunk_stats['centroid y'] += (ij_idx[1]*(crop_size-2*b))/resample_factor
+                                #chunk_stats['centroid x'] += (ij_idx[0]*(crop_size-2*b))/resample_factor
+                                #stats_list.append(chunk_stats)
                                 #saving outputs
                                 msk_dic={#'mask':list_of_cleaned_groups_reseg_masks,
                                             'nms mask':list_of_cleaned_groups_reseg_masks_nms,
                                             #'mask pred iou':list_of_cleaned_groups_reseg_score,
                                             'nms mask pred iou': list_of_cleaned_groups_reseg_score_nms,
                                             'ij':ij_idx,'crop size':crop_size}
-                                np.save(OutDIR+f'chunks/chunk_{int(ij_idx[0])}_{int(ij_idx[1])}',[msk_dic])
+                                np.save(OutDIR+f'chunks/{n_pass}/chunk_{int(ij_idx[0])}_{int(ij_idx[1])}',[msk_dic])
                                 del msk_dic, list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms
                         else:
                             print('No valid mask were found inside valid box')
@@ -196,61 +182,61 @@ with open(OutDIR+'chunks/output.txt', 'w') as f:
                 print('This crop is too small')            
             end_loop = time.time()
             print('loop took: ', end_loop-start_loop)
-stats = pd.concat(stats_list, ignore_index=True)
-stats.to_hdf(OutDIR+'stats_df.h5', key='df', mode='w')
-print('Stats saved')
+#stats = pd.concat(stats_list, ignore_index=True)
+#stats.to_hdf(OutDIR+'stats_df.h5', key='df', mode='w')
+#print('Stats saved')
 
-from scipy.stats import gaussian_kde
-plt.figure(figsize=(16, 10))
-plt.subplot(2,2,1)
-plt.xscale('log')
-data = stats['area']
+#from scipy.stats import gaussian_kde
+#plt.figure(figsize=(16, 10))
+#plt.subplot(2,2,1)
+#plt.xscale('log')
+#data = stats['area']
 
-kde = gaussian_kde(data)
-x = np.linspace(min(data), max(data), 1000)
-kde_values = kde(x)
-plt.plot(x, kde_values)
+#kde = gaussian_kde(data)
+#x = np.linspace(min(data), max(data), 1000)
+#kde_values = kde(x)
+#plt.plot(x, kde_values)
 
-plt.xlabel('Area (pixel)')
-plt.ylabel('Density')
-plt.title('Density Plot of Area')
-plt.grid()
+#plt.xlabel('Area (pixel)')
+#plt.ylabel('Density')
+#plt.title('Density Plot of Area')
+#plt.grid()
 
-plt.subplot(2,2,2)
-plt.xscale('log')
-frequencies, bin_edges = np.histogram(data, bins=30)
-bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
-plt.plot(bin_midpoints, frequencies)
+#plt.subplot(2,2,2)
+#plt.xscale('log')
+#frequencies, bin_edges = np.histogram(data, bins=30)
+#bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
+#plt.plot(bin_midpoints, frequencies)
 
-plt.xlabel('Area (pixel)')
-plt.ylabel('Frequency')
-plt.title('Frequency Plot of Area')
-plt.grid()
+#plt.xlabel('Area (pixel)')
+#plt.ylabel('Frequency')
+#plt.title('Frequency Plot of Area')
+#plt.grid()
 
-plt.subplot(2,2,3)
-kde = gaussian_kde(data)
-x = np.linspace(min(data), max(data), 1000)
-kde_values = kde(x)
-plt.plot(x, kde_values)
+#plt.subplot(2,2,3)
+#kde = gaussian_kde(data)
+#x = np.linspace(min(data), max(data), 1000)
+#kde_values = kde(x)
+#plt.plot(x, kde_values)
 
-plt.xlabel('Area (pixel)')
-plt.ylabel('Density')
-plt.title('Density Plot of Area (nms)')
-plt.grid()
+#plt.xlabel('Area (pixel)')
+#plt.ylabel('Density')
+#plt.title('Density Plot of Area (nms)')
+#plt.grid()
 
-plt.subplot(2,2,4)
-frequencies, bin_edges = np.histogram(data, bins=30)
-bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
-plt.plot(bin_midpoints, frequencies)
+#plt.subplot(2,2,4)
+#frequencies, bin_edges = np.histogram(data, bins=30)
+#bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
+#plt.plot(bin_midpoints, frequencies)
 
-plt.xlabel('Area (pixel)')
-plt.ylabel('Frequency')
-plt.title('Frequency Plot of Area (nms)')
-plt.grid()
-plt.suptitle(f'{ len(stats)} object(s)')
-plt.tight_layout()
-plt.savefig(OutDIR+'size_distribution.png')
-plt.show()
+#plt.xlabel('Area (pixel)')
+#plt.ylabel('Frequency')
+#plt.title('Frequency Plot of Area (nms)')
+#plt.grid()
+#plt.suptitle(f'{ len(stats)} object(s)')
+#plt.tight_layout()
+#plt.savefig(OutDIR+'size_distribution.png')
+#plt.show()
 
 end_script = time.time()
 print('script took: ', end_script-start_script)

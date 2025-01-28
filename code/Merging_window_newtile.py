@@ -6,23 +6,33 @@ import time
 import sys
 import json
 from tqdm import tqdm
+import os
 
 start_script = time.time()
 
-try:
-    OutDIR=sys.argv[1]
-except:
-    OutDIR='/DATA/vito/output/Ravi2_run2_dw8_cp1024_pps48/'
+OutDIR=sys.argv[1]
+
+n_pass=len(os.listdir(OutDIR+'Merged'))
 
 print('Loaded parameters from '+OutDIR)
 with open(OutDIR+'init_para.json', 'r') as json_file:
-    init_para = json.load(json_file)
-with open(OutDIR+'pre_para.json', 'r') as json_file:
-    pre_para = json.load(json_file)
+    init_para = json.load(json_file)[n_pass]
+
+resample_factor=init_para.get('resample_factor')
+
+try:#attempt to load saved pre_para
+    with open(OutDIR+'pre_para.json', 'r') as json_file:
+        pre_para = json.load(json_file)[n_pass]
+    pre_para.update({'Resample': {'fxy':resample_factor}})
+    print('Loaded preprocessing parameters from json')
+    print(pre_para)
+except:#use defined init_para
+    print('Using preprocessing default')
+    pre_para={'Resample': {'fxy':resample_factor}}
+    print(pre_para)
 
 print(init_para)
 print(pre_para)
-
 
 OutDIR=init_para.get('OutDIR')
 DataDIR=init_para.get('DataDIR')
@@ -32,7 +42,6 @@ fid=init_para.get('fid')
 #defining clips
 b=init_para.get('b')
 crop_size=init_para.get('crop_size')
-resample_factor=init_para.get('resample_factor')
 
 image=fnc.load_image(DataDIR,DSname,fid)
 org_shape=image.shape
@@ -44,7 +53,7 @@ if resample_factor!=1:
 
 print('Loading clips.....')
 
-clips_pths = glob.glob(OutDIR+f'chunks/chunk_*')
+clips_pths = glob.glob(OutDIR+f'chunks/{n_pass}/chunk_*')
 clips_pths.sort()
 
 
@@ -83,8 +92,8 @@ for old_label, new_label in label_mapping.items():
     shuffled_mask[id_mask == old_label] = new_label
 id_mask=shuffled_mask
 
-print(f'Saving id mask to '+OutDIR+'Merged/all_mask_merged_windows_id.npy...')
-np.save(OutDIR+'Merged/all_mask_merged_windows_id',id_mask)
+print(f'Saving id mask to '+OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy...')
+np.save(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}',id_mask)
 print('Saved')
 
 print(f'{msk_count} masks found')
@@ -109,7 +118,7 @@ plt.imshow(stack_mask>1,alpha=0.6)
 plt.axis('off')
 plt.title(f'Overlapping area', fontsize=20)
 plt.tight_layout()
-plt.savefig(OutDIR+'Merged_mask.png')
+plt.savefig(OutDIR+f'Merged_mask_{n_pass:03}.png')
 plt.show()
 
 end_script = time.time()

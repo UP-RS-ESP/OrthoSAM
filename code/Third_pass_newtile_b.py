@@ -30,14 +30,25 @@ try:
 except:
     OutDIR='/DATA/vito/output/Ravi3_run2_dw2_stb085_3b_minarea/'
 
+n_pass=int(sys.argv[2])
+
+
 print('Loaded parameters from '+OutDIR)
 with open(OutDIR+'init_para.json', 'r') as json_file:
-    init_para = json.load(json_file)
-with open(OutDIR+'pre_para.json', 'r') as json_file:
-    pre_para = json.load(json_file)
-
+    init_para = json.load(json_file)[n_pass]
 print(init_para)
-print(pre_para)
+resample_factor=init_para.get('resample_factor')
+
+try:#attempt to load saved pre_para
+    with open(OutDIR+'pre_para.json', 'r') as json_file:
+        pre_para = json.load(json_file)[n_pass]
+    pre_para.update({'Resample': {'fxy':resample_factor}})
+    print('Loaded preprocessing parameters from json')
+    print(pre_para)
+except:#use defined init_para
+    print('Using preprocessing default')
+    pre_para={'Resample': {'fxy':resample_factor}}
+    print(pre_para)
 
 DataDIR=init_para.get('DataDIR')
 DSname=init_para.get('DatasetName')
@@ -45,7 +56,7 @@ fid=init_para.get('fid')
 
 
 #defining clips
-third_b_resmpale=init_para.get('third_b_resample_factor')
+third_b_resmpale=init_para.get('third_b_resample_factor')[n_pass]
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
 dilation_size=init_para.get('dilation_size')
@@ -59,10 +70,9 @@ image=fnc.preprocessing_roulette(image, pre_para)
 
 print('Preprocessing finished')
 
-ar_masks=np.array(np.load(OutDIR+'Merged/all_mask_merged_windows_id.npy', allow_pickle=True))
+ar_masks=np.array(np.load(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass-1:03}.npy', allow_pickle=True))
 print(len(np.unique(ar_masks)),' mask(s) loaded')
 
-# Define the paths to the scripts you want to run
 first_second_run = "code/First_second_pass_newtile.py"
 Merging_window = "code/Merging_window_newtile.py"
 
@@ -91,7 +101,7 @@ for i,region in tqdm.tqdm(enumerate(regions), 'Checking required resampling for 
         if factor<(np.max(org_shape)*0.8)/(crop_size):
             fxy.append(factor)
 plt.title('Void in clean SAM masks')
-plt.savefig(OutDIR+'void.png')
+plt.savefig(OutDIR+f'void_{n_pass:03}.png')
 plt.show()
 
 if len(fxy)>0:
@@ -123,24 +133,19 @@ if len(fxy)>0:
     else:
         required_resampling=third_b_resmpale
     print(f'Third pass resample factor: {required_resampling}')
-    
-    third_init_para=init_para.copy()
-    third_init_para.update({'OutDIR': OutDIR+'Third/',
-                            'resample_factor': required_resampling})
-    third_pre_para=pre_para.copy()
-    third_pre_para.update({'Resample': {'fxy': required_resampling}})
+    with open(OutDIR+'init_para.json', 'r') as json_file:
+        init_para_lst = json.load(json_file)
+    init_para.update({'resample_factor': required_resampling})
+    init_para_lst[n_pass]=init_para
+    with open(OutDIR+f'init_para.json', 'w') as json_file:
+        json.dump(init_para_lst, json_file, indent=4)
 
-    fnc.create_dir_ifnotexist(OutDIR+'Third/')
-    with open(OutDIR+'Third/'+'init_para.json', 'w') as json_file:
-        json.dump(third_init_para, json_file, indent=4)
-    with open(OutDIR+'Third/'+'pre_para.json', 'w') as json_file:
-        json.dump(third_pre_para, json_file, indent=4)
     print('Performing resampled first pass and second pass clipwise segmentation')
-    subprocess.run(["python", first_second_run, OutDIR+'Third/'])
+    subprocess.run(["python", first_second_run, OutDIR])
     print('Merging windows')
-    subprocess.run(["python", Merging_window, OutDIR+'Third/'])
+    subprocess.run(["python", Merging_window, OutDIR])
 
-    resampled_SAM=np.array(np.load(OutDIR+'Third/'+'Merged/all_mask_merged_windows_id.npy', allow_pickle=True))
+    resampled_SAM=np.array(np.load(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy', allow_pickle=True))
     resampled_SAM=cv2.resize(resampled_SAM.astype(np.uint16), ar_masks.shape[::-1], interpolation = cv2.INTER_NEAREST)
 
     #finding mask that is only inside the void
@@ -197,7 +202,8 @@ if len(fxy)>0:
 
         plt.subplot(2,2,4)
         plt.imshow(image)
-        plt.imshow(ar_masks, cmap='nipy_spectral',alpha=0.6)
+        #plt.imshow(ar_masks, cmap='nipy_spectral',alpha=0.6)
+        plt.imshow(ar_masks>0,alpha=0.6)
         plt.axis('off')
         plt.title(f'Merged, total {len(np.unique(ar_masks))} mask(s)', fontsize=20)
         #plt.subplot(2,2,4)
