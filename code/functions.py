@@ -545,6 +545,7 @@ def add_gaussian_noise_to_circle(array, mean ,std , mask=None, edge_std=None):
     '''
     gaussian_noise = np.random.normal(mean, std, array.shape)
     if np.any(mask):
+        mask=mask>0
         gaussian_noise=gaussian_noise*mask[:, :, np.newaxis]
         if edge_std:
             gaussian_noise_ed = np.random.normal(mean, edge_std, array.shape)
