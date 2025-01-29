@@ -14,7 +14,7 @@ try:
 except:
     max_radi=3000
 
-for std in [0,5,1,3]:
+for std in [3,12,24,48]:
 
     Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_{max_radi}_cl_std_{std:02}/'
 

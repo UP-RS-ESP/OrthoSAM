@@ -56,7 +56,7 @@ fid=init_para.get('fid')
 
 
 #defining clips
-third_b_resmpale=init_para.get('third_b_resample_factor')[n_pass]
+third_b_resmpale=init_para.get('third_b_resample_factor')
 crop_size=init_para.get('crop_size')
 resample_factor=init_para.get('resample_factor')
 dilation_size=init_para.get('dilation_size')
@@ -162,7 +162,7 @@ if len(fxy)>0:
 
         mask = np.isin(resampled_SAM, valid_ids)
         id_mask = np.where(mask, resampled_SAM, 0)
-        print(f'Third pass discovered {len(valid_ids)} new mask(s)')
+        print(f'{n_pass:03} pass discovered {len(valid_ids)} new mask(s)')
         #id_mask[id_mask>0]+=largest_id
         
         plt.figure(figsize=(20,20))
@@ -170,18 +170,18 @@ if len(fxy)>0:
         plt.imshow(image)
         plt.imshow(ar_masks,alpha=0.6)
         plt.axis('off')
-        plt.title(f'First and second pass result, {len(np.unique(ar_masks))} mask(s)', fontsize=20)
+        plt.title(f'{n_pass-1:03} pass result, {len(np.unique(ar_masks))} mask(s)', fontsize=20)
         plt.subplot(2,2,2)
         plt.imshow(image)
         plt.imshow(resampled_SAM,alpha=0.6)
-        plt.title(f'All third pass extracted masks, resampled factor: {required_resampling}', fontsize=20)
+        plt.title(f'All extracted masks from {n_pass:03} pass, resampled factor: {required_resampling}', fontsize=20)
         
         plt.axis('off')
         plt.subplot(2,2,3)
         plt.imshow(image)
         plt.imshow(id_mask,alpha=0.6)
         plt.axis('off')
-        plt.title(f'Third pass extracted masks, no. of new mask: {len(valid_ids)}', fontsize=20)
+        plt.title(f'{n_pass:03} pass extracted masks, no. of new mask: {len(valid_ids)}', fontsize=20)
         
 
         ids=np.unique(id_mask)
@@ -212,11 +212,11 @@ if len(fxy)>0:
         #plt.axis('off')
         #plt.title(f'Merged, overlaps: {np.sum((id_mask!=0)+(ar_masks!=0)>1)}', fontsize=20)
         plt.tight_layout()
-        plt.savefig(OutDIR+'Merged_masks_withvoid.png')
+        plt.savefig(OutDIR+f'Merged_masks_withvoid_{n_pass:03}.png')
         plt.show()
         
-        print(f'Saving id mask to '+OutDIR+'Third/all_mask_merged_windows_id.npy...')
-        np.save(OutDIR+'Third/all_mask_third_pass_id',ar_masks)
+        print(f'Saving id mask to '+OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy...')
+        np.save(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy',ar_masks)
         print('Saved')
 
         cal_stats=False
