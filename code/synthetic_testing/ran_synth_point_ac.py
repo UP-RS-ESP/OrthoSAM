@@ -44,12 +44,22 @@ for i,init_para in enumerate(para_list):
 
         image=fnc.preprocessing_roulette(image, pre_para)
         print('resampled to: ', image.shape)
-        
-    n_pass=len(os.listdir(OutDIR+'Merged'))
-    seg_masks=np.array(np.load(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy', allow_pickle=True))
-    third=n_pass
 
-    print('Mask imported from '+OutDIR+'Third/all_mask_third_pass_id.npy')
+    n_pass=len(os.listdir(OutDIR+'Merged'))
+
+    #try:
+    #seg_masks=np.array(np.load(OutDIR+'Third/all_mask_third_pass_id.npy', allow_pickle=True))
+    #print('Mask imported from '+OutDIR+'Third/all_mask_third_pass_id.npy')
+    #third=True
+    #except:
+    #seg_masks=np.array(np.load(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass-1:03}.npy', allow_pickle=True))
+    #third=False
+    #print('Third pass mask not found, merged first-second pass mask imported instead')
+    #print('Mask imported from '+OutDIR+f'Third/all_mask_merged_windows_id_{n_pass:03}.npy')
+        
+    seg_masks=np.array(np.load(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass-1:03}.npy', allow_pickle=True))
+    third=n_pass
+    print('Mask imported from '+OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass-1:03}.npy')
     print('masks size:', seg_masks.shape)
     print(len(np.unique(seg_masks)),' mask(s) loaded')
 

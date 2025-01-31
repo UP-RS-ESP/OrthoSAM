@@ -77,11 +77,11 @@ with open(OutDIR+f'pre_para.json', 'w') as json_file:
 for n in range(len(para_list)):
     start_run = time.time()
     if n==0:
-        #print('Performing first pass and second pass clipwise segmentation')
-        #subprocess.run(["python", first_second_run, OutDIR])
+        print('Performing first pass and second pass clipwise segmentation')
+        subprocess.run(["python", first_second_run, OutDIR])
 
-        #print('Merging windows')
-        #subprocess.run(["python", Merging_window, OutDIR])
+        print('Merging windows')
+        subprocess.run(["python", Merging_window, OutDIR])
         print('skip first')
     else:
         third_b=lst[n].get('n_pass_resample_factor')
