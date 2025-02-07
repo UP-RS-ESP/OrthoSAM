@@ -45,20 +45,22 @@ DSL=[#'ran_synth_08_bw'
      #,'ran_synth_02_1500_cl_std_24'
      #,'ran_synth_01_1000_bw'
      #,'ran_synth_01_10_cl_std_96'
-     'ran_synth_01_10_cl_std_128'
-     ,'ran_synth_02_1500_cl_std_96'
-     ,'ran_synth_02_1500_cl_std_128'
+     #,'ran_synth_01_10_cl_std_128'
+     #,'ran_synth_02_1500_cl_std_96'
+     #,'ran_synth_02_1500_cl_std_128'
+     'ran_synth_01_10_cl_std_192'
+     ,'ran_synth_02_1500_cl_std_192'
      ]
 
 
 for DS in DSL:
-    #if not os.path.exists(f'/DATA/vito/output/{DS}'):
-    #    os.makedirs(f'/DATA/vito/output/{DS}')
-    #for i in range(1):
-    #    subprocess.run(["python", run_ds, DS, f'{i}'])
+    if not os.path.exists(f'/DATA/vito/output/{DS}'):
+        os.makedirs(f'/DATA/vito/output/{DS}')
+    for i in range(1):
+        subprocess.run(["python", run_ds, DS, f'{i}'])
 
-    #print(f'{DS} completed')
-    #subprocess.run(["python", noti, DS])
+    print(f'{DS} completed')
+    subprocess.run(["python", noti, DS])
 
     print('Working on '+DS)
     if not os.path.exists('/DATA/vito/data/'+DS+'/'+DS):

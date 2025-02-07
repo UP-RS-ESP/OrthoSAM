@@ -119,7 +119,7 @@ def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded, mask
         list_of_nooverlap_mask=np.arange(len(list_of_masks))
     return cleaned_groups, list_of_nooverlap_mask
 
-def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor,tm=0.5):
+def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor, crop_size, size_threshold=0.4,tm=0.5):
     ##problem--we are assuming that in each disconnected region there is only one object
     cleaned_groups_reseg=[]
     for k in range(len(cleaned_groups)):
@@ -136,7 +136,7 @@ def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, p
             regions.append(region) 
 
         for props in regions:
-            if (props.area>100):#apply minimum area to filter out mini residuals
+            if (props.area>min_pixel):#apply minimum area to filter out mini residuals
                 y0, x0 = props.centroid
                 input_point = np.array([[x0,y0]])
                 input_label = np.array([1])
