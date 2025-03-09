@@ -90,6 +90,10 @@ label_mapping = dict(zip(unique_labels, shuffled_labels))
 shuffled_mask = id_mask.copy()
 for old_label, new_label in label_mapping.items():
     shuffled_mask[id_mask == old_label] = new_label
+
+mask_cleaned=np.zeros_like(shuffled_mask)
+for i in np.unique(shuffled_mask)[1:]:
+    mask_cleaned += fnc.clean_mask(shuffled_mask==i)*i
 id_mask=shuffled_mask
 
 print(f'Saving id mask to '+OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy...')

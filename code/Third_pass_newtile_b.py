@@ -198,7 +198,11 @@ if len(fxy)>0:
         shuffled_mask = ar_masks.copy()
         for old_label, new_label in label_mapping.items():
             shuffled_mask[ar_masks == old_label] = new_label
-        ar_masks=shuffled_mask
+        
+        mask_cleaned=np.zeros_like(shuffled_mask)
+        for i in np.unique(shuffled_mask)[1:]:
+            mask_cleaned += fnc.clean_mask(shuffled_mask==i)*i
+        ar_masks=mask_cleaned
 
         plt.subplot(2,2,4)
         plt.imshow(image)

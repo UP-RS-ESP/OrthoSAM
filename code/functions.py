@@ -15,6 +15,7 @@ import pandas as pd
 import psutil
 import os
 from multiprocessing import Pool, Manager, cpu_count
+import matplotlib.colors as mcolors
 
 def samplot(image, mask_generator, label=None, ax=None):
     '''
@@ -37,14 +38,29 @@ def samplot(image, mask_generator, label=None, ax=None):
         plt.tight_layout()
         plt.show()
     return masks
-def show_mask(mask, ax, random_color=False):
-    if random_color:
-        color = np.concatenate([np.random.random(3), np.array([0.6])], axis=0)
+def show_mask(mask, ax, color=None):
+    if np.any(color!=None):
+        color = np.concatenate([color, np.array([0.5])], axis=0)
     else:
-        color = np.array([30/255, 144/255, 255/255, 0.6])
+        color = np.array([30/255, 144/255, 255/255, 0.5])
     h, w = mask.shape[-2:]
     mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
     ax.imshow(mask_image)
+def show_mask_stack(mask, ax, cbar=True, alpha=0.5, cmap='jet'):
+
+    vmin = np.min(mask)
+
+    vmax = np.max(mask)
+    
+    masked_mask = np.ma.masked_where(mask == 0, mask)
+
+    boundaries = np.arange(vmin + 0.5, vmax + 1.5) 
+    norm = mcolors.BoundaryNorm(boundaries, plt.get_cmap(cmap).N)
+
+    im = ax.imshow(masked_mask, cmap=cmap, norm=norm, alpha=alpha)
+    if cbar:
+        cbar = plt.colorbar(im, ax=ax, boundaries=boundaries, ticks=np.arange(vmin, vmax + 1),shrink=0.75)
+        cbar.set_label("Mask Count")
     
 def show_points(coords, labels, ax, marker_size=375):
     pos_points = coords[labels==1]
@@ -780,33 +796,38 @@ def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
         pass
     return temp_untile
 
-def mask_in_valid_box(mask,b, ij_idx, max_ij):
-    if (ij_idx[0]==max_ij[0] and ij_idx[0]==0):
-        y0,y1=0,-1
-    elif ij_idx[0]==max_ij[0]:
-        y0,y1=b,-1
-    elif ij_idx[0]==0:
-        y0,y1=0,-b
-    else:
-        y0,y1=b,-b
+def mask_in_valid_box(masks,b, ij_idx, max_ij):
+    def get_box(b, ij_idx, max_ij):
+        if (ij_idx[0]==max_ij[0] and ij_idx[0]==0):
+            y0,y1=0,-1
+        elif ij_idx[0]==max_ij[0]:
+            y0,y1=b,-1
+        elif ij_idx[0]==0:
+            y0,y1=0,-b
+        else:
+            y0,y1=b,-b
 
-    if (ij_idx[1]==max_ij[1] and ij_idx[1]==0):
-        x0,x1=0,-1
-    elif ij_idx[1]==max_ij[1]:#if it is the last tile, valid box should cover the entire 
-        x0,x1=b,-1
-    elif ij_idx[1]==0:
-        x0,x1=0,-b
-    else:
-        x0,x1=b,-b
-
-    area_in_box=np.sum(mask[y0:y1,x0:x1])
-    total_area=np.sum(mask)
-    if (total_area-area_in_box)==0:
-        return True
-    elif (total_area-area_in_box)<area_in_box:
-        return True
-    else:
-        return False
+        if (ij_idx[1]==max_ij[1] and ij_idx[1]==0):
+            x0,x1=0,-1
+        elif ij_idx[1]==max_ij[1]:#if it is the last tile, valid box should cover the entire 
+            x0,x1=b,-1
+        elif ij_idx[1]==0:
+            x0,x1=0,-b
+        else:
+            x0,x1=b,-b
+        return x0,x1,y0,y1
+    x0,x1,y0,y1 = get_box(b, ij_idx, max_ij)
+    keep=[]
+    for mask in masks:
+        area_in_box=np.sum(mask[y0:y1,x0:x1])
+        total_area=np.sum(mask)
+        if (total_area-area_in_box)==0:
+            keep.append(True)
+        elif (total_area-area_in_box)<area_in_box:
+            keep.append(True)
+        else:
+            keep.append(False)
+    return keep
     
 def create_dir_ifnotexist(OutDIR):
     if not os.path.exists(OutDIR[:-1]):

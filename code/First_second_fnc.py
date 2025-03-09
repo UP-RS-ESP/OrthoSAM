@@ -145,10 +145,57 @@ def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, p
                     point_coords=input_point,
                     point_labels=input_label,
                     multimask_output=True,)
-                best_idx=np.argmax(scores)#pick the mask with highest score
-                if fnc.area_radi(partmasks[best_idx], min_pixel, min_radi):
-                    cleaned_groups_reseg.append({'mask':partmasks[best_idx],'score':scores[best_idx],'logit':logits[best_idx],'group':k})
+                #best_idx=np.argmax(scores)#pick the mask with highest score
+                partmasks=partmasks[np.argsort(scores)[::-1]]
+                logits=logits[np.argsort(scores)[::-1]]
+                scores=np.sort(scores)[::-1]
+                pick=0
+                while pick < len(partmasks):
+                    mask_area = np.sum(partmasks[pick])
+                    # if mask is very large compared to size of the image (credit:segment everygrain) modified from 0.1 to 0.4
+                    if mask_area / (crop_size ** 2) <= size_threshold:
+                        if fnc.area_radi(partmasks[pick], min_pixel, min_radi):
+                            cleaned_groups_reseg.append({'mask':partmasks[pick],'score':scores[pick],'logit':logits[pick],'seed_point':props.centroid})
+                            break
+                        else:
+                            pick += 1
+                    else:
+                        pick += 1
+                
     
     list_of_cleaned_groups_reseg_masks = [fnc.clean_mask(mask['mask'].astype('bool')) for mask in cleaned_groups_reseg]
     list_of_cleaned_groups_reseg_score=[mask['score'] for mask in cleaned_groups_reseg]
     return list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score
+
+def mask_in_valid_box(masks,b, ij_idx, max_ij):
+    def get_box(b, ij_idx, max_ij):
+        if (ij_idx[0]==max_ij[0] and ij_idx[0]==0):
+            y0,y1=0,-1
+        elif ij_idx[0]==max_ij[0]:
+            y0,y1=b,-1
+        elif ij_idx[0]==0:
+            y0,y1=0,-b
+        else:
+            y0,y1=b,-b
+
+        if (ij_idx[1]==max_ij[1] and ij_idx[1]==0):
+            x0,x1=0,-1
+        elif ij_idx[1]==max_ij[1]:#if it is the last tile, valid box should cover the entire 
+            x0,x1=b,-1
+        elif ij_idx[1]==0:
+            x0,x1=0,-b
+        else:
+            x0,x1=b,-b
+        return x0,x1,y0,y1
+    x0,x1,y0,y1 = get_box(b, ij_idx, max_ij)
+    keep=[]
+    for mask in masks:
+        area_in_box=np.sum(mask[y0:y1,x0:x1])
+        total_area=np.sum(mask)
+        if (total_area-area_in_box)==0:
+            keep.append(True)
+        elif (total_area-area_in_box)<area_in_box:
+            keep.append(True)
+        else:
+            keep.append(False)
+    return keep

@@ -31,6 +31,7 @@ DSL=[#'ran_synth_08_bw'
      #,'ran_synth_04_100_bw'
      #,'ran_synth_08_100_bw'
      #,'ran_synth_01_100_bw'
+     'ran_synth_01_3000_bw'
      #,'ran_synth_02_3000_bw'
      #,'ran_synth_04_3000_bw'
      #,'ran_synth_01_10_cl_std_00'
@@ -48,8 +49,8 @@ DSL=[#'ran_synth_08_bw'
      #,'ran_synth_01_10_cl_std_128'
      #,'ran_synth_02_1500_cl_std_96'
      #,'ran_synth_02_1500_cl_std_128'
-     'ran_synth_01_10_cl_std_192'
-     ,'ran_synth_02_1500_cl_std_192'
+     #'ran_synth_01_10_cl_std_192'
+     #,'ran_synth_02_1500_cl_std_192'
      ]
 
 

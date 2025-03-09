@@ -141,7 +141,7 @@ with open(OutDIR+f'chunks/{n_pass}/output.txt', 'w') as f:
                         unique_groups_thresholded = FS_fnc.filter_groupping_by_intersection(group_overlap_area,unique_groups, list_overlap)
                         cleaned_groups, list_of_nooverlap_mask = FS_fnc.checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded, masks)
                         if cleaned_groups:
-                            list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = FS_fnc.Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor)
+                            list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = FS_fnc.Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor, crop_size)
                             if len(list_of_nooverlap_mask)>0:
                                 for m in list_of_nooverlap_mask:
                                     list_of_cleaned_groups_reseg_masks.append(list_of_masks[m].astype('bool'))
@@ -156,7 +156,8 @@ with open(OutDIR+f'chunks/{n_pass}/output.txt', 'w') as f:
 
                         #valid box
                         if len(list_of_cleaned_groups_reseg_masks_nms)>0:
-                            keep = [fnc.mask_in_valid_box(mask,b, ij_idx, max_ij) for mask in list_of_cleaned_groups_reseg_masks_nms]
+                            #keep = [fnc.mask_in_valid_box(mask,b, ij_idx, max_ij) for mask in list_of_cleaned_groups_reseg_masks_nms]
+                            keep = FS_fnc.mask_in_valid_box(list_of_cleaned_groups_reseg_masks_nms,b, ij_idx, max_ij)
                             list_of_cleaned_groups_reseg_masks_nms=[list_of_cleaned_groups_reseg_masks_nms[i] for i,k in enumerate(keep) if k]
                             list_of_cleaned_groups_reseg_score_nms=[list_of_cleaned_groups_reseg_score_nms[i] for i,k in enumerate(keep) if k]
                             if len(list_of_cleaned_groups_reseg_masks_nms)>0:
