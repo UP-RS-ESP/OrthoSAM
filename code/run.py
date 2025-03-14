@@ -8,27 +8,29 @@ import functions as fnc
 
 # Define the paths to the scripts you want to run
 run_DS = "code/run_DS.py"
-for i in range(3):
+for id in range(3)[2:]:
     start_run = time.time()
-    master_para={'OutDIR': f'/DATA/vito/output/Arg_clip{i}_run_dw1_4_b100/',
+    master_para={'OutDIR': f'/DATA/vito/output/Arg_clip{id}_run_2_dw1_2_b300_48pps/',
         'DataDIR': '/DATA/vito/data/',
         'DatasetName': 'Argentina/*',
-        'fid': i,
+        'fid': id,
         'crop_size': 1024,
-        'resample_factor': 1,
-        'point_per_side': 30,
-        'dilation_size':15,
+        'resample_factor': 2,
+        '1st_resample_factor': 2,
+        'point_per_side': 48,
+        'dilation_size':1,
         'min_size_factor':0.0001,
-        'b':100,
+        'b':300,
         'stability_t':0.85,
-        'third_b_resample_factor':1/4, #None: use method A. 1: auto select resample rate.
         'resolution(mm)': 0.5,
         'expected_min_size(sqmm)': 10,
         'min_radius': 0
         }
     para_list=[
         {},
-        {'n_pass_resample_factor':1/12, #None: use method A. 1: auto select resample rate.
+        {'n_pass_resample_factor':1, #None: use method A. 1: auto select resample rate.
+        },
+        {'n_pass_resample_factor':1/2, #None: use method A. 1: auto select resample rate.
         }
         ]
     pre_para_list=[{#'Gaussian': {'kernel size':3},

@@ -37,7 +37,7 @@ print('Loaded parameters from '+OutDIR)
 with open(OutDIR+'init_para.json', 'r') as json_file:
     init_para = json.load(json_file)[n_pass]
 print(init_para)
-resample_factor=init_para.get('resample_factor')
+resample_factor=init_para.get('1st_resample_factor')
 
 try:#attempt to load saved pre_para
     with open(OutDIR+'pre_para.json', 'r') as json_file:
@@ -56,9 +56,9 @@ fid=init_para.get('fid')
 
 
 #defining clips
-third_b_resmpale=init_para.get('third_b_resample_factor')
+n_pass_resample_factor=init_para.get('n_pass_resample_factor')
 crop_size=init_para.get('crop_size')
-resample_factor=init_para.get('resample_factor')
+last_resample_factor=init_para.get('resample_factor')
 dilation_size=init_para.get('dilation_size')
 min_pixel=(init_para.get('expected_min_size(sqmm)')/(init_para.get('resolution(mm)')**2))*resample_factor
 min_radi=init_para.get('min_radius')
@@ -107,11 +107,11 @@ plt.show()
 if len(fxy)>0:
     print(f'{len(fxy)} void(s) found')
     
-    if third_b_resmpale==1:#if resmpale factor not specified
+    if n_pass_resample_factor==1:#if resmpale factor not specified
         if len(fxy)>0:
             required_resampling=1/(np.max(fxy))
         else:
-            required_resampling=resample_factor/2
+            required_resampling=last_resample_factor/2
             print('No valid voids were detected. Adjust parameter if needed.')
             print(f'Would you like to further downsampling by a factor of 2 and proceed? (Resampling factor: {required_resampling})')
             signal.signal(signal.SIGALRM, timeout_handler)
@@ -126,12 +126,12 @@ if len(fxy)>0:
                     return True 
 
             if prompt_user():
-                required_resampling=resample_factor/2
+                required_resampling=last_resample_factor/2
             else:
                 print("You chose no. Exiting script.")
                 exit()
     else:
-        required_resampling=third_b_resmpale
+        required_resampling=n_pass_resample_factor
     print(f'Third pass resample factor: {required_resampling}')
     with open(OutDIR+'init_para.json', 'r') as json_file:
         init_para_lst = json.load(json_file)
