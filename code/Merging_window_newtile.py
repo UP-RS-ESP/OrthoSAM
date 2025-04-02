@@ -7,6 +7,7 @@ import sys
 import json
 from tqdm import tqdm
 import os
+from skimage.measure import label
 
 start_script = time.time()
 
@@ -62,7 +63,7 @@ print(len(clips_pths),' clips imported')
 msk_count=0
 id_mask = np.zeros_like(image[:,:,0], dtype=np.uint32)
 stack_mask = np.zeros_like(image[:,:,0], dtype=np.uint32)
-#try:
+
 #Merging windows
 Aggregate_masks_noedge=[]
 pred_iou_noedge=[]
@@ -76,25 +77,11 @@ for w_count,pth in tqdm(enumerate(clips_pths),f'Merging and resizing clips', tot
             msk_count+=1
             id_mask[resized!=0]=(msk_count)
             stack_mask+=resized
-            #pred_iou_noedge.append(score)
     clip_window.clear()
-#except Exception as error:
-#    print("An exception occurred:", error)
 
-#shuffle id
-unique_labels = np.unique(id_mask)
-if 0 in unique_labels:
-    unique_labels = unique_labels[unique_labels != 0]
-shuffled_labels = np.random.permutation(unique_labels)
-label_mapping = dict(zip(unique_labels, shuffled_labels))
-shuffled_mask = id_mask.copy()
-for old_label, new_label in label_mapping.items():
-    shuffled_mask[id_mask == old_label] = new_label
 
-mask_cleaned=np.zeros_like(shuffled_mask)
-for i in np.unique(shuffled_mask)[1:]:
-    mask_cleaned += fnc.clean_mask(shuffled_mask==i)*i
-id_mask=shuffled_mask
+#clean and remove empty lable
+id_mask=fnc.clean_and_overwrite(id_mask)
 
 print(f'Saving id mask to '+OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy...')
 np.save(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}',id_mask)

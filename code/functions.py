@@ -1,6 +1,5 @@
 import torch
 import cv2
-from segment_anything import SamAutomaticMaskGenerator, sam_model_registry, SamPredictor
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
@@ -8,7 +7,7 @@ import torch
 import clip
 from PIL import Image
 from tqdm import tqdm
-from skimage.measure import label, regionprops
+from skimage.measure import label, regionprops, regionprops,regionprops_table
 import math
 from torchvision.ops.boxes import batched_nms
 import pandas as pd
@@ -16,6 +15,10 @@ import psutil
 import os
 from multiprocessing import Pool, Manager, cpu_count
 import matplotlib.colors as mcolors
+from tifffile import imread
+import sys
+import scipy.ndimage as ndi
+from scipy.stats import mode
 
 def samplot(image, mask_generator, label=None, ax=None):
     '''
@@ -59,8 +62,9 @@ def show_mask_stack(mask, ax, cbar=True, alpha=0.5, cmap='jet'):
 
     im = ax.imshow(masked_mask, cmap=cmap, norm=norm, alpha=alpha)
     if cbar:
-        cbar = plt.colorbar(im, ax=ax, boundaries=boundaries, ticks=np.arange(vmin, vmax + 1),shrink=0.75)
-        cbar.set_label("Mask Count")
+        cbar = plt.colorbar(im, ax=ax, boundaries=boundaries, ticks=np.arange(vmin, vmax + 1),shrink=0.5)
+        cbar.ax.tick_params(labelsize=16)
+        cbar.set_label("No. of overlaying Mask", fontsize=18)
     
 def show_points(coords, labels, ax, marker_size=375):
     pos_points = coords[labels==1]
@@ -737,6 +741,8 @@ def load_image(DataDIR,DSname,fid):
     if fn_img[fid][-3:]=='npy':
         #image=(np.load(fn_img[fid])*255).astype(np.uint8)
         image=(np.load(fn_img[fid])).astype(np.uint8)
+    elif fn_img[fid][-3:]=='tif':
+        image = imread(fn_img[fid])[:,:,:3]
     else:
         image = cv2.imread(fn_img[fid])
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -1038,3 +1044,89 @@ def update_mask_ious_shared(centroids, mask, ids, seg_masks_rs, seg_ids):
             mask_ious[ids == hit_id] = iou_val
 
         return mask_ious
+
+def clean_and_overwrite(mask):
+    labeled = label(mask)
+    id_to_remove = []
+    for i in tqdm(np.unique(mask)[1:]):
+        if len(np.unique(labeled[mask==i]))>1:
+            labels, counts = np.unique(labeled[mask==i], return_counts=True)   
+            max_label = labels[np.argmax(counts)]
+            id_to_remove.append(labels[labels != max_label])
+    for i in np.hstack(id_to_remove):
+        mask[labeled==i]=0
+    return label(mask)
+def prompt_fid(para):
+    fn_img = glob.glob(para.get('DataDIR')+para.get('DatasetName'))
+    fn_img.sort()
+    for i,fn in enumerate(fn_img):
+        print(i, ': ', fn)
+    print('--------------')
+    while True:
+        try:
+            user_input = int(input("Please select an image: "))
+            print(f"{fn_img[user_input]} selected")
+            para.update({'fid':user_input})
+            break  # Exit the loop if the input is valid
+        except ValueError:
+            print("Requires an index. Please try again.")
+    return para
+
+
+
+def compute_mode(image, labeled_mask):
+    labels = np.unique(labeled_mask)
+    labels = labels[labels > 0]  # Ignore background if 0
+
+    modes = {}
+    for i, channel in enumerate(['C1', 'C2', 'C3']):
+        mode_values = ndi.labeled_comprehension(image[..., i], labeled_mask, labels, 
+                                                lambda x: mode(x, keepdims=True)[0][0], 
+                                                float, 0)
+        modes[channel] = dict(zip(labels, mode_values))
+
+    return modes
+
+def compute_mean(image, labeled_mask):
+    labels = np.unique(labeled_mask)
+    labels = labels[labels > 0]  # Ignore background if 0
+    
+    means = {}
+    for i, channel in enumerate(['C1', 'C2', 'C3']):
+        mean_values = ndi.labeled_comprehension(image[..., i], labeled_mask, labels, np.mean, float, 0)
+        means[channel] = dict(zip(labels, mean_values))
+    
+    return means
+
+def compute_median(image, labeled_mask):
+    labels = np.unique(labeled_mask)
+    labels = labels[labels > 0]  # Ignore background if 0
+    
+    medians = {}
+    for i, channel in enumerate(['C1', 'C2', 'C3']):
+        median_values = ndi.labeled_comprehension(image[..., i], labeled_mask, labels, np.median, float, 0)
+        medians[channel] = dict(zip(labels, median_values))
+    
+    return medians
+
+def get_props_df(image, labeled_mask, resample=1, res=0.2):
+    labeled=label(labeled_mask, background=0)
+    props = regionprops_table(
+        labeled,
+        properties=('centroid', 'axis_major_length', 'axis_minor_length', 'area', 'perimeter'),
+    )
+    props_df=pd.DataFrame(props)
+    props_df['axis_major_length']=(props_df['axis_major_length']/resample)*res
+    props_df['axis_minor_length']=(props_df['axis_minor_length']/resample)*res
+    props_df['area']=(props_df['area']/(resample**2))*(res**2)
+    props_df['perimeter']=(props_df['perimeter']/resample)*res
+
+    props_df['IR'] = (4*np.pi*props_df['area'])/(props_df['perimeter']**2)
+    props_df['h'] = ((props_df['axis_major_length']-props_df['axis_minor_length'])**2)/((props_df['axis_major_length']+props_df['axis_minor_length'])**2)
+    props_df['IRt'] = (4*np.pi*(np.pi*props_df['axis_major_length']*props_df['axis_minor_length']))/(np.pi*(props_df['axis_major_length']+props_df['axis_minor_length'])*(1+((3*props_df['h'])/(10+np.sqrt(4-3*props_df['h'])))))**2
+    props_df['IRn'] = props_df['IR']/props_df['IRt']
+
+    means_rgb = compute_mean(image, labeled_mask)
+    medians_rgb = compute_median(image, labeled_mask)
+    modes_rgb = compute_mode(image, labeled_mask)
+    return props_df

@@ -189,20 +189,8 @@ if len(fxy)>0:
         for id in ids:
             ar_masks[id_mask==id]=(id+largest_id)
         
-        #shuffle id
-        unique_labels = np.unique(ar_masks)
-        if 0 in unique_labels:
-            unique_labels = unique_labels[unique_labels != 0]
-        shuffled_labels = np.random.permutation(unique_labels)
-        label_mapping = dict(zip(unique_labels, shuffled_labels))
-        shuffled_mask = ar_masks.copy()
-        for old_label, new_label in label_mapping.items():
-            shuffled_mask[ar_masks == old_label] = new_label
-        
-        mask_cleaned=np.zeros_like(shuffled_mask)
-        for i in np.unique(shuffled_mask)[1:]:
-            mask_cleaned += fnc.clean_mask(shuffled_mask==i)*i
-        ar_masks=mask_cleaned
+        #clean and remove empty lable
+        ar_masks=fnc.clean_and_overwrite(ar_masks)
 
         plt.subplot(2,2,4)
         plt.imshow(image)
@@ -210,11 +198,6 @@ if len(fxy)>0:
         plt.imshow(ar_masks>0,alpha=0.6)
         plt.axis('off')
         plt.title(f'Merged, total {len(np.unique(ar_masks))} mask(s)', fontsize=20)
-        #plt.subplot(2,2,4)
-        #plt.imshow(image)
-        #plt.imshow(ar_masks>0,alpha=0.6)
-        #plt.axis('off')
-        #plt.title(f'Merged, overlaps: {np.sum((id_mask!=0)+(ar_masks!=0)>1)}', fontsize=20)
         plt.tight_layout()
         plt.savefig(OutDIR+f'Merged_masks_withvoid_{n_pass:03}.png')
         plt.show()

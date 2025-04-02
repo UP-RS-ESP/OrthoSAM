@@ -1,7 +1,7 @@
 import requests
 import sys
 
-script_name=sys.argv[1]
+text=sys.argv[1]
 def send_discord_alert(webhook_url, message):
     data = {"content": message}
     try:
@@ -17,4 +17,4 @@ with open('code/DWH.txt', 'r') as file:
     tail = file.readline().strip()
 head='https://discord.com/api/webhooks/'
 
-send_discord_alert(head+tail, f"{script_name} has completed successfully!")
+send_discord_alert(head+tail, text)

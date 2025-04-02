@@ -2,7 +2,6 @@ import torch
 from segment_anything import sam_model_registry, SamPredictor
 from segment_anything import SamAutomaticMaskGenerator_mod2 as SamAutomaticMaskGenerator
 import numpy as np
-import matplotlib.pyplot as plt
 import torch
 import functions as fnc
 import gc
@@ -10,7 +9,6 @@ import os
 import time
 import sys
 import json
-import pandas as pd
 from contextlib import redirect_stdout
 import First_second_fnc as FS_fnc
 import os
@@ -76,8 +74,6 @@ sam.to(device=DEVICE)
 mask_generator = SamAutomaticMaskGenerator(sam)
 
 
-#containers
-stats_list=[]
 with open(OutDIR+f'chunks/{n_pass}/output.txt', 'w') as f:
     with redirect_stdout(f):
         for ij_idx in patch_keys:
@@ -156,16 +152,10 @@ with open(OutDIR+f'chunks/{n_pass}/output.txt', 'w') as f:
 
                         #valid box
                         if len(list_of_cleaned_groups_reseg_masks_nms)>0:
-                            #keep = [fnc.mask_in_valid_box(mask,b, ij_idx, max_ij) for mask in list_of_cleaned_groups_reseg_masks_nms]
                             keep = FS_fnc.mask_in_valid_box(list_of_cleaned_groups_reseg_masks_nms,b, ij_idx, max_ij)
                             list_of_cleaned_groups_reseg_masks_nms=[list_of_cleaned_groups_reseg_masks_nms[i] for i,k in enumerate(keep) if k]
                             list_of_cleaned_groups_reseg_score_nms=[list_of_cleaned_groups_reseg_score_nms[i] for i,k in enumerate(keep) if k]
                             if len(list_of_cleaned_groups_reseg_masks_nms)>0:
-                                #chunk_stats=fnc.create_stats_df(list_of_cleaned_groups_reseg_masks_nms,resample_factor)
-                                #chunk_stats['centroid y'] += (ij_idx[1]*(crop_size-2*b))/resample_factor
-                                #chunk_stats['centroid x'] += (ij_idx[0]*(crop_size-2*b))/resample_factor
-                                #stats_list.append(chunk_stats)
-                                #saving outputs
                                 msk_dic={#'mask':list_of_cleaned_groups_reseg_masks,
                                             'nms mask':list_of_cleaned_groups_reseg_masks_nms,
                                             #'mask pred iou':list_of_cleaned_groups_reseg_score,
@@ -183,9 +173,6 @@ with open(OutDIR+f'chunks/{n_pass}/output.txt', 'w') as f:
                 print('This crop is too small')            
             end_loop = time.time()
             print('loop took: ', end_loop-start_loop)
-#stats = pd.concat(stats_list, ignore_index=True)
-#stats.to_hdf(OutDIR+'stats_df.h5', key='df', mode='w')
-#print('Stats saved')
 
 #from scipy.stats import gaussian_kde
 #plt.figure(figsize=(16, 10))
