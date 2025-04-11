@@ -1056,6 +1056,7 @@ def clean_and_overwrite(mask):
     for i in np.hstack(id_to_remove):
         mask[labeled==i]=0
     return label(mask)
+
 def prompt_fid(para):
     fn_img = glob.glob(para.get('DataDIR')+para.get('DatasetName'))
     fn_img.sort()
@@ -1087,46 +1088,80 @@ def compute_mode(image, labeled_mask):
 
     return modes
 
-def compute_mean(image, labeled_mask):
-    labels = np.unique(labeled_mask)
-    labels = labels[labels > 0]  # Ignore background if 0
-    
-    means = {}
-    for i, channel in enumerate(['C1', 'C2', 'C3']):
-        mean_values = ndi.labeled_comprehension(image[..., i], labeled_mask, labels, np.mean, float, 0)
-        means[channel] = dict(zip(labels, mean_values))
-    
-    return means
 
-def compute_median(image, labeled_mask):
-    labels = np.unique(labeled_mask)
-    labels = labels[labels > 0]  # Ignore background if 0
+def compute_mean(image, labeled_mask, labels):
+    """Compute mean values for R, G, B channels for each label."""
+    mean_r = ndi.labeled_comprehension(image[..., 0], labeled_mask, labels, np.mean, float, 0)
+    mean_g = ndi.labeled_comprehension(image[..., 1], labeled_mask, labels, np.mean, float, 0)
+    mean_b = ndi.labeled_comprehension(image[..., 2], labeled_mask, labels, np.mean, float, 0)
+
+    return pd.DataFrame({'label': labels, 'mean_R': mean_r, 'mean_G': mean_g, 'mean_B': mean_b})
+
+def compute_median(image, labeled_mask, labels):
+    """Compute median values for R, G, B channels for each label."""
+    median_r = ndi.labeled_comprehension(image[..., 0], labeled_mask, labels, np.median, float, 0)
+    median_g = ndi.labeled_comprehension(image[..., 1], labeled_mask, labels, np.median, float, 0)
+    median_b = ndi.labeled_comprehension(image[..., 2], labeled_mask, labels, np.median, float, 0)
+
+    return pd.DataFrame({'label': labels, 'median_R': median_r, 'median_G': median_g, 'median_B': median_b})
+
+
+#def compute_mean(image, labeled_mask):
+#    labels = np.unique(labeled_mask)
+#    labels = labels[labels > 0]  # Ignore background if 0
     
-    medians = {}
-    for i, channel in enumerate(['C1', 'C2', 'C3']):
-        median_values = ndi.labeled_comprehension(image[..., i], labeled_mask, labels, np.median, float, 0)
-        medians[channel] = dict(zip(labels, median_values))
+#    means = {}
+#    for i, channel in enumerate(['C1', 'C2', 'C3']):
+#        mean_values = ndi.labeled_comprehension(image[..., i], labeled_mask, labels, np.mean, float, 0)
+#        means[channel] = dict(zip(labels, mean_values))
+#    
+#    return means
+
+#def compute_median(image, labeled_mask):
+#    labels = np.unique(labeled_mask)
+#    labels = labels[labels > 0]  # Ignore background if 0
     
-    return medians
+#    medians = {}
+#    for i, channel in enumerate(['C1', 'C2', 'C3']):
+#        median_values = ndi.labeled_comprehension(image[..., i], labeled_mask, labels, np.median, float, 0)
+#        medians[channel] = dict(zip(labels, median_values))
+    
+#    return medians
+
 
 def get_props_df(image, labeled_mask, resample=1, res=0.2):
-    labeled=label(labeled_mask, background=0)
+    """Extract region properties and combine them with mean & median color values."""
+    labeled = label(labeled_mask, background=0)
+    
     props = regionprops_table(
         labeled,
-        properties=('centroid', 'axis_major_length', 'axis_minor_length', 'area', 'perimeter'),
+        properties=('label', 'centroid', 'axis_major_length', 'axis_minor_length', 'area', 'perimeter'),
     )
-    props_df=pd.DataFrame(props)
-    props_df['axis_major_length']=(props_df['axis_major_length']/resample)*res
-    props_df['axis_minor_length']=(props_df['axis_minor_length']/resample)*res
-    props_df['area']=(props_df['area']/(resample**2))*(res**2)
-    props_df['perimeter']=(props_df['perimeter']/resample)*res
+    props_df = pd.DataFrame(props)
 
-    props_df['IR'] = (4*np.pi*props_df['area'])/(props_df['perimeter']**2)
-    props_df['h'] = ((props_df['axis_major_length']-props_df['axis_minor_length'])**2)/((props_df['axis_major_length']+props_df['axis_minor_length'])**2)
-    props_df['IRt'] = (4*np.pi*(np.pi*props_df['axis_major_length']*props_df['axis_minor_length']))/(np.pi*(props_df['axis_major_length']+props_df['axis_minor_length'])*(1+((3*props_df['h'])/(10+np.sqrt(4-3*props_df['h'])))))**2
-    props_df['IRn'] = props_df['IR']/props_df['IRt']
+    props_df['axis_major_length'] = (props_df['axis_major_length'] / resample) * res
+    props_df['axis_minor_length'] = (props_df['axis_minor_length'] / resample) * res
+    props_df['area'] = (props_df['area'] / (resample ** 2)) * (res ** 2)
+    props_df['perimeter'] = (props_df['perimeter'] / resample) * res
 
-    means_rgb = compute_mean(image, labeled_mask)
-    medians_rgb = compute_median(image, labeled_mask)
-    modes_rgb = compute_mode(image, labeled_mask)
+    # Compute shape-based indices
+    props_df['IR'] = (4 * np.pi * props_df['area']) / (props_df['perimeter'] ** 2)
+    props_df['h'] = ((props_df['axis_major_length'] - props_df['axis_minor_length']) ** 2) / \
+                    ((props_df['axis_major_length'] + props_df['axis_minor_length']) ** 2)
+    props_df['IRt'] = (4 * np.pi * (np.pi * props_df['axis_major_length'] * props_df['axis_minor_length'])) / \
+                      (np.pi * (props_df['axis_major_length'] + props_df['axis_minor_length']) * 
+                      (1 + ((3 * props_df['h']) / (10 + np.sqrt(4 - 3 * props_df['h']))))) ** 2
+    props_df['IRn'] = props_df['IR'] / props_df['IRt']
+
+    # Get the correct labels from props_df
+    labels = props_df['label'].values
+
+    # Compute mean and median values
+    means_df = compute_mean(image, labeled_mask, labels)
+    medians_df = compute_median(image, labeled_mask, labels)
+
+    # Merge all data into props_df using 'label' to ensure correct alignment
+    props_df = props_df.merge(means_df, on='label', how='left')
+    props_df = props_df.merge(medians_df, on='label', how='left')
+
     return props_df
