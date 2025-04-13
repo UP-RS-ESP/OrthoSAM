@@ -81,7 +81,7 @@ with open(OutDIR+f'chunks/{n_pass}/output.txt', 'w') as f:
             print(f'Segmenting clip: {ij_idx}')
             #prepare image
             temp_image=patches[ij_idx]
-            if (temp_image.shape[0]>(crop_size//4) and temp_image.shape[1]>(crop_size//4)):
+            if (temp_image.shape[0]>(crop_size//8) and temp_image.shape[1]>(crop_size//8)):
                 if len(np.unique(temp_image))>1:
                     #clear gpu ram
                     gc.collect()
@@ -174,57 +174,6 @@ with open(OutDIR+f'chunks/{n_pass}/output.txt', 'w') as f:
             end_loop = time.time()
             print('loop took: ', end_loop-start_loop)
 
-#from scipy.stats import gaussian_kde
-#plt.figure(figsize=(16, 10))
-#plt.subplot(2,2,1)
-#plt.xscale('log')
-#data = stats['area']
-
-#kde = gaussian_kde(data)
-#x = np.linspace(min(data), max(data), 1000)
-#kde_values = kde(x)
-#plt.plot(x, kde_values)
-
-#plt.xlabel('Area (pixel)')
-#plt.ylabel('Density')
-#plt.title('Density Plot of Area')
-#plt.grid()
-
-#plt.subplot(2,2,2)
-#plt.xscale('log')
-#frequencies, bin_edges = np.histogram(data, bins=30)
-#bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
-#plt.plot(bin_midpoints, frequencies)
-
-#plt.xlabel('Area (pixel)')
-#plt.ylabel('Frequency')
-#plt.title('Frequency Plot of Area')
-#plt.grid()
-
-#plt.subplot(2,2,3)
-#kde = gaussian_kde(data)
-#x = np.linspace(min(data), max(data), 1000)
-#kde_values = kde(x)
-#plt.plot(x, kde_values)
-
-#plt.xlabel('Area (pixel)')
-#plt.ylabel('Density')
-#plt.title('Density Plot of Area (nms)')
-#plt.grid()
-
-#plt.subplot(2,2,4)
-#frequencies, bin_edges = np.histogram(data, bins=30)
-#bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
-#plt.plot(bin_midpoints, frequencies)
-
-#plt.xlabel('Area (pixel)')
-#plt.ylabel('Frequency')
-#plt.title('Frequency Plot of Area (nms)')
-#plt.grid()
-#plt.suptitle(f'{ len(stats)} object(s)')
-#plt.tight_layout()
-#plt.savefig(OutDIR+'size_distribution.png')
-#plt.show()
 
 end_script = time.time()
 print('script took: ', end_script-start_script)
