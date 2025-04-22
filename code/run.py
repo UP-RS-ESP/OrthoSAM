@@ -7,21 +7,27 @@ import sys
 import functions as fnc
 
 run_DS = "code/run_DS.py"
-for id in [0,4,7]:
+#for id in [0,4,7]:
 
+import numpy as np
+id_list=np.array(range(400))
+id_list=id_list[id_list!=382]
+for id in id_list:
+
+    id=int(id)
 
     start_run = time.time()
-    master_para={'OutDIR': f'/DATA/vito/output/ImageGrains_{id}_org_dw2_b200/',
+    master_para={'OutDIR': f'/DATA/vito/output/Sedinet/sedinet_{id}_up2_org/',
         'DataDIR': '/DATA/vito/data/',
-        'DatasetName': 'ImageGrains_v1_data/field_examples/*',
+        'DatasetName': 'sedinet/SediNet/images/*',
         'fid': id,
         'crop_size': 1024,
         'resample_factor': 1,
         '1st_resample_factor': 1,
-        'point_per_side': 30,
+        'point_per_side': 48,
         'dilation_size':1,
         'min_size_factor':0.0001,
-        'b':200,
+        'b':300,
         'stability_t':0.85,
         'resolution(mm)': 0.39,
         'expected_min_size(sqmm)': 0,
@@ -29,7 +35,7 @@ for id in [0,4,7]:
         }
     para_list=[
         {},
-        {'n_pass_resample_factor':1/2, #None: use method A. 1: auto select resample rate.
+        {'n_pass_resample_factor':0.5, #None: use method A. 1: auto select resample rate.
         }
         ]
     pre_para_list=[{#'Gaussian': {'kernel size':3},
