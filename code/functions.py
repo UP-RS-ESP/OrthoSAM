@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 import torch
-import clip
+#import clip
 from PIL import Image
 from tqdm import tqdm
 from skimage.measure import label, regionprops, regionprops,regionprops_table
@@ -162,25 +162,25 @@ def classify_and_return_notable(image, text, labels, model):
   return most_prob, probs[0][most_prob]
 
 #Creat zero-shot classifier weights
-def zeroshot_classifier(classnames, templates, DEVICE, model):
-    with torch.no_grad():
-        zeroshot_weights = []
-        for classname in tqdm(classnames):
-            texts = [template.format(classname) for template in templates] #format with class
-            if DEVICE.type=="cuda":
-                texts = clip.tokenize(texts).cuda() #tokenize
-            else:
-                texts = clip.tokenize(texts).cpu()
-            class_embeddings = model.encode_text(texts) #embed with text encoder
-            class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
-            class_embedding = class_embeddings.mean(dim=0)
-            class_embedding /= class_embedding.norm()
-            zeroshot_weights.append(class_embedding)
-        if DEVICE.type=="cuda":
-            zeroshot_weights = torch.stack(zeroshot_weights, dim=1).cuda()
-        else:
-            zeroshot_weights = torch.stack(zeroshot_weights, dim=1).cpu()#.cuda()
-    return zeroshot_weights
+#def zeroshot_classifier(classnames, templates, DEVICE, model):
+#    with torch.no_grad():
+#        zeroshot_weights = []
+#        for classname in tqdm(classnames):
+#            texts = [template.format(classname) for template in templates] #format with class
+#            if DEVICE.type=="cuda":
+#                texts = clip.tokenize(texts).cuda() #tokenize
+#            else:
+#                texts = clip.tokenize(texts).cpu()
+#            class_embeddings = model.encode_text(texts) #embed with text encoder
+#            class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
+#            class_embedding = class_embeddings.mean(dim=0)
+#            class_embedding /= class_embedding.norm()
+#            zeroshot_weights.append(class_embedding)
+#        if DEVICE.type=="cuda":
+#            zeroshot_weights = torch.stack(zeroshot_weights, dim=1).cuda()
+#        else:
+#            zeroshot_weights = torch.stack(zeroshot_weights, dim=1).cpu()#.cuda()
+#    return zeroshot_weights
 
 def clip_plotting(img, mask, masks, p1=0.3,p2=0.5):
     fig, ax= plt.subplots(2,2, figsize=(15,15))
@@ -1053,8 +1053,9 @@ def clean_and_overwrite(mask):
             labels, counts = np.unique(labeled[mask==i], return_counts=True)   
             max_label = labels[np.argmax(counts)]
             id_to_remove.append(labels[labels != max_label])
-    for i in np.hstack(id_to_remove):
-        mask[labeled==i]=0
+    if len(id_to_remove)>0:
+        for i in np.hstack(id_to_remove):
+            mask[labeled==i]=0
     return label(mask)
 
 def prompt_fid(para):
@@ -1129,7 +1130,7 @@ def compute_median(image, labeled_mask, labels):
 #    return medians
 
 
-def get_props_df(image, labeled_mask, resample=1, res=0.2):
+def get_props_df(image, labeled_mask, resample=1, res=1):
     """Extract region properties and combine them with mean & median color values."""
     labeled = label(labeled_mask, background=0)
     

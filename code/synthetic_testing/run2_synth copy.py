@@ -50,7 +50,7 @@ for DS in DSL:
     if not os.path.exists(f'/DATA/vito/output/{DS}'):
         os.makedirs(f'/DATA/vito/output/{DS}')
     para_list=[]
-    for i in range(1):
+    for i in range(12):
         para_list.append({'OutDIR': f'/DATA/vito/output/{DS}/{DS}_{i:02}_b250/',
                             'DataDIR': '/DATA/vito/data/',
                             'DatasetName': f'{DS}/img/*',

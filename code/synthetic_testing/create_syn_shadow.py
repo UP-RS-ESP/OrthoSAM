@@ -1,12 +1,13 @@
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
 import random
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import functions as fnc
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#import functions as fnc
 from itertools import product
+import gc
+import torch
 
 min_radi=int(sys.argv[1])
 
@@ -145,6 +146,21 @@ def cast_shadow(z, azimuth, inclination):
     s = d_s.copy_to_host()
     return s
 
+def add_gaussian_noise_to_circle(array, mean ,std , mask=None, edge_std=None):
+    '''
+    add gaussian noise to the input image. if mask is given noise will not be added to the area outside the circle. if edge_std is given, different noise will be applied to the edge. mask is required for that.
+    '''
+    gaussian_noise = np.random.normal(mean, std, array.shape)
+    if np.any(mask):
+        mask=mask>0
+        gaussian_noise=gaussian_noise*mask[:, :, np.newaxis]
+        if edge_std:
+            gaussian_noise_ed = np.random.normal(mean, edge_std, array.shape)
+            gaussian_noise+=gaussian_noise_ed*~mask[:, :, np.newaxis]
+    noisy_image = array.astype(float) + gaussian_noise
+    #noisy_image = np.clip(noisy_image, 0, 255).astype(np.uint8)
+    
+    return noisy_image
 Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_{max_radi}_shadow_{str(shadow_strength).replace(".", "_")}/'
 
 if not os.path.exists(Dir[:-1]):
@@ -201,13 +217,15 @@ for circle_id in range(1, num_circles + 1):
 
             height_image[y1:y2, x1:x2] = np.maximum(height_image[y1:y2, x1:x2], z)
             break  
-noisy_height=fnc.add_gaussian_noise_to_circle(height_image,0,3)
+noisy_height=add_gaussian_noise_to_circle(height_image,0,3)
 noisy_height = np.clip(noisy_height, a_min=0,a_max=None)
 np.save(Dir+f'msk',mask)
 np.save(Dir+f'dem',noisy_height)
 np.save(Dir+f'org_rgb',image)
 
 for i,ang in enumerate(list(product(azimuth_l, inclination_l))):
+    gc.collect()
+    torch.cuda.empty_cache()
     azimuth = ang[0]
     inclination = ang[1]
     shadow_image = cast_shadow(noisy_height, azimuth, inclination)

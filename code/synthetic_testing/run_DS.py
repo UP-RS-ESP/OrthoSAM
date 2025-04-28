@@ -9,13 +9,12 @@ import functions as fnc
 
 DS=sys.argv[1]
 i=int(sys.argv[2])
-#print(DS)
-#print(i)
-# Define the paths to the scripts you want to run
+
 first_second_run = "code/First_second_pass_newtile.py"
 Merging_window = "code/Merging_window_newtile.py"
 Third_pass = 'code/Third_pass_newtile.py'
 Third_pass_b = 'code/Third_pass_newtile_b.py'
+noti='/DATA/vito/code/notification.py'
 
 # Define the paths to the scripts you want to run
 master_para={'OutDIR': f'/DATA/vito/output/{DS}/{DS}_{i:02}_b250/',
@@ -24,6 +23,7 @@ master_para={'OutDIR': f'/DATA/vito/output/{DS}/{DS}_{i:02}_b250/',
       'fid': i,
       'crop_size': 1024,
       'resample_factor': 1,
+      '1st_resample_factor': 1,
       'point_per_side': 30,
       'dilation_size':15,
       'b':100,
@@ -75,14 +75,20 @@ with open(OutDIR+f'pre_para.json', 'w') as json_file:
 
 
 for n in range(len(para_list)):
-    start_run = time.time()
+    start_run_whole = time.time()
     if n==0:
+        start_run = time.time()
         print('Performing first pass and second pass clipwise segmentation')
         subprocess.run(["python", first_second_run, OutDIR])
+        end_run = time.time()
+        subprocess.run(["python", noti, sys.argv[1]+' '+sys.argv[2]+' first pass completed. It took '+f'{end_run-start_run}'])
+
 
         print('Merging windows')
+        start_run = time.time()
         subprocess.run(["python", Merging_window, OutDIR])
-        print('skip first')
+        end_run = time.time()
+        subprocess.run(["python", noti, sys.argv[1]+' '+sys.argv[2]+' first pass merging completed. It took '+f'{end_run-start_run}'])
     else:
         third_b=lst[n].get('n_pass_resample_factor')
         if not third_b:
@@ -90,13 +96,16 @@ for n in range(len(para_list)):
             subprocess.run(["python", Third_pass, OutDIR])
         else:
             print('Searching potential missing objects and performing third pass segmentation B')
+            start_run = time.time()
             subprocess.run(["python", Third_pass_b, OutDIR, f'{n}'])
+            end_run = time.time()
+        subprocess.run(["python", noti, sys.argv[1]+' '+sys.argv[2]+f' {n} pass merging completed. It took '+f'{end_run-start_run}'])
 
-    end_run = time.time()
-    print('Run took: ', end_run-start_run)
+    end_run_whole = time.time()
+    print('Run took: ', end_run_whole -start_run_whole )
 
 for para in para_list:
     print(f'{para.get('OutDIR')} completed')
 
-noti='/DATA/vito/code/notification.py'
+
 subprocess.run(["python", noti, sys.argv[0]])

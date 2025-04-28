@@ -14,9 +14,6 @@ import First_second_fnc as FS_fnc
 import os
 start_script = time.time()
 
-
-
-
 OutDIR=sys.argv[1]
 
 n_pass=len(os.listdir(OutDIR+'Merged'))

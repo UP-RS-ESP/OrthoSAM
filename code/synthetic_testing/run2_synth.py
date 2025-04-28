@@ -31,7 +31,7 @@ DSL=[#'ran_synth_08_bw'
      #,'ran_synth_04_100_bw'
      #,'ran_synth_08_100_bw'
      #,'ran_synth_01_100_bw'
-     'ran_synth_01_3000_bw'
+     #'ran_synth_01_3000_bw'
      #,'ran_synth_02_3000_bw'
      #,'ran_synth_04_3000_bw'
      #,'ran_synth_01_10_cl_std_00'
@@ -51,13 +51,15 @@ DSL=[#'ran_synth_08_bw'
      #,'ran_synth_02_1500_cl_std_128'
      #'ran_synth_01_10_cl_std_192'
      #,'ran_synth_02_1500_cl_std_192'
+     #'ran_synth_12_1500_shadow_0_1',
+     'ran_synth_12_1500_shadow_0_2'
      ]
 
 
 for DS in DSL:
     if not os.path.exists(f'/DATA/vito/output/{DS}'):
         os.makedirs(f'/DATA/vito/output/{DS}')
-    for i in range(1):
+    for i in range(12):
         subprocess.run(["python", run_ds, DS, f'{i}'])
 
     print(f'{DS} completed')
