@@ -2,6 +2,7 @@ import numpy as np
 import functions as fnc
 from skimage.measure import label, regionprops
 from collections import Counter
+import torch
 
 def filter_by_pred_iou_and_size_per_seedpoint(masks,crop_size,size_threshold=0.4):
     seed_point=np.array([mask['point_coords'][0] for mask in masks])
@@ -119,6 +120,28 @@ def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded, mask
         list_of_nooverlap_mask=np.arange(len(list_of_masks))
     return cleaned_groups, list_of_nooverlap_mask
 
+def calculate_stability_score(
+    masks: torch.Tensor, mask_threshold: float, threshold_offset: float
+) -> torch.Tensor:
+    """
+    Computes the stability score for a batch of masks. The stability
+    score is the IoU between the binary masks obtained by thresholding
+    the predicted mask logits at high and low values.
+    """
+    # One mask is always contained inside the other.
+    # Save memory by preventing unnecessary cast to torch.int64
+    intersections = (
+        (masks > (mask_threshold + threshold_offset))
+        .sum(-1, dtype=torch.int16)
+        .sum(-1, dtype=torch.int32)
+    )
+    unions = (
+        (masks > (mask_threshold - threshold_offset))
+        .sum(-1, dtype=torch.int16)
+        .sum(-1, dtype=torch.int32)
+    )
+    return intersections / unions
+
 def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor, crop_size, size_threshold=0.4,tm=0.5):
     ##problem--we are assuming that in each disconnected region there is only one object
     cleaned_groups_reseg=[]
@@ -141,22 +164,28 @@ def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, p
                 input_point = np.array([[x0,y0]])
                 input_label = np.array([1])
 
-                partmasks, scores, logits = predictor.predict(
+                partmasks, scores, _ = predictor.predict(
                     point_coords=input_point,
                     point_labels=input_label,
-                    multimask_output=True,)
+                    multimask_output=True,
+                    return_logits=True,
+                    )
                 #best_idx=np.argmax(scores)#pick the mask with highest score
                 partmasks=partmasks[np.argsort(scores)[::-1]]
-                logits=logits[np.argsort(scores)[::-1]]
+                #logits=logits[np.argsort(scores)[::-1]]
                 scores=np.sort(scores)[::-1]
+                stability_score=[calculate_stability_score(mask, 0, 1) for mask in partmasks]
                 pick=0
                 while pick < len(partmasks):
-                    mask_area = np.sum(partmasks[pick])
+                    mask_area = np.sum(partmasks[pick]>0)
                     # if mask is very large compared to size of the image (credit:segment everygrain) modified from 0.1 to 0.4
                     if mask_area / (crop_size ** 2) <= size_threshold:
-                        if fnc.area_radi(partmasks[pick], min_pixel, min_radi):
-                            cleaned_groups_reseg.append({'mask':partmasks[pick],'score':scores[pick],'logit':logits[pick],'seed_point':props.centroid})
-                            break
+                        if fnc.area_radi(partmasks[pick]>0, min_pixel, min_radi):
+                            if stability_score[pick]>0.95:
+                                cleaned_groups_reseg.append({'mask':partmasks[pick]>0,'score':scores[pick],'seed_point':props.centroid})
+                                break
+                            else:
+                                pick += 1
                         else:
                             pick += 1
                     else:

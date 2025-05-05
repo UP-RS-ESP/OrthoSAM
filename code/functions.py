@@ -789,6 +789,13 @@ def get_image_patches(image, crop_size, overlap):
 
     return patches
 
+def get_patch_at(image, i, j, crop_size, overlap):
+    stride = crop_size - overlap
+    start_y = i * stride
+    start_x = j * stride
+    patch = image[start_y:start_y + crop_size, start_x:start_x + crop_size]
+    return patch
+
 def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
 
     temp_untile = np.zeros_like(id_mask, dtype=np.uint16)
@@ -910,6 +917,20 @@ def get_patch_coordinates(i, j, crop_size, overlap):
     y0 = i * (patch_h - overlap)
     return x0, y0
 
+
+def area_radi(mask, min_pixel, min_radi):
+    labels = label(mask)
+    try:
+        regions = regionprops(labels)
+        regions = sorted(regions, key=lambda x: x.area, reverse=True)
+        if (regions[0].area>min_pixel and regions[0].axis_minor_length>min_radi):
+            return True
+        else:
+            return False
+    except:
+        return False
+    
+
 def plot_grid_in_patches(image, crop_size, overlap, grid_points):
     """
     Plot the tiling of the image and add a grid of points in each patch.
@@ -969,15 +990,6 @@ def plot_grid_in_patches(image, crop_size, overlap, grid_points):
     plt.xlim([0, W])
     plt.ylim([H, 0])
     plt.title(f"Tiling with {grid_points}x{grid_points} Point Grid in Each Patch")
-
-def area_radi(mask, min_pixel, min_radi):
-    labels = label(mask)
-    regions = regionprops(labels)
-    regions = sorted(regions, key=lambda x: x.area, reverse=True)
-    if (regions[0].area>min_pixel and regions[0].axis_minor_length>min_radi):
-        return True
-    else:
-        return False
     
 
 def compute_iou(args):

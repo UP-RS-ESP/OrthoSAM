@@ -22,7 +22,7 @@ except:
     shadow_strength=0.2
 
 azimuth_l=[0, 90, 180, 270]
-inclination_l=[60, 70, 80]
+inclination_l=[50,60, 70, 80]
 image_size=10000
 num_circles = 5000
 
@@ -161,7 +161,7 @@ def add_gaussian_noise_to_circle(array, mean ,std , mask=None, edge_std=None):
     #noisy_image = np.clip(noisy_image, 0, 255).astype(np.uint8)
     
     return noisy_image
-Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_{max_radi}_shadow_{str(shadow_strength).replace(".", "_")}/'
+Dir=f'/DATA/vito/data/ran_synth_{min_radi:02}_{max_radi}_shadow2_{str(shadow_strength).replace(".", "_")}/'
 
 if not os.path.exists(Dir[:-1]):
     os.makedirs(Dir[:-1])
@@ -217,10 +217,10 @@ for circle_id in range(1, num_circles + 1):
 
             height_image[y1:y2, x1:x2] = np.maximum(height_image[y1:y2, x1:x2], z)
             break  
-noisy_height=add_gaussian_noise_to_circle(height_image,0,3)
-noisy_height = np.clip(noisy_height, a_min=0,a_max=None)
+#noisy_height=add_gaussian_noise_to_circle(height_image,0,3)
+#noisy_height = np.clip(noisy_height, a_min=0,a_max=None)
 np.save(Dir+f'msk',mask)
-np.save(Dir+f'dem',noisy_height)
+np.save(Dir+f'dem',height_image)
 np.save(Dir+f'org_rgb',image)
 
 for i,ang in enumerate(list(product(azimuth_l, inclination_l))):
@@ -228,7 +228,7 @@ for i,ang in enumerate(list(product(azimuth_l, inclination_l))):
     torch.cuda.empty_cache()
     azimuth = ang[0]
     inclination = ang[1]
-    shadow_image = cast_shadow(noisy_height, azimuth, inclination)
+    shadow_image = cast_shadow(height_image, azimuth, inclination)
     shadow_image-=1
     shadow_image=np.abs(shadow_image)
     shadow_image=np.clip(shadow_image,shadow_strength, None)
