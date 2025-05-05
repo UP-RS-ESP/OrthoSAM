@@ -108,4 +108,4 @@ for para in para_list:
     print(f'{para.get('OutDIR')} completed')
 
 
-subprocess.run(["python", noti, sys.argv[0]])
+subprocess.run(["python", noti, DS+' completed'])

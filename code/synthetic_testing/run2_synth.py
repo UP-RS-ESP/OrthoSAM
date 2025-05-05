@@ -14,7 +14,7 @@ Merging_window = "code/Merging_window_newtile.py"
 Third_pass = 'code/Third_pass_newtile.py'
 Third_pass_b = 'code/Third_pass_newtile_b.py'
 noti='/DATA/vito/code/notification.py'
-ac_py = 'code/synthetic_testing/ran_synth_point_ac.py'
+ac_py = 'code/synthetic_testing/ran_synth_point_ac_shadow.py'
 run_ds='/DATA/vito/code/synthetic_testing/run_DS.py'
 
 DSL=[#'ran_synth_08_bw'

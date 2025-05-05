@@ -737,7 +737,7 @@ def define_clips(x,y,resample_factor,crop_size, window_step=0.5):
 
 def load_image(DataDIR,DSname,fid):
     fn_img = glob.glob(DataDIR+DSname)
-    fn_img.sort()
+    print(fn_img)
     if fn_img[fid][-3:]=='npy':
         #image=(np.load(fn_img[fid])*255).astype(np.uint8)
         image=(np.load(fn_img[fid])).astype(np.uint8)
