@@ -121,8 +121,8 @@ def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded, mask
     return cleaned_groups, list_of_nooverlap_mask
 
 def calculate_stability_score(
-    masks: torch.Tensor, mask_threshold: float, threshold_offset: float
-) -> torch.Tensor:
+    mask, mask_threshold: float, threshold_offset: float
+):
     """
     Computes the stability score for a batch of masks. The stability
     score is the IoU between the binary masks obtained by thresholding
@@ -130,17 +130,26 @@ def calculate_stability_score(
     """
     # One mask is always contained inside the other.
     # Save memory by preventing unnecessary cast to torch.int64
-    intersections = (
-        (masks > (mask_threshold + threshold_offset))
-        .sum(-1, dtype=torch.int16)
-        .sum(-1, dtype=torch.int32)
-    )
-    unions = (
-        (masks > (mask_threshold - threshold_offset))
-        .sum(-1, dtype=torch.int16)
-        .sum(-1, dtype=torch.int32)
-    )
-    return intersections / unions
+    #intersections = (
+    #    (masks > (mask_threshold + threshold_offset))
+    #    .to(torch.int32)
+    #    .sum(dim=(-1, -2))
+    #)
+
+    #unions = (
+    #    (masks > (mask_threshold - threshold_offset))
+    #    .to(torch.int32)
+    #    .sum(dim=(-1, -2))
+    #)
+    high_mask = mask > (mask_threshold + threshold_offset)
+    low_mask = mask > (mask_threshold - threshold_offset)
+
+    intersection = np.logical_and(high_mask, low_mask).sum()
+    union = np.logical_or(high_mask, low_mask).sum()
+
+    if union == 0:
+        return 0.0
+    return intersection / union
 
 def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor, crop_size, size_threshold=0.4,tm=0.5):
     ##problem--we are assuming that in each disconnected region there is only one object
@@ -148,7 +157,6 @@ def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, p
     for k in range(len(cleaned_groups)):
         stacked=np.stack([list_of_masks[i] for i in cleaned_groups[k]])
         mean_stacked=np.mean(stacked,axis=0)
-        #std_stacked=np.std(stacked,axis=0)
 
         #separate high confidence region(high mean) and low
         labels=label(np.logical_and(mean_stacked<=tm,mean_stacked>0))
@@ -170,18 +178,19 @@ def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, p
                     multimask_output=True,
                     return_logits=True,
                     )
-                #best_idx=np.argmax(scores)#pick the mask with highest score
+                #stability_score = calculate_stability_score(partmasks, 0, 1)
+                stability_score=np.array([calculate_stability_score(mask, 0, 1) for mask in partmasks])
                 partmasks=partmasks[np.argsort(scores)[::-1]]
-                #logits=logits[np.argsort(scores)[::-1]]
+                stability_score=stability_score[np.argsort(scores)[::-1]]
                 scores=np.sort(scores)[::-1]
-                stability_score=[calculate_stability_score(mask, 0, 1) for mask in partmasks]
+                
                 pick=0
                 while pick < len(partmasks):
                     mask_area = np.sum(partmasks[pick]>0)
                     # if mask is very large compared to size of the image (credit:segment everygrain) modified from 0.1 to 0.4
                     if mask_area / (crop_size ** 2) <= size_threshold:
                         if fnc.area_radi(partmasks[pick]>0, min_pixel, min_radi):
-                            if stability_score[pick]>0.95:
+                            if stability_score[pick]>0.85:
                                 cleaned_groups_reseg.append({'mask':partmasks[pick]>0,'score':scores[pick],'seed_point':props.centroid})
                                 break
                             else:

@@ -10,27 +10,28 @@ run_DS = "code/run_DS.py"
 #for id in [0,4,7]:
 
 import numpy as np
-id_list=np.array(range(400))
-id_list=id_list[id_list!=382]
+#id_list=np.array(range(400))
+#id_list=id_list[id_list!=382]
+id_list=["13_2.JPG","8.JPG","6_7.JPG","9_5.JPG","5_6.JPG"]
 for id in id_list:
 
-    id=int(id)
+    #id=int(id)
 
     start_run = time.time()
-    master_para={'OutDIR': f'/DATA/vito/output/Sedinet/sedinet_{id}_up2_org/',
+    master_para={'OutDIR': f'/DATA/vito/output/Sedinet_select/sedinet_{id}_org_dw2/',
         'DataDIR': '/DATA/vito/data/',
         'DatasetName': 'sedinet/SediNet/images/*',
         'fid': id,
         'crop_size': 1024,
         'resample_factor': 1,
         '1st_resample_factor': 1,
-        'point_per_side': 48,
-        'dilation_size':1,
+        'point_per_side': 30,
+        'dilation_size':5,
         'min_size_factor':0.0001,
-        'b':300,
+        'b':100,
         'stability_t':0.85,
-        'resolution(mm)': 0.39,
-        'expected_min_size(sqmm)': 0,
+        'resolution(mm)': 1,
+        'expected_min_size(sqmm)': 500,
         'min_radius': 0
         }
     para_list=[

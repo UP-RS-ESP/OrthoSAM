@@ -11,6 +11,7 @@ first_second_run = "code/First_second_pass_newtile.py"
 Merging_window = "code/Merging_window_newtile.py"
 Third_pass = 'code/Third_pass_newtile.py'
 Third_pass_b = 'code/Third_pass_newtile_b.py'
+noti='/DATA/vito/code/notification.py'
 
 # Save init_para to a JSON file
 with open(OutDIR+'init_para.json', 'r') as json_file:
@@ -18,13 +19,19 @@ with open(OutDIR+'init_para.json', 'r') as json_file:
 
 
 for n in range(len(para_list)):
-    start_run = time.time()
+    start_run_whole = time.time()
     if n==0:
+        start_run = time.time()
         print('Performing first pass and second pass clipwise segmentation')
         subprocess.run(["python", first_second_run, OutDIR])
+        end_run = time.time()
+        subprocess.run(["python", noti, sys.argv[1]+' first pass completed. It took '+f'{end_run-start_run}'])
 
         print('Merging windows')
+        start_run = time.time()
         subprocess.run(["python", Merging_window, OutDIR])
+        end_run = time.time()
+        subprocess.run(["python", noti, sys.argv[1]+' first pass merging completed. It took '+f'{end_run-start_run}'])
     else:
         third_b=para_list[n].get('n_pass_resample_factor')
         if not third_b:
@@ -32,10 +39,13 @@ for n in range(len(para_list)):
             subprocess.run(["python", Third_pass, OutDIR])
         else:
             print('Searching potential missing objects and performing third pass segmentation B')
+            start_run = time.time()
             subprocess.run(["python", Third_pass_b, OutDIR, f'{n}'])
-
-    end_run = time.time()
-    print('Run took: ', end_run-start_run)
+            end_run = time.time()
+        subprocess.run(["python", noti, sys.argv[1]+f' {n} pass merging completed. It took '+f'{end_run-start_run}'])
+            
+    end_run_whole = time.time()
+    print('Run took: ', end_run_whole -start_run_whole )
 
 for para in para_list:
     print(f'{para.get('OutDIR')} completed')

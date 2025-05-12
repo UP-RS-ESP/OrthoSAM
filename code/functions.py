@@ -736,17 +736,28 @@ def define_clips(x,y,resample_factor,crop_size, window_step=0.5):
     return clipij
 
 def load_image(DataDIR,DSname,fid):
-    fn_img = glob.glob(DataDIR+DSname)
-    print(fn_img)
-    if fn_img[fid][-3:]=='npy':
-        #image=(np.load(fn_img[fid])*255).astype(np.uint8)
-        image=(np.load(fn_img[fid])).astype(np.uint8)
-    elif fn_img[fid][-3:]=='tif':
-        image = imread(fn_img[fid])[:,:,:3]
-    else:
-        image = cv2.imread(fn_img[fid])
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    print(fn_img[fid].split("/")[-1]+' imported')
+    if isinstance(fid, int):
+        fn_img = glob.glob(DataDIR+DSname)
+        print(fn_img)
+        if fn_img[fid][-3:]=='npy':
+            #image=(np.load(fn_img[fid])*255).astype(np.uint8)
+            image=(np.load(fn_img[fid])).astype(np.uint8)
+        elif fn_img[fid][-3:]=='tif':
+            image = imread(fn_img[fid])[:,:,:3]
+        else:
+            image = cv2.imread(fn_img[fid])
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        print(fn_img[fid].split("/")[-1]+' imported')
+    elif isinstance(fid, str):
+        fn=DataDIR+DSname[:-1]+fid
+        if fn[-3:]=='npy':
+            image=(np.load(fn)).astype(np.uint8)
+        elif fn[-3:]=='tif':
+            image = imread(fn)[:,:,:3]
+        else:
+            image = cv2.imread(fn)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        print(fn+' imported')
     return image
 
 def set_sam(MODEL_TYPE,DataDIR):

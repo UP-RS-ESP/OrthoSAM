@@ -1,18 +1,10 @@
 import subprocess
-import json
 import os
-import time
-import glob
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import functions as fnc
         
 
 # Define the paths to the scripts you want to run
-first_second_run = "code/First_second_pass_newtile.py"
-Merging_window = "code/Merging_window_newtile.py"
-Third_pass = 'code/Third_pass_newtile.py'
-Third_pass_b = 'code/Third_pass_newtile_b.py'
 noti='/DATA/vito/code/notification.py'
 ac_py = 'code/synthetic_testing/ran_synth_point_ac_shadow.py'
 run_ds='/DATA/vito/code/synthetic_testing/run_DS.py'

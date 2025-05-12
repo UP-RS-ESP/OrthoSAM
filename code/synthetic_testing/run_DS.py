@@ -10,7 +10,7 @@ import functions as fnc
 DS=sys.argv[1]
 i=int(sys.argv[2])
 
-first_second_run = "code/First_second_pass_newtile.py"
+first_second_run = "code/First_second_pass_newtile.py"#with_stability.py"
 Merging_window = "code/Merging_window_newtile.py"
 Third_pass = 'code/Third_pass_newtile.py'
 Third_pass_b = 'code/Third_pass_newtile_b.py'
