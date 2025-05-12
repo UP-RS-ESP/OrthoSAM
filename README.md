@@ -56,6 +56,10 @@ https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 
 ## Codes
 - `OrthoSAM.ipynb`: [Instruction Example notebook.](code/OrthoSAM.ipynb)
+- `para_helper.ipynb`: [Parameter assistance.](code/para_helper.ipynb)
+- `run.py`: [Define parameters and perform segmentation.](code/run.py)
+- `run_DS.py -OutDIR`: [Perform segmentation using created parameters saved in output directory(OutDIR).](code/run_DS.py)
+
 
 
 ## Segment-Anything
