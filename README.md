@@ -8,11 +8,12 @@ Sediment characteristics and grain-size distribution are crucial for understandi
 
 ## Dependencies
 * Python 3.11+
-## Setup guide
-For required packages, please see [requirements.txt](requirements.txt). This project is developed and tested using Python's built-in virtual environment module, `venv`.
+
+For required packages, please see [requirements.txt](requirements.txt). This project was developed and tested using Python's built-in virtual environment module, `venv`.
 
 Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=0.8`. The installation instructions can be found [here](https://pytorch.org/get-started/locally/).
 
+## Setup guide
 1. Create a virtual environment
 ```
 python -m venv venv
@@ -51,7 +52,7 @@ https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
 https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 
 
-Move the downloaded checkpoint into the MetaSAM folder
+6. Move the downloaded checkpoint into the MetaSAM folder
 
 ## Codes
 - `OrthoSAM.ipynb`: [Instruction Example notebook.](code/OrthoSAM.ipynb)
