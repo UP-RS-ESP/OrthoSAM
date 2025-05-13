@@ -14,10 +14,44 @@ For required packages, please see [requirements.txt](requirements.txt). This pro
 Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=0.8`. The installation instructions can be found [here](https://pytorch.org/get-started/locally/).
 
 ## Setup guide
+### Installation with conda:
+
+1. Install environment:
+```bash
+conda create -n OrthoSAM -c conda-forge python=3.11 pip ipython jupyterlab numpy pandas numba scipy scikit-learn scikit-image matplotlib cupy pytorch torchvision
+conda activate OrthoSAM
+conda install -c pytorch torch 
+```
+
+2. Install requirements: 
+```bash
+conda activate OrthoSAM
+pip install -r requirements.txt
+```
+
+3. Install conda kernel for jupyter lab:
+```bash
+cd OrthoSAM/code
+python -m ipykernel install --user --name=OrthoSAM
+```
+
+4. Create a subdirectory for storing model checkpoints and download SAM checkpoints:
+```bash
+mkdir -p data/MetaSAM
+cd data/MetaSAM
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+
+```
+
+
+### Installation with a virtual environment
 1. Create a virtual environment
 ```
 python -m venv venv
 ```
+
 
 2. Activate the virtual environment
 
@@ -36,10 +70,11 @@ pip install -r requirements.txt
 ```
 
 4. Create a subdirectory for storing model checkpoints
+```bash
 mkdir -p data/MetaSAM
+```
 
 5. Download the Segment Anything checkpoint from 
-
 
 
 `vit_h`:
@@ -51,6 +86,12 @@ https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
 `vit_b`:
 https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 
+Download all three:
+```bash
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+```
 
 6. Move the downloaded checkpoint into the MetaSAM folder
 
