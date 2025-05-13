@@ -105,5 +105,5 @@ wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 
 ## Segment-Anything
 
-We developed our framework based on the Meta AI Segment-Anything model. For more details regarding the model please visit their Github:
+We have developed our framework based on the Meta AI Segment-Anything model. For more details regarding the model please visit their Github:
 https://github.com/facebookresearch/segment-anything
