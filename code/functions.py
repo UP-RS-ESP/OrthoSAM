@@ -860,8 +860,6 @@ def create_dir_ifnotexist(OutDIR):
         os.makedirs(OutDIR+'chunks')
     if not os.path.exists(OutDIR+'Merged'):
         os.makedirs(OutDIR+'Merged')
-    if not os.path.exists(OutDIR+'Third'):
-        os.makedirs(OutDIR+'Third')
 
 import matplotlib.patches as patches
 def plot_tiling_with_overlap(image, crop_size, overlap):

@@ -1,13 +1,13 @@
-import subprocess
+from run_DS import run_DS
 import os
 import sys
+from ran_synth_point_ac_shadow import accuracy
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-        
+from notification import notify
 
 # Define the paths to the scripts you want to run
-noti='/DATA/vito/code/notification.py'
 ac_py = 'code/synthetic_testing/ran_synth_point_ac_shadow.py'
-run_ds='/DATA/vito/code/synthetic_testing/run_DS.py'
+
 
 DSL=[#'ran_synth_08_bw'
      #,'ran_synth_16_bw'
@@ -52,19 +52,15 @@ DSL=[#'ran_synth_08_bw'
 for DS in DSL:
     if not os.path.exists(f'/DATA/vito/output/{DS}'):
         os.makedirs(f'/DATA/vito/output/{DS}')
-    for i in range(12):
-        subprocess.run(["python", run_ds, DS, f'{i}'])
-
-    print(f'{DS} completed')
-    subprocess.run(["python", noti, DS])
-
-    print('Working on '+DS)
     if not os.path.exists('/DATA/vito/data/'+DS+'/'+DS):
-            os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
-            print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
-    print(DS)
-    subprocess.run(["python", ac_py, DS])
-    subprocess.run(["python", noti, DS])
+        os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
+        print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
+    for i in range(12):
+        run_DS(DS, i)
+        accuracy(DS,i)
+
+    print(f'{DS} segmentation completed')
+    notify(DS+' segmentation completed')
 
 
-subprocess.run(["python", noti, sys.argv[0]])
+notify('All task completed')

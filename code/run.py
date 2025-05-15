@@ -1,15 +1,10 @@
-import subprocess
-import json
-import os
 import time
-import glob
-import sys
-import functions as fnc
+from OrthoSAM import orthosam
+from utility import setup
 
-run_DS = "code/run_DS.py"
 #for id in [0,4,7]:
 
-import numpy as np
+#import numpy as np
 #id_list=np.array(range(400))
 #id_list=id_list[id_list!=382]
 id_list=["13_2.JPG","8.JPG","6_7.JPG","9_5.JPG","5_6.JPG"]
@@ -18,13 +13,13 @@ for id in id_list:
     #id=int(id)
 
     start_run = time.time()
+    #Base parameters
     master_para={'OutDIR': f'/DATA/vito/output/Sedinet_select/sedinet_{id}_org_dw2/',
         'DataDIR': '/DATA/vito/data/',
         'DatasetName': 'sedinet/SediNet/images/*',
         'fid': id,
         'crop_size': 1024,
-        'resample_factor': 1,
-        '1st_resample_factor': 1,
+        'resample_factor': 1,#None: use method A. 'Auto': auto select resample rate.
         'point_per_side': 30,
         'dilation_size':5,
         'min_size_factor':0.0001,
@@ -34,9 +29,10 @@ for id in id_list:
         'expected_min_size(sqmm)': 500,
         'min_radius': 0
         }
+    #specify for individual layers. e.g. different point_per_side
     para_list=[
         {},
-        {'n_pass_resample_factor':0.5, #None: use method A. 1: auto select resample rate.
+        {'n_pass_resample_factor':0.5, #None: use method A. 'Auto': auto select resample rate.
         }
         ]
     pre_para_list=[{#'Gaussian': {'kernel size':3},
@@ -45,28 +41,9 @@ for id in id_list:
                     #'Buffering': {'crop size': crop_size}
                 },{},{}]
 
-    if not os.path.exists(master_para.get('DataDIR')+master_para.get('DatasetName')[:-1]):
-        print('Input directory does not exist. Exiting script.')
-        sys.exit()
-
-    # create dir if output dir not exist
-    OutDIR=master_para.get('OutDIR')
-    fnc.create_dir_ifnotexist(OutDIR)
-    if master_para.get('fid')==None:
-        master_para=fnc.prompt_fid(master_para)
-
-
-    # Save init_para to a JSON file
-    lst = [dict(master_para, **para) for para in para_list]
-    with open(OutDIR+f'init_para.json', 'w') as json_file:
-        json.dump(lst, json_file, indent=4)
-    with open(OutDIR+f'pre_para.json', 'w') as json_file:
-        json.dump(pre_para_list, json_file, indent=4)
-
-    subprocess.run(["python", run_DS, OutDIR])
+    
+    OutDIR=setup(master_para, para_list, pre_para_list)
+    orthosam(OutDIR)
 
     end_run = time.time()
     print('Run took: ', end_run-start_run)
-
-    noti='/DATA/vito/code/notification.py'
-    subprocess.run(["python", noti, f"{sys.argv[0]} has completed successfully! It took {end_run-start_run}"])

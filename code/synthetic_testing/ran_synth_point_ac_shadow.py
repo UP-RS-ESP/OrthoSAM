@@ -5,32 +5,21 @@ import os
 import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import functions as fnc
-from tqdm import tqdm
 
-try:
-    file_pth=sys.argv[1]
-except:
-    file_pth=''
+def accuracy(file_pth,i):
+    fn = glob.glob('/DATA/vito/output/'+file_pth+'/*')
+    fn.sort()
+    fn_pth = fn[i]
+    with open(fn_pth+'/para.json', 'r') as json_file:
+        para=json.load(json_file)[0]
 
-fn = glob.glob('/DATA/vito/output/'+file_pth+'/*')
-fn.sort()
-para_list=[]
-for fn_pth in fn:
-    with open(fn_pth+'/init_para.json', 'r') as json_file:
-        para_list.append(json.load(json_file)[0])
-
-print(fn)
-
-
-for i,init_para in enumerate(para_list): 
-
-    OutDIR=init_para.get('OutDIR')
-    DataDIR=init_para.get('DataDIR')
-    DSname=init_para.get('DatasetName')
-    fid=init_para.get('fid')
-    resample_factor=init_para.get('resample_factor')
-    b=init_para.get('b')
-    crop_size=init_para.get('crop_size')
+    OutDIR=para.get('OutDIR')
+    DataDIR=para.get('DataDIR')
+    DSname=para.get('DatasetName')
+    fid=para.get('fid')
+    resample_factor=para.get('resample_factor')
+    b=para.get('b')
+    crop_size=para.get('crop_size')
 
     image=fnc.load_image(DataDIR,DSname,fid)
     print('Image size:', image.shape)
@@ -96,4 +85,4 @@ for i,init_para in enumerate(para_list):
 
     print('Mean mask IoU: ')
     print(np.mean(np.abs(mask_ious)))
-    np.save(DataDIR+DSname[:-5]+file_pth+f'/point_based_ac_{i:02}.npy', {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third, 'init_para':init_para})
+    np.save(DataDIR+DSname[:-5]+file_pth+f'/point_based_ac_{i:02}.npy', {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third, 'para':para})
