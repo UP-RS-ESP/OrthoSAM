@@ -387,3 +387,22 @@ def setup(master_para, para_list, pre_para_list=None):
         with open(os.path.join(OutDIR,'pre_para.json'), 'w') as json_file:
             json.dump(pre_para_list, json_file, indent=4)
     return OutDIR
+
+def get_patch_at(image, i, j, crop_size, overlap):
+    stride = crop_size - overlap
+    start_y = i * stride
+    start_x = j * stride
+    patch = image[start_y:start_y + crop_size, start_x:start_x + crop_size]
+    return patch
+
+def clean_mask(mask):
+    labels = label(mask)
+    l = len(np.unique(labels))
+    if l > 2:
+        #get area
+        regions = regionprops(labels)
+        # Sort regions by area
+        sorted_regions = sorted(regions, key=lambda x: x.area, reverse=True)
+        return (labels==sorted_regions[0].label).astype(np.uint8)
+    else:
+        return mask

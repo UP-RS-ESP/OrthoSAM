@@ -44,8 +44,8 @@ DSL=[#'ran_synth_08_bw'
      #'ran_synth_01_10_cl_std_192'
      #,'ran_synth_02_1500_cl_std_192'
      #'ran_synth_12_1500_shadow_0_1',
-     #'ran_synth_12_1500_shadow2_0_2',
-     'ran_synth_12_1500_shadow2_0_5'
+     'ran_synth_12_1500_shadow2_0_2'
+     #'ran_synth_12_1500_shadow2_0_5'
      ]
 
 

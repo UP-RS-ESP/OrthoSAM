@@ -10,7 +10,7 @@ import os
 import time
 import json
 import os
-from utility import load_image, load_config, preprocessing_roulette, get_image_patches, set_sam, nms, clean_mask, area_radi
+from utility import load_image, preprocessing_roulette, get_image_patches, set_sam, nms, clean_mask, area_radi
 
 def predict_tiles(para_list,n_pass): 
     start_script = time.time()
@@ -65,7 +65,6 @@ def predict_tiles(para_list,n_pass):
     max_ij=np.max(np.array(list(patch_keys)),axis=0)
 
     #setup SAM
-    config = load_config()
     sam=set_sam(para.get('MODEL_TYPE'), para.get('CheckpointDIR'))
 
     mask_generator = SamAutomaticMaskGenerator(sam)
@@ -352,7 +351,7 @@ def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, p
                     # if mask is very large compared to size of the image (credit:segment everygrain) modified from 0.1 to 0.4
                     if mask_area / (crop_size ** 2) <= size_threshold:
                         if area_radi(partmasks[pick]>0, min_pixel, min_radi):
-                            if stability_score[pick]>stb_t:
+                            if stability_score[pick]>0.9:
                                 cleaned_groups_reseg.append({'mask':partmasks[pick]>0,'score':scores[pick],'seed_point':props.centroid})
                                 break
                             else:
