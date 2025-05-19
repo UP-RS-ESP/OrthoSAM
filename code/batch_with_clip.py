@@ -1,6 +1,6 @@
 import torch
 from segment_anything import sam_model_registry, SamPredictor
-from segment_anything import SamAutomaticMaskGenerator_mod2 as SamAutomaticMaskGenerator
+from automatic_mask_generator_mod import SamAutomaticMaskGenerator
 import numpy as np
 import torch
 import functions as fnc
@@ -9,8 +9,6 @@ import os
 import time
 import sys
 import json
-from contextlib import redirect_stdout
-import First_second_fnc as FS_fnc
 import os
 
 start_script = time.time()

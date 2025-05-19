@@ -14,4 +14,4 @@
 #from .predictor import SamPredictor
 #from .automatic_mask_generator import SamAutomaticMaskGenerator
 #from automatic_mask_generator_mod import SamAutomaticMaskGenerator_mod
-from automatic_mask_generator_mod2 import SamAutomaticMaskGenerator_mod2
+from code.automatic_mask_generator_mod import SamAutomaticMaskGenerator_mod2

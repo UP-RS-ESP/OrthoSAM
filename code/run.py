@@ -14,35 +14,38 @@ for id in id_list:
 
     start_run = time.time()
     #Base parameters
-    master_para={'OutDIR': f'/DATA/vito/output/Sedinet_select/sedinet_{id}_org_dw2/',
-        'DataDIR': '/DATA/vito/data/',
-        'DatasetName': 'sedinet/SediNet/images/*',
-        'fid': id,
-        'crop_size': 1024,
-        'resample_factor': 1,#None: use method A. 'Auto': auto select resample rate.
-        'point_per_side': 30,
+    main_para={'OutDIR': f'/DATA/vito/output/Sedinet_select/sedinet_{id}_org_dw2',# where output will be stored
+        'DatasetName': 'sedinet/SediNet/images',
+        'fid': id,#Filename or the index after sorting by file name.
+        'resolution(mm)': 1,#image resolution in mm/pixel
+        'tile_size': 1024,
+        'tile_overlap':200,
+        'resample_factor': 1,#'Auto': auto select resample rate.
+        'input_point_per_axis': 30,
         'dilation_size':5,
-        'min_size_factor':0.0001,
-        'b':100,
         'stability_t':0.85,
-        'resolution(mm)': 1,
         'expected_min_size(sqmm)': 500,
-        'min_radius': 0
+        'min_radius': 0,
+        'Notification': True,# True: send discord when finished.
+        'Plotting': False# True: plot the results
         }
     #specify for individual layers. e.g. different point_per_side
-    para_list=[
+    passs_para_list=[
         {},
-        {'n_pass_resample_factor':0.5, #None: use method A. 'Auto': auto select resample rate.
-        }
+        {'resample_factor':0.5, #'Auto': auto select resample rate.
+         }
         ]
+    #parameters for preprocessing. If no preprocessing is needed, leave empty or remove it.
     pre_para_list=[{#'Gaussian': {'kernel size':3},
                     #'CLAHE':{'clip limit':2},
                     #'Downsample': {'fxy':4},
                     #'Buffering': {'crop size': crop_size}
                 },{},{}]
 
-    
-    OutDIR=setup(master_para, para_list, pre_para_list)
+    #If no preprocessing is needed, remove pre_para_list or use None.
+    OutDIR=setup(main_para, passs_para_list, pre_para_list)
+
+
     orthosam(OutDIR)
 
     end_run = time.time()

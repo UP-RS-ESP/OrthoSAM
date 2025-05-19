@@ -4,20 +4,23 @@ import glob
 from utility import load_image, preprocessing_roulette, untile, clean_and_overwrite, get_memory_usage
 import time
 import json
+import os
 from tqdm import tqdm
 
-def merge_chunks(OutDIR, n_pass):
+def merge_chunks(para_list, n_pass):
     start_script = time.time()
+    
+    para = para_list[n_pass]
+    OutDIR=para.get('OutDIR')
+    
     #try:
     print(f'---------------\n{n_pass} merging chunks\n\n')
     print('Loaded parameters from '+OutDIR)
-    with open(OutDIR+'para.json', 'r') as json_file:
-        para = json.load(json_file)[n_pass]
 
     resample_factor=para.get('resample_factor')
 
     try:#attempt to load saved pre_para
-        with open(OutDIR+'pre_para.json', 'r') as json_file:
+        with open(os.path.join(OutDIR,'pre_para.json'), 'r') as json_file:
             pre_para = json.load(json_file)[n_pass]
         pre_para.update({'Resample': {'fxy':resample_factor}})
         print('Loaded preprocessing parameters from json')
@@ -34,10 +37,11 @@ def merge_chunks(OutDIR, n_pass):
     DataDIR=para.get('DataDIR')
     DSname=para.get('DatasetName')
     fid=para.get('fid')
+    plotting=para.get('Plotting')
 
     #defining clips
-    b=para.get('b')
-    crop_size=para.get('crop_size')
+    b=para.get('tile_overlap')
+    crop_size=para.get('tile_size')
 
     image=load_image(DataDIR,DSname,fid)
     #org_shape=image.shape
@@ -49,7 +53,7 @@ def merge_chunks(OutDIR, n_pass):
 
     print('Loading clips.....')
 
-    clips_pths = glob.glob(OutDIR+f'chunks/{n_pass}/chunk_*')
+    clips_pths = glob.glob(os.path.join(OutDIR,f'chunks/{n_pass}/chunk_*'))
     clips_pths.sort()
 
 
@@ -68,7 +72,7 @@ def merge_chunks(OutDIR, n_pass):
 
         for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in clip {i,j} (RAM: {get_memory_usage():.2f} MB, {msk_count} masks)',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
             if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
-                resized = untile(id_mask, mask, i, j, crop_size, 2*b)
+                resized = untile(id_mask, mask, i, j, crop_size, b)
                 msk_count+=1
                 id_mask[resized!=0]=(msk_count)
                 stack_mask+=resized
@@ -79,33 +83,33 @@ def merge_chunks(OutDIR, n_pass):
     id_mask=clean_and_overwrite(id_mask)
 
     print(f'Saving id mask to '+OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy...')
-    np.save(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}',id_mask)
+    np.save(os.path.join(OutDIR,f'Merged/all_mask_merged_windows_id_{n_pass:03}'),id_mask)
     print('Saved')
 
     print(f'{msk_count} masks found')
-
-    plt.figure(figsize=(20,20))
-    plt.subplot(2,2,1)
-    plt.imshow(image)
-    plt.axis('off')
-    plt.title(f'RGB', fontsize=20)
-    plt.subplot(2,2,2)
-    plt.imshow(image)
-    plt.imshow(stack_mask,alpha=0.6)
-    plt.axis('off')
-    plt.title(f'Max overlap: {np.max(stack_mask)}', fontsize=20)
-    plt.subplot(2,2,3)
-    plt.imshow(image)
-    plt.imshow(id_mask, cmap='nipy_spectral',alpha=0.5)
-    plt.title(f'Segments, {msk_count} mask(s)', fontsize=20)
-    plt.subplot(2,2,4)
-    plt.imshow(image)
-    plt.imshow(stack_mask>1,alpha=0.6)
-    plt.axis('off')
-    plt.title(f'Overlapping area', fontsize=20)
-    plt.tight_layout()
-    plt.savefig(OutDIR+f'Merged_mask_{n_pass:03}.png')
-    plt.show()
+    if plotting:
+        plt.figure(figsize=(20,20))
+        plt.subplot(2,2,1)
+        plt.imshow(image)
+        plt.axis('off')
+        plt.title(f'RGB', fontsize=20)
+        plt.subplot(2,2,2)
+        plt.imshow(image)
+        plt.imshow(stack_mask,alpha=0.6)
+        plt.axis('off')
+        plt.title(f'Max overlap: {np.max(stack_mask)}', fontsize=20)
+        plt.subplot(2,2,3)
+        plt.imshow(image)
+        plt.imshow(id_mask, cmap='nipy_spectral',alpha=0.5)
+        plt.title(f'Segments, {msk_count} mask(s)', fontsize=20)
+        plt.subplot(2,2,4)
+        plt.imshow(image)
+        plt.imshow(stack_mask>1,alpha=0.6)
+        plt.axis('off')
+        plt.title(f'Overlapping area', fontsize=20)
+        plt.tight_layout()
+        plt.savefig(os.path.join(OutDIR,f'Merged_mask_{n_pass:03}.png'))
+        plt.show()
 
     end_script = time.time()
     print('script took: ', end_script-start_script)

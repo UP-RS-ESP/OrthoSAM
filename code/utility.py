@@ -14,7 +14,7 @@ import sys
 
 def load_image(DataDIR,DSname,fid):
     if isinstance(fid, int):
-        fn_img = glob.glob(DataDIR+DSname)
+        fn_img = glob.glob(os.path.join(DataDIR,DSname,'*'))
         print(fn_img)
         if fn_img[fid][-3:]=='npy':
             #image=(np.load(fn_img[fid])*255).astype(np.uint8)
@@ -24,9 +24,9 @@ def load_image(DataDIR,DSname,fid):
         else:
             image = cv2.imread(fn_img[fid])
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        print(fn_img[fid].split("/")[-1]+' imported')
+        print(fn_img[fid]+' imported')
     elif isinstance(fid, str):
-        fn=DataDIR+DSname[:-1]+fid
+        fn=os.path.join(DataDIR,DSname,fid)
         if fn[-3:]=='npy':
             image=(np.load(fn)).astype(np.uint8)
         elif fn[-3:]=='tif':
@@ -231,12 +231,12 @@ def set_sam(MODEL_TYPE,CheckpointDIR):
         DEVICE = torch.device('cpu')
         print('Currently running on CPU\nModel '+MODEL_TYPE)
 
-    if MODEL_TYPE == 'vit_h':
-        CHECKPOINT_PATH = CheckpointDIR+'/sam_vit_h_4b8939.pth'
-    elif MODEL_TYPE == 'vit_l':
-        CHECKPOINT_PATH = CheckpointDIR+'/sam_vit_l_0b3195.pth'
+    if MODEL_TYPE.lower() == 'vit_h':
+        CHECKPOINT_PATH = os.path.join(CheckpointDIR,'sam_vit_h_4b8939.pth')
+    elif MODEL_TYPE.lower() == 'vit_l':
+        CHECKPOINT_PATH = os.path.join(CheckpointDIR,'sam_vit_l_0b3195.pth')
     else:
-        CHECKPOINT_PATH = CheckpointDIR+'/sam_vit_b_01ec64.pth'
+        CHECKPOINT_PATH = os.path.join(CheckpointDIR,'sam_vit_b_01ec64.pth')
     sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH)
     sam.to(device=DEVICE)
     return sam
@@ -340,15 +340,15 @@ def clean_and_overwrite(mask):
     return label(mask)
 
 def create_dir_ifnotexist(OutDIR):
-    if not os.path.exists(OutDIR[:-1]):
-        os.makedirs(OutDIR[:-1])
-    if not os.path.exists(OutDIR+'chunks'):
-        os.makedirs(OutDIR+'chunks')
-    if not os.path.exists(OutDIR+'Merged'):
-        os.makedirs(OutDIR+'Merged')
+    if not os.path.exists(OutDIR):
+        os.makedirs(OutDIR)
+    if not os.path.exists(os.path.join(OutDIR,'chunks')):
+        os.makedirs(os.path.join(OutDIR,'chunks'))
+    if not os.path.exists(os.path.join(OutDIR,'Merged')):
+        os.makedirs(os.path.join(OutDIR,'Merged'))
 
 def prompt_fid(para):
-    fn_img = glob.glob(para.get('DataDIR')+para.get('DatasetName'))
+    fn_img = glob.glob(os.path.join(para.get('DataDIR'),para.get('DatasetName'),'*'))
     fn_img.sort()
     for i,fn in enumerate(fn_img):
         print(i, ': ', fn)
@@ -365,7 +365,10 @@ def prompt_fid(para):
 
 def setup(master_para, para_list, pre_para_list=None):
     master_para['1st_resample_factor'] = master_para['resample_factor']
-    if not os.path.exists(master_para.get('DataDIR')+master_para.get('DatasetName')[:-1]):
+    config = load_config()
+    master_para={**config,**master_para}
+    master_para['DataDIR'] = config.get('DataDIR')
+    if not os.path.exists(os.path.join(master_para.get('DataDIR'),master_para.get('DatasetName'))):
         print('Input directory does not exist. Exiting script.')
         sys.exit()
 
@@ -378,9 +381,9 @@ def setup(master_para, para_list, pre_para_list=None):
 
     # Save para to a JSON file
     lst = [dict(master_para, **para) for para in para_list]
-    with open(OutDIR+f'para.json', 'w') as json_file:
+    with open(os.path.join(OutDIR,'para.json'), 'w') as json_file:
         json.dump(lst, json_file, indent=4)
     if pre_para_list:
-        with open(OutDIR+f'pre_para.json', 'w') as json_file:
+        with open(os.path.join(OutDIR,'pre_para.json'), 'w') as json_file:
             json.dump(pre_para_list, json_file, indent=4)
     return OutDIR

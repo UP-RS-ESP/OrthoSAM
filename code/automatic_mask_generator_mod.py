@@ -32,7 +32,7 @@ from segment_anything.utils.amg import (
 )
 
 
-class SamAutomaticMaskGenerator_mod2:
+class SamAutomaticMaskGenerator:
     def __init__(
         self,
         model: Sam,

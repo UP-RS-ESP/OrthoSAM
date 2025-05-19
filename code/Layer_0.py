@@ -1,6 +1,6 @@
 import torch
 from segment_anything import SamPredictor
-from automatic_mask_generator_mod2 import SamAutomaticMaskGenerator_mod2 as SamAutomaticMaskGenerator
+from automatic_mask_generator_mod import SamAutomaticMaskGenerator
 import numpy as np
 import torch
 from skimage.measure import label, regionprops
@@ -12,27 +12,30 @@ import json
 import os
 from utility import load_image, load_config, preprocessing_roulette, get_image_patches, set_sam, nms, clean_mask, area_radi
 
-def predict_tiles(OutDIR, n_pass):
+def predict_tiles(para_list,n_pass): 
     start_script = time.time()
+    
+    para = para_list[n_pass]
+    OutDIR=para.get('OutDIR')
+    
     #try:
-    print(f'---------------\n{n_pass} segment chunks\n\n')
+    print(f'---------------\nLayer {n_pass} segment chunks\n\n')
+
     if not os.path.exists(OutDIR+f'chunks/{n_pass}'):
         os.makedirs(OutDIR+f'chunks/{n_pass}')
-    with open(OutDIR+'para.json', 'r') as json_file:
-        para = json.load(json_file)[n_pass]
+
+    
     print('Loaded parameters from json')
     print(para)
 
-
-    #OutDIR=para.get('OutDIR')
     DataDIR=para.get('DataDIR')
     DSname=para.get('DatasetName')
     fid=para.get('fid')
-    pps=para.get('point_per_side')
-    b=para.get('b')
+    pps=para.get('input_point_per_axis')
+    b=para.get('tile_overlap')
     stb_t=para.get('stability_t')
     #defining clips
-    crop_size=para.get('crop_size')
+    crop_size=para.get('tile_size')
     resample_factor=para.get('resample_factor')
     min_pixel=(para.get('expected_min_size(sqmm)')/(para.get('resolution(mm)')**2))*resample_factor
     min_radi=para.get('min_radius')
@@ -40,7 +43,7 @@ def predict_tiles(OutDIR, n_pass):
 
 
     try:#attempt to load saved pre_para
-        with open(OutDIR+'pre_para.json', 'r') as json_file:
+        with open(os.path.join(OutDIR,'pre_para.json'), 'r') as json_file:
             pre_para = json.load(json_file)[n_pass]
         pre_para.update({'Resample': {'fxy':resample_factor}})
         print('Loaded preprocessing parameters from json')
@@ -56,14 +59,14 @@ def predict_tiles(OutDIR, n_pass):
     print('Image size:', image.shape)
     image=preprocessing_roulette(image, pre_para)
 
-    patches = get_image_patches(image, crop_size, 2*b)
+    patches = get_image_patches(image, crop_size, b)
     print(f'Tiled into {len(patches)} patches')
     patch_keys=patches.keys()
     max_ij=np.max(np.array(list(patch_keys)),axis=0)
 
     #setup SAM
     config = load_config()
-    sam=set_sam(config['MODEL_TYPE'], config['CheckpointDIR'])
+    sam=set_sam(para.get('MODEL_TYPE'), para.get('CheckpointDIR'))
 
     mask_generator = SamAutomaticMaskGenerator(sam)
 
@@ -143,7 +146,7 @@ def predict_tiles(OutDIR, n_pass):
 
                     #valid box
                     if len(list_of_cleaned_groups_reseg_masks_nms)>0:
-                        keep = mask_in_valid_box(list_of_cleaned_groups_reseg_masks_nms,b, ij_idx, max_ij)
+                        keep = mask_in_valid_box(list_of_cleaned_groups_reseg_masks_nms,b//2, ij_idx, max_ij)
                         list_of_cleaned_groups_reseg_masks_nms=[list_of_cleaned_groups_reseg_masks_nms[i] for i,k in enumerate(keep) if k]
                         list_of_cleaned_groups_reseg_score_nms=[list_of_cleaned_groups_reseg_score_nms[i] for i,k in enumerate(keep) if k]
                         if len(list_of_cleaned_groups_reseg_masks_nms)>0:
@@ -152,7 +155,7 @@ def predict_tiles(OutDIR, n_pass):
                                         #'mask pred iou':list_of_cleaned_groups_reseg_score,
                                         'nms mask pred iou': list_of_cleaned_groups_reseg_score_nms,
                                         'ij':ij_idx,'crop size':crop_size}
-                            np.save(OutDIR+f'chunks/{n_pass}/chunk_{int(ij_idx[0])}_{int(ij_idx[1])}',[msk_dic])
+                            np.save(os.path.join(OutDIR,f'chunks/{n_pass}/chunk_{int(ij_idx[0])}_{int(ij_idx[1])}'),[msk_dic])
                             del msk_dic, list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms
                     else:
                         print('No valid mask were found inside valid box')
