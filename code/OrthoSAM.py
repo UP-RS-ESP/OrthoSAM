@@ -1,13 +1,47 @@
 import json
 import time
+import logging
 from Layer_0 import predict_tiles
 from Merging import merge_chunks
 from Layer_n import predict_tiles_n
 from notification import notify
+import os
+import sys
+from pathlib import Path
+class StreamToLogger:
+    def __init__(self, logger, level):
+        self.logger = logger
+        self.level = level
+        self.buffer = ''
+
+    def write(self, message):
+        if message.rstrip() != '':
+            self.logger.log(self.level, message.rstrip())
+
+    def flush(self):
+        pass
+
+def setup_full_logging(log_file_path='output.log'):
+    # Create log directory if needed
+    Path(log_file_path).parent.mkdir(parents=True, exist_ok=True)
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(log_file_path, mode='w'),
+            logging.StreamHandler(sys.stdout)  # still show in terminal
+        ]
+    )
+
+    # Redirect print(), warnings, errors
+    sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
+    sys.stderr = StreamToLogger(logging.getLogger(), logging.ERROR)
 
 def orthosam(OutDIR):
+    #setup_full_logging('logs/output.log')
     # Save para to a JSON file
-    with open(OutDIR+'para.json', 'r') as json_file:
+    with open(os.path.join(OutDIR,'para.json'), 'r') as json_file:
         para_list = json.load(json_file)
 
     noti=para_list[0].get('fid')

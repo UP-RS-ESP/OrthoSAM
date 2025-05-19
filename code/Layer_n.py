@@ -59,7 +59,7 @@ def predict_tiles_n(para_L, n_pass):
 
     print('Preprocessing finished')
 
-    ar_masks=np.array(np.load(os.path.join(OutDIR,f'Merged/all_mask_merged_windows_id_{n_pass-1:03}.npy'), allow_pickle=True))
+    ar_masks=np.array(np.load(os.path.join(OutDIR,f'Merged/Merged_windows_id_{n_pass-1:03}.npy'), allow_pickle=True))
     print(len(np.unique(ar_masks)),' mask(s) loaded')
 
 
@@ -132,7 +132,7 @@ def predict_tiles_n(para_L, n_pass):
         predict_tiles(para_L, n_pass)
         merge_chunks(para_L,n_pass)
 
-        resampled_SAM=np.array(np.load(os.path.join(OutDIR,f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy'), allow_pickle=True))
+        resampled_SAM=np.array(np.load(os.path.join(OutDIR,f'Merged/Merged_windows_id_{n_pass:03}.npy'), allow_pickle=True))
         resampled_SAM=cv2.resize(resampled_SAM.astype(np.uint16), ar_masks.shape[::-1], interpolation = cv2.INTER_NEAREST)
 
         #finding mask that is only inside the void
@@ -155,20 +155,22 @@ def predict_tiles_n(para_L, n_pass):
                 plt.figure(figsize=(20,20))
                 plt.subplot(2,2,1)
                 plt.imshow(image)
-                plt.imshow(ar_masks,alpha=0.6)
                 plt.axis('off')
-                plt.title(f'{n_pass-1:03} pass result, {len(np.unique(ar_masks))} mask(s)', fontsize=20)
+                plt.title(f'RGB', fontsize=20)
                 plt.subplot(2,2,2)
-                plt.imshow(image)
-                plt.imshow(resampled_SAM,alpha=0.6)
-                plt.title(f'All extracted masks from {n_pass:03} pass, resampled factor: {required_resampling}', fontsize=20)
-                
+                plt.imshow(ar_masks, cmap='nipy_spectral')
+                plt.axis('off')
+                plt.title(f'Last layer result, {len(np.unique(ar_masks))} mask(s)', fontsize=20)
+                plt.subplot(2,2,3)
+                #plt.imshow(image)
+                plt.imshow(resampled_SAM, cmap='nipy_spectral')
+                plt.title(f'All extracted masks from current layer, resampled factor: {required_resampling}', fontsize=20)
                 plt.axis('off')
                 plt.subplot(2,2,3)
-                plt.imshow(image)
-                plt.imshow(id_mask,alpha=0.6)
+                #plt.imshow(image)
+                plt.imshow(id_mask, cmap='nipy_spectral')
                 plt.axis('off')
-                plt.title(f'{n_pass:03} pass extracted masks, no. of new mask: {len(valid_ids)}', fontsize=20)
+                plt.title(f'Selected mask to merge from current layer, no. of new mask: {len(valid_ids)}', fontsize=20)
 
             ids=np.unique(id_mask)
             ids=ids[ids>0]
@@ -180,16 +182,15 @@ def predict_tiles_n(para_L, n_pass):
 
             if plotting:
                 plt.subplot(2,2,4)
-                plt.imshow(image)
-                plt.imshow(ar_masks>0,alpha=0.6)
+                plt.imshow(ar_masks>0)
                 plt.axis('off')
-                plt.title(f'Merged, total {len(np.unique(ar_masks))} mask(s)', fontsize=20)
+                plt.title(f'Layers merged, total {len(np.unique(ar_masks))} mask(s)', fontsize=20)
                 plt.tight_layout()
                 plt.savefig(os.path.join(OutDIR,f'Merged_masks_withvoid_{n_pass:03}.png'))
                 plt.show()
             
-            print(f'Saving id mask to '+OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy...')
-            np.save(os.path.join(OutDIR+f'Merged/all_mask_merged_windows_id_{n_pass:03}.npy'),ar_masks)
+            print('Saving id mask to '+os.path.join(OutDIR,f'Merged/Merged_windows_id_{n_pass:03}.npy')+'...')
+            np.save(os.path.join(OutDIR,f'Merged/Merged_windows_id_{n_pass:03}.npy'),ar_masks)
             print('Saved')
         else:
             print('Void(s) identified but no valid mask was found')

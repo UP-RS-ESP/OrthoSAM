@@ -21,8 +21,8 @@ def predict_tiles(para_list,n_pass):
     #try:
     print(f'---------------\nLayer {n_pass} segment chunks\n\n')
 
-    if not os.path.exists(OutDIR+f'chunks/{n_pass}'):
-        os.makedirs(OutDIR+f'chunks/{n_pass}')
+    if not os.path.exists(os.path.join(OutDIR,f'chunks/{n_pass}')):
+        os.makedirs(os.path.join(OutDIR,f'chunks/{n_pass}'))
 
     
     print('Loaded parameters from json')

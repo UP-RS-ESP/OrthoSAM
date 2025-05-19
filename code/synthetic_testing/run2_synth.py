@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from notification import notify
 
 # Define the paths to the scripts you want to run
-ac_py = 'code/synthetic_testing/ran_synth_point_ac_shadow.py'
+
 
 
 DSL=[#'ran_synth_08_bw'
