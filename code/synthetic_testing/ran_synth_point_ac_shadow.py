@@ -10,7 +10,7 @@ def accuracy(file_pth,i):
     fn = glob.glob('/DATA/vito/output/'+file_pth+'/*')
     fn.sort()
     fn_pth = fn[i]
-    with open(os.path.join(fn_pth,'/para.json'), 'r') as json_file:
+    with open(os.path.join(fn_pth,'para.json'), 'r') as json_file:
         para=json.load(json_file)[0]
 
     OutDIR=para.get('OutDIR')

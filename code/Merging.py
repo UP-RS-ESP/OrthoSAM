@@ -88,7 +88,7 @@ def merge_chunks(para_list, n_pass):
 
     print(f'{msk_count} masks found')
     if plotting:
-        plt.figure(figsize=(15,5))
+        plt.figure(figsize=(15,8))
         plt.subplot(1,3,1)
         plt.imshow(image)
         plt.axis('off')
@@ -96,7 +96,7 @@ def merge_chunks(para_list, n_pass):
         plt.subplot(1,3,2)
         #plt.imshow(image)
         #plt.imshow(stack_mask,alpha=0.6)
-        #plt.axis('off')
+        plt.axis('off')
         #plt.title(f'Max overlap: {np.max(stack_mask)}', fontsize=20)
         #plt.subplot(1,3,3)
         #plt.imshow(image)
@@ -104,7 +104,7 @@ def merge_chunks(para_list, n_pass):
         plt.title(f'Segments id, {msk_count} mask(s)', fontsize=20)
         plt.subplot(1,3,3)
         #plt.imshow(image)
-        plt.imshow(id_mask>1,alpha=0.6)
+        plt.imshow(id_mask>1)
         plt.axis('off')
         plt.title(f'Segmented', fontsize=20)
         plt.tight_layout()
