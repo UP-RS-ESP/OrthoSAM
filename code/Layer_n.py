@@ -140,7 +140,7 @@ def predict_tiles_n(para_L, n_pass):
         ids_total,counts_total=np.unique(resampled_SAM, return_counts=True)
         valid_ids=[]
         for id,count in tqdm.tqdm(zip(ids_in_void,counts_in_void), total=len(ids_in_void), unit='id'):
-            if count>=((counts_total[ids_total==id])*0.85):#if the object is at least 85% inside the voids
+            if count>=((counts_total[ids_total==id])*0.8):#if the object is at least 85% inside the voids
                 valid_ids.append(id)
 
         if len(valid_ids)!=0:
