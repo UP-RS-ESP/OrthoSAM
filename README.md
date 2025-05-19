@@ -71,7 +71,7 @@ pip install -r requirements.txt
 
 4. Create a subdirectory for storing model checkpoints
 ```bash
-mkdir -p data/MetaSAM
+mkdir -p MetaSAM
 ```
 
 5. Download the Segment Anything checkpoint from 
@@ -95,11 +95,15 @@ wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 
 6. Move the downloaded checkpoint into the MetaSAM folder
 
+7. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](code/config.json). This can be done automatically with [`update_config.py`](code/update_config.py). 
+    - This is also the file to specify which checkpoint to use. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script has the priority.
 ## Codes
-- `OrthoSAM.ipynb`: [Instruction Example notebook.](code/OrthoSAM.ipynb)
-- `para_helper.ipynb`: [Parameter assistance.](code/para_helper.ipynb)
-- `run.py`: [Define parameters and perform segmentation.](code/run.py)
-- `run_DS.py -OutDIR`: [Perform segmentation using created parameters saved in output directory(OutDIR).](code/run_DS.py)
+- [`OrthoSAM_notebook.ipynb`](code/OrthoSAM_notebook.ipynb): Instruction of how to create parameters and run OrthoSAM.
+- [`para_helper.ipynb`](code/para_helper.ipynb): Parameter assistance.
+- [`OrthoSAM_with_create_para.py`](code/OrthoSAM_with_create_para.py): Script to create parameters and run OrthoSAM.
+- [`update_config.py`](code/update_config.py): Update data directory and checkpoint directory path.
+- [`config.json`](code/config.json): Configuration file to define model type, checkpoint directory, data directory, and any default parameters.
+<!-- `OrthoSAM`: [OrthoSAM codes.](code/OrthoSAM.py)-->
 
 
 

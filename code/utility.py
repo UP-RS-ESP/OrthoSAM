@@ -367,7 +367,6 @@ def setup(master_para, para_list, pre_para_list=None):
     master_para['1st_resample_factor'] = master_para['resample_factor']
     config = load_config()
     master_para={**config,**master_para}
-    master_para['DataDIR'] = config.get('DataDIR')
     if not os.path.exists(os.path.join(master_para.get('DataDIR'),master_para.get('DatasetName'))):
         print('Input directory does not exist. Exiting script.')
         sys.exit()
@@ -380,13 +379,14 @@ def setup(master_para, para_list, pre_para_list=None):
 
 
     # Save para to a JSON file
+    para_list.insert(0, {})
     lst = [dict(master_para, **para) for para in para_list]
     with open(os.path.join(OutDIR,'para.json'), 'w') as json_file:
         json.dump(lst, json_file, indent=4)
     if pre_para_list:
         with open(os.path.join(OutDIR,'pre_para.json'), 'w') as json_file:
             json.dump(pre_para_list, json_file, indent=4)
-    return OutDIR
+    return lst
 
 def get_patch_at(image, i, j, crop_size, overlap):
     stride = crop_size - overlap

@@ -38,11 +38,12 @@ def setup_full_logging(log_file_path='output.log'):
     sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
     sys.stderr = StreamToLogger(logging.getLogger(), logging.ERROR)
 
-def orthosam(OutDIR):
+def orthosam(para_list):
     #setup_full_logging('logs/output.log')
     # Save para to a JSON file
-    with open(os.path.join(OutDIR,'para.json'), 'r') as json_file:
-        para_list = json.load(json_file)
+    OutDIR=para_list[0].get('OutDIR')
+    #with open(os.path.join(OutDIR,'para.json'), 'r') as json_file:
+    #    para_list = json.load(json_file)
 
     noti=para_list[0].get('fid')
 

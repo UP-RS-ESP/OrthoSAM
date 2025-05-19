@@ -31,7 +31,6 @@ for id in id_list:
         }
     #specify for individual layers. e.g. different point_per_side
     passs_para_list=[
-        {},
         {'resample_factor':0.5, #'Auto': auto select resample rate.
          }
         ]
@@ -43,10 +42,10 @@ for id in id_list:
                 },{},{}]
 
     #If no preprocessing is needed, remove pre_para_list or use None.
-    OutDIR=setup(main_para, passs_para_list, pre_para_list)
+    passs_para_list=setup(main_para, passs_para_list, pre_para_list)
 
 
-    orthosam(OutDIR)
+    orthosam(passs_para_list)
 
     end_run = time.time()
     print('Run took: ', end_run-start_run)
