@@ -26,7 +26,7 @@ for id in id_list:
         'stability_t':0.85,
         'expected_min_size(sqmm)': 500,
         'min_radius': 0,
-        'Notification': True,# True: send discord when finished.
+        'Discord_notification': True,# True: send discord when finished.
         'Plotting': True# True: plot the results
         }
     #specify for individual layers. e.g. different point_per_side

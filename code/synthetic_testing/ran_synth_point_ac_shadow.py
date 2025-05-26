@@ -4,7 +4,7 @@ import sys
 import os
 import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import functions as fnc
+from utility import load_image, preprocessing_roulette, resample_fnc, get_centroid, update_mask_ious_shared
 
 def accuracy(file_pth,i):
     fn = glob.glob('/DATA/vito/output/'+file_pth+'/*')
@@ -18,10 +18,11 @@ def accuracy(file_pth,i):
     DSname=para.get('DatasetName')
     fid=para.get('fid')
     resample_factor=para.get('resample_factor')
-    b=para.get('tile_overlap')
-    crop_size=para.get('tile_size')
 
-    image=fnc.load_image(DataDIR,DSname,fid)
+    print(DataDIR)
+    print(DSname)
+    print(fid)
+    image=load_image(DataDIR,DSname,fid)
     print('Image size:', image.shape)
     if resample_factor!=1:
         pre_para={'Resample': {'fxy':resample_factor},
@@ -31,7 +32,7 @@ def accuracy(file_pth,i):
             #'Buffering': {'crop size': crop_size}
             }
 
-        image=fnc.preprocessing_roulette(image, pre_para)
+        image=preprocessing_roulette(image, pre_para)
         print('resampled to: ', image.shape)
 
     n_pass=len(os.listdir(OutDIR+'/Merged'))
@@ -41,26 +42,26 @@ def accuracy(file_pth,i):
     #print('Mask imported from '+OutDIR+'Third/all_mask_third_pass_id.npy')
     #third=True
     #except:
-    #seg_masks=np.array(np.load(OutDIR+f'Merged/Merged_windows_id_{n_pass-1:03}.npy', allow_pickle=True))
+    #seg_masks=np.array(np.load(OutDIR+f'Merged/Merged_Layers_{n_pass-1:03}.npy', allow_pickle=True))
     #third=False
     #print('Third pass mask not found, merged first-second pass mask imported instead')
-    #print('Mask imported from '+OutDIR+f'Third/Merged_windows_id_{n_pass:03}.npy')
+    #print('Mask imported from '+OutDIR+f'Third/Merged_Layers_{n_pass:03}.npy')
         
-    seg_masks=np.array(np.load(OutDIR+f'/Merged/Merged_windows_id_{n_pass-1:03}.npy', allow_pickle=True))
+    seg_masks=np.array(np.load(OutDIR+f'/Merged/Merged_Layers_{n_pass-1:03}.npy', allow_pickle=True))
     third=n_pass
-    print('Mask imported from '+OutDIR+f'/Merged/Merged_windows_id_{n_pass-1:03}.npy')
+    print('Mask imported from '+OutDIR+f'/Merged/Merged_Layers_{n_pass-1:03}.npy')
     print('masks size:', seg_masks.shape)
     print(len(np.unique(seg_masks)),' mask(s) loaded')
 
 
     mask=(np.load(os.path.join(DataDIR,DSname[:-4],'msk.npy'))).astype(np.uint16)
-    mask_dw=fnc.resample_fnc(mask,{'target_size':image.shape[:-1][::-1], 'method':'nearest'})
-    seg_masks_rs=fnc.resample_fnc(seg_masks.astype(np.uint16),{'target_size':mask.shape[::-1], 'method':'nearest'})
+    mask_dw=resample_fnc(mask,{'target_size':image.shape[:-1][::-1], 'method':'nearest'})
+    seg_masks_rs=resample_fnc(seg_masks.astype(np.uint16),{'target_size':mask.shape[::-1], 'method':'nearest'})
     print('No. of actual objects: '+str(len(np.unique(mask))-1))
     print('resampled shape: ', mask_dw.shape)
 
     seg_ids=np.unique(seg_masks)
-    centroids=[fnc.get_centroid(seg_masks==id) for id in seg_ids]
+    centroids=[get_centroid(seg_masks==id) for id in seg_ids]
     centroids=np.array(centroids)/resample_factor
 
     ids, counts=np.unique(mask, return_counts=True)
@@ -78,10 +79,10 @@ def accuracy(file_pth,i):
     #    hit_id=int(mask[int(centroids[n][0]),int(centroids[n][1])])
     #    point_based_ac[ids==hit_id]+=1
     #    current_iou=mask_ious[ids==hit_id]
-    #    iou=fnc.iou(seg_masks_rs==n, mask==hit_id)
+    #    iou=iou(seg_masks_rs==n, mask==hit_id)
     #    if iou>current_iou:
     #        mask_ious[ids==hit_id]=iou
-    mask_ious = fnc.update_mask_ious_shared(centroids[1:], mask, ids, seg_masks_rs, seg_ids[1:])
+    mask_ious = update_mask_ious_shared(centroids[1:], mask, ids, seg_masks_rs, seg_ids[1:])
 
     print('Mean mask IoU: ')
     print(np.mean(np.abs(mask_ious)))

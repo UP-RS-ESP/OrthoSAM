@@ -22,22 +22,22 @@ def predict_tiles_n(para_L, n_pass):
     para = para_L[n_pass]
     OutDIR=para.get('OutDIR')
 
-    print(f'---------------\n{n_pass} segment chunks\n\n')
-    print('Loaded parameters from '+OutDIR)
+    print(f'---------------\nLayer {n_pass}\n\n')
+    print('\tLoaded parameters from '+OutDIR)
 
-    print(para)
+    print('\t',para)
     resample_factor=para.get('1st_resample_factor')
 
     try:#attempt to load saved pre_para
         with open(os.path.join(OutDIR,'pre_para.json'), 'r') as json_file:
             pre_para = json.load(json_file)[n_pass]
         pre_para.update({'Resample': {'fxy':resample_factor}})
-        print('Loaded preprocessing parameters from json')
-        print(pre_para)
+        print('\tLoaded preprocessing parameters from json')
+        print('\t',pre_para)
     except:#use defined para
-        print('No pre_para found. Only applying resampling.')
+        print('\tNo pre_para found. Only applying resampling.')
         pre_para={'Resample': {'fxy':resample_factor}}
-        print(pre_para)
+        print('\t',pre_para)
 
     DataDIR=para.get('DataDIR')
     DSname=para.get('DatasetName')
@@ -54,13 +54,13 @@ def predict_tiles_n(para_L, n_pass):
 
     image=load_image(DataDIR,DSname,fid)
     org_shape=image.shape
-    print('Image size:', image.shape)
+    print('\tImage size:', image.shape)
     image=preprocessing_roulette(image, pre_para)
 
-    print('Preprocessing finished')
+    print('\tPreprocessing finished')
 
-    ar_masks=np.array(np.load(os.path.join(OutDIR,f'Merged/Merged_windows_id_{n_pass-1:03}.npy'), allow_pickle=True))
-    print(len(np.unique(ar_masks)),' mask(s) loaded')
+    ar_masks=np.array(np.load(os.path.join(OutDIR,f'Merged/Merged_Layers_{n_pass-1:03}.npy'), allow_pickle=True))
+    print('\t',len(np.unique(ar_masks)),' mask(s) loaded')
 
 
     #identify void
@@ -94,15 +94,15 @@ def predict_tiles_n(para_L, n_pass):
         plt.show()
 
     if len(fxy)>0:
-        print(f'{len(fxy)} void(s) found')
+        print(f'\t{len(fxy)} void(s) found')
         
         if n_pass_resample_factor=='Auto':#if resmpale factor not specified
             if len(fxy)>0:
                 required_resampling=1/(np.max(fxy))
             else:
                 required_resampling=last_resample_factor/2
-                print('No valid voids were detected. Adjust parameter if needed.')
-                print(f'Would you like to further downsampling by a factor of 2 and proceed? (Resampling factor: {required_resampling})')
+                print('\tNo valid voids were detected. Adjust parameter if needed.')
+                print(f'\tWould you like to further downsampling by a factor of 2 and proceed? (Resampling factor: {required_resampling})')
                 signal.signal(signal.SIGALRM, timeout_handler)
 
                 def prompt_user(timeout=10):
@@ -117,11 +117,11 @@ def predict_tiles_n(para_L, n_pass):
                 if prompt_user():
                     required_resampling=last_resample_factor/2
                 else:
-                    print("You chose no. Exiting script.")
+                    print("\tYou chose no. Exiting script.")
                     exit()
         else:
             required_resampling=n_pass_resample_factor
-        print(f'Resample factor: {required_resampling}')
+        print(f'\tResample factor: {required_resampling}')
         #with open(os.path.join(OutDIR,'para.json'), 'r') as json_file:
         #    para_lst = json.load(json_file)
         para.update({'resample_factor': required_resampling})
@@ -132,7 +132,7 @@ def predict_tiles_n(para_L, n_pass):
         predict_tiles(para_L, n_pass)
         merge_chunks(para_L,n_pass)
 
-        resampled_SAM=np.array(np.load(os.path.join(OutDIR,f'Merged/Merged_windows_id_{n_pass:03}.npy'), allow_pickle=True))
+        resampled_SAM=np.array(np.load(os.path.join(OutDIR,f'Merged/Merged_Layers_{n_pass:03}.npy'), allow_pickle=True))
         resampled_SAM=cv2.resize(resampled_SAM.astype(np.uint16), ar_masks.shape[::-1], interpolation = cv2.INTER_NEAREST)
 
         #finding mask that is only inside the void
@@ -149,7 +149,7 @@ def predict_tiles_n(para_L, n_pass):
 
             mask = np.isin(resampled_SAM, valid_ids)
             id_mask = np.where(mask, resampled_SAM, 0)
-            print(f'{n_pass:03} pass discovered {len(valid_ids)} new mask(s)')
+            print(f'\tLayer {n_pass:03} discovered {len(valid_ids)} new mask(s)')
             #id_mask[id_mask>0]+=largest_id
             if plotting:
                 plt.figure(figsize=(20,20))
@@ -186,19 +186,19 @@ def predict_tiles_n(para_L, n_pass):
                 plt.axis('off')
                 plt.title(f'Layers merged, total {len(np.unique(ar_masks))} mask(s)', fontsize=20)
                 plt.tight_layout()
-                plt.savefig(os.path.join(OutDIR,f'Merged_masks_withvoid_{n_pass:03}.png'))
+                plt.savefig(os.path.join(OutDIR,f'Merged_Layers_{n_pass:03}_output.png'))
                 plt.show()
             
-            print('Saving id mask to '+os.path.join(OutDIR,f'Merged/Merged_windows_id_{n_pass:03}.npy')+'...')
-            np.save(os.path.join(OutDIR,f'Merged/Merged_windows_id_{n_pass:03}.npy'),ar_masks)
-            print('Saved')
+            print('\tSaving id mask to '+os.path.join(OutDIR,f'Merged/Merged_Layers_{n_pass:03}.npy')+'...')
+            np.save(os.path.join(OutDIR,f'Merged/Merged_Layers_{n_pass:03}.npy'),ar_masks)
+            print('\tSaved')
         else:
-            print('Void(s) identified but no valid mask was found')
+            print('\tVoid(s) identified but no valid mask was found')
     else:
-        print('No void found. Minimum size threshold or dilation parameter may need to be adjusted')
+        print('\tNo void found. Minimum size threshold or dilation parameter may need to be adjusted')
     end_script = time.time()
-    print('script took: ', end_script-start_script)
-    print('Output saved to '+OutDIR)
+    print(f'\tscript took: {end_script-start_script:.2f} seconds')
+    print('\tOutput saved to '+OutDIR)
     print('---------------\n\n\n\n\n\n')
 #except Exception as e:
 #    import traceback

@@ -1,6 +1,6 @@
 import glob
 import numpy as np
-from tifffile import imread
+from tifffile import imread, imwrite, TiffFile
 import cv2
 import torch
 from skimage.measure import label, regionprops
@@ -11,6 +11,25 @@ from torchvision.ops.boxes import batched_nms
 import psutil
 from tqdm import tqdm
 import sys
+from multiprocessing import Pool, Manager, cpu_count
+import requests
+
+def notify(text):
+    def send_discord_alert(webhook_url, message):
+        data = {"content": message}
+        try:
+            response = requests.post(webhook_url, json=data)
+            if response.status_code == 204:
+                print("Message sent successfully to Discord!")
+            else:
+                print(f"Failed to send message: {response.status_code}, {response.text}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    with open('code/DWH.txt', 'r') as file:
+        DWH = file.readline().strip()
+
+    send_discord_alert(DWH, text)
 
 def load_image(DataDIR,DSname,fid):
     if isinstance(fid, int):
@@ -406,3 +425,83 @@ def clean_mask(mask):
         return (labels==sorted_regions[0].label).astype(np.uint8)
     else:
         return mask
+    
+def get_centroid(mask):
+    labels = label(mask)
+    regions = regionprops(labels)
+    sorted_regions = sorted(regions, key=lambda x: x.area, reverse=True)
+    if len(regions)>0:
+        return sorted_regions[0].centroid
+    else:
+        return (0,0)
+    
+def iou(mask1, mask2):
+    assert np.array_equal(mask1, mask1.astype(bool)), "mask1 is not binary"
+    assert np.array_equal(mask2, mask2.astype(bool)), "mask2 is not binary"
+
+    intersection = np.logical_and(mask1, mask2).sum()
+    union = np.logical_or(mask1, mask2).sum()
+    
+    iou = intersection / union if union != 0 else 0
+    
+    return iou
+def compute_iou_shared(args):
+    i, centroid, mask, ids, mask_ious_dict, seg_masks_rs, seg_id = args
+    hit_id = int(mask[int(centroid[0]), int(centroid[1])])
+    current_iou = mask_ious_dict.get(hit_id, 0.0) 
+    
+    iou_s = iou(seg_masks_rs == seg_id, mask == hit_id)
+    if np.sum(seg_masks_rs == seg_id)<np.sum(mask == hit_id):#negative for oversegmentation
+        iou_s=-iou_s
+    
+    # Update the dictionary only if IoU improves
+    if np.abs(iou_s) > np.abs(current_iou):
+        mask_ious_dict[hit_id] = iou_s
+def update_mask_ious_shared(centroids, mask, ids, seg_masks_rs, seg_ids):
+    '''
+    Multiprocessing mask IoU computation with shared memory
+    '''
+
+    with Manager() as manager:
+        mask_ious_dict = manager.dict()
+
+        data = [
+            (i, centroids[i], mask, ids, mask_ious_dict, seg_masks_rs, seg_ids[i]) 
+            for i in range(len(centroids))
+        ]
+
+        with Pool(cpu_count()) as pool:
+            pool.map(compute_iou_shared, data)
+
+        mask_ious = np.zeros_like(ids).astype(np.float64)
+        for hit_id, iou_val in mask_ious_dict.items():
+            mask_ious[ids == hit_id] = iou_val
+
+        return mask_ious
+    
+def save_mask_as_geotiff(source_tif_path, mask, output_tif_path):
+    with TiffFile(source_tif_path) as tif:
+        original_tags = tif.pages[0].tags
+        original_page = tif.pages[0]
+
+        extratags = [
+            (tag.code, tag.dtype, tag.count, tag.value, False)
+            for tag in original_tags.values()
+        ]
+
+        geokeys = original_page.geokeys if hasattr(original_page, 'geokeys') else None
+        resolution = original_page.tags.get('XResolution', None)
+        resolution_unit = original_page.tags.get('ResolutionUnit', None)
+
+    imwrite(
+        output_tif_path,
+        mask, 
+        compression='deflate',
+        metadata=None, 
+        extratags=extratags,
+        resolution=resolution.value if resolution else None,
+        resolutionunit=resolution_unit.value if resolution_unit else None,
+        photometric='minisblack'
+    )
+
+    print(f"Saved masks as compressed GeoTIFF to: {output_tif_path}")

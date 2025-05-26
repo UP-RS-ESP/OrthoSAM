@@ -19,14 +19,16 @@ def predict_tiles(para_list,n_pass):
     OutDIR=para.get('OutDIR')
     
     #try:
-    print(f'---------------\nLayer {n_pass} segment chunks\n\n')
+    if n_pass==0:
+        print(f'---------------\nLayer {n_pass}')
+    print('\tSegment tiles\n\n')
 
     if not os.path.exists(os.path.join(OutDIR,f'chunks/{n_pass}')):
         os.makedirs(os.path.join(OutDIR,f'chunks/{n_pass}'))
 
     
-    print('Loaded parameters from json')
-    print(para)
+    print('\tLoaded parameters from json')
+    print('\t',para)
 
     DataDIR=para.get('DataDIR')
     DSname=para.get('DatasetName')
@@ -39,28 +41,28 @@ def predict_tiles(para_list,n_pass):
     resample_factor=para.get('resample_factor')
     min_pixel=(para.get('expected_min_size(sqmm)')/(para.get('resolution(mm)')**2))*resample_factor
     min_radi=para.get('min_radius')
-    print(f'Minimum expected size: {min_pixel} pixel')
+    print(f'\tMinimum expected size: {min_pixel} pixel')
 
 
     try:#attempt to load saved pre_para
         with open(os.path.join(OutDIR,'pre_para.json'), 'r') as json_file:
             pre_para = json.load(json_file)[n_pass]
         pre_para.update({'Resample': {'fxy':resample_factor}})
-        print('Loaded preprocessing parameters from json')
-        print(pre_para)
+        print('\tLoaded preprocessing parameters from json')
+        print('\t',pre_para)
     except:#use defined para
-        print('No pre_para found. Only applying resampling.')
+        print('\tNo pre_para found. Only applying resampling.')
         pre_para={'Resample': {'fxy':resample_factor}}
-        print(pre_para)
+        print('\t',pre_para)
 
     #Preprocessing
     #load image
     image=load_image(DataDIR,DSname,fid)
-    print('Image size:', image.shape)
+    print('\tImage size:', image.shape)
     image=preprocessing_roulette(image, pre_para)
 
     patches = get_image_patches(image, crop_size, b)
-    print(f'Tiled into {len(patches)} patches')
+    print(f'\tTiled into {len(patches)} tiles')
     patch_keys=patches.keys()
     max_ij=np.max(np.array(list(patch_keys)),axis=0)
 
@@ -71,7 +73,7 @@ def predict_tiles(para_list,n_pass):
 
     for ij_idx in patch_keys:
         start_loop = time.time()
-        print(f'Segmenting clip: {ij_idx}')
+        print(f'\tSegmenting tile: {ij_idx}')
         #prepare image
         temp_image=patches[ij_idx]
         if (temp_image.shape[0]>(crop_size//8) and temp_image.shape[1]>(crop_size//8)):
@@ -96,12 +98,12 @@ def predict_tiles(para_list,n_pass):
 
                 with torch.no_grad():
                     masks = mask_generator.generate(temp_image)
-                print('First pass SAM: ', len(masks),' mask(s) found')
+                print('\tFirst pass SAM: ', len(masks),' mask(s) found')
 
                 #post processing
                 #filter output mask per point by select highest pred iou mask
                 masks=filter_by_pred_iou_and_size_per_seedpoint(masks, crop_size)
-                print('Filtered by highest predicted iou per seed point, ', len(masks),' mask(s) remains')
+                print('\tFiltered by highest predicted iou per seed point, ', len(masks),' mask(s) remains')
 
                 list_of_pred_iou = [mask['predicted_iou'] for mask in masks]
                 list_of_masks = [clean_mask(mask['segmentation'].astype('bool')) for mask in masks]#remove small disconnected parts
@@ -119,7 +121,7 @@ def predict_tiles(para_list,n_pass):
                 if not np.all(not_background_mask):
                     list_of_masks = [mask for mask, keep in zip(list_of_masks, not_background_mask) if keep]
                     list_of_pred_iou = [mask for mask, keep in zip(list_of_pred_iou, not_background_mask) if keep]
-                    print('Background masks removed')
+                    print('\tBackground masks removed')
                 
                 if len(list_of_masks)>0:
                     #grouping overlaps
@@ -136,12 +138,12 @@ def predict_tiles(para_list,n_pass):
                                 list_of_cleaned_groups_reseg_masks.append(list_of_masks[m].astype('bool'))
                                 list_of_cleaned_groups_reseg_score.append(list_of_pred_iou[m])
                         list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
-                        print('Found ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the clip')
+                        print('\tFound ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the tile')
                     else:
                         list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = list_of_masks, list_of_pred_iou
                         list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
-                        print(f'No groups were found, found {len(list_of_cleaned_groups_reseg_masks)} mask(s) from the first pass')
-                        print(f'{len(list_of_cleaned_groups_reseg_masks_nms)} left after nms filtering')
+                        print(f'\tNo groups were found, found {len(list_of_cleaned_groups_reseg_masks)} mask(s) from the first pass')
+                        print(f'\t{len(list_of_cleaned_groups_reseg_masks_nms)} left after nms filtering')
 
                     #valid box
                     if len(list_of_cleaned_groups_reseg_masks_nms)>0:
@@ -157,20 +159,20 @@ def predict_tiles(para_list,n_pass):
                             np.save(os.path.join(OutDIR,f'chunks/{n_pass}/chunk_{int(ij_idx[0])}_{int(ij_idx[1])}'),[msk_dic])
                             del msk_dic, list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms
                     else:
-                        print('No valid mask were found inside valid box')
+                        print('\tNo valid mask were found inside valid box')
                 else:
-                    print('No valid mask remains after background, area, and radius filtering')
+                    print('\tNo valid mask remains after background, area, and radius filtering')
             else:
-                print('This crop is bacground/edge')
+                print('\tThis crop is bacground/edge')
         else:
-            print('This crop is too small')            
+            print('\tThis crop is too small')            
         end_loop = time.time()
-        print('loop took: ', end_loop-start_loop)
+        print(f'\tloop took: {end_loop-start_loop:.2f} seconds')
 
 
     end_script = time.time()
-    print('script took: ', end_script-start_script)
-    print('First and second pass SAM completed. Output saved to '+OutDIR)
+    print(f'\tscript took: {end_script-start_script:.2f} seconds')
+    print(f'\tLayer {n_pass} segment tiles completed. Output saved to '+OutDIR)
     print('---------------\n\n\n\n\n\n')
     #except Exception as e:
     #    import traceback
@@ -235,8 +237,8 @@ def filter_groupping_by_intersection(group_overlap_area,unique_groups, list_over
     filtered=np.array(group_overlap_area)>intersection_threshold
     unique_groups_thresholded=[unique_groups[i] for i in range(len(unique_groups)) if filtered[i]]
     #report filter
-    print(f'Threshold: {intersection_threshold} pixels, {len(list_overlap)-len(unique_groups_thresholded)} groups removed',
-        f'\nOverlap groups before filtering: {len(list_overlap)}, after filtering: {len(unique_groups_thresholded)}')
+    print(f'\tThreshold: {intersection_threshold} pixels, {len(list_overlap)-len(unique_groups_thresholded)} groups removed',
+        f'\n\tOverlap groups before filtering: {len(list_overlap)}, after filtering: {len(unique_groups_thresholded)}')
     return unique_groups_thresholded
 
 def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded, masks):

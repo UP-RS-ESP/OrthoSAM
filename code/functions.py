@@ -737,7 +737,7 @@ def define_clips(x,y,resample_factor,crop_size, window_step=0.5):
 
 def load_image(DataDIR,DSname,fid):
     if isinstance(fid, int):
-        fn_img = glob.glob(DataDIR+DSname)
+        fn_img = glob.glob(os.path.join(DataDIR,DSname,'*'))
         print(fn_img)
         if fn_img[fid][-3:]=='npy':
             #image=(np.load(fn_img[fid])*255).astype(np.uint8)
@@ -749,7 +749,7 @@ def load_image(DataDIR,DSname,fid):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         print(fn_img[fid].split("/")[-1]+' imported')
     elif isinstance(fid, str):
-        fn=DataDIR+DSname[:-1]+fid
+        fn=os.path.join(DataDIR,DSname,fid)
         if fn[-3:]=='npy':
             image=(np.load(fn)).astype(np.uint8)
         elif fn[-3:]=='tif':

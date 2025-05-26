@@ -3,7 +3,7 @@ import os
 import sys
 from ran_synth_point_ac_shadow import accuracy
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from notification import notify
+from utility import notify
 
 # Define the paths to the scripts you want to run
 
@@ -44,8 +44,8 @@ DSL=[#'ran_synth_08_bw'
      #'ran_synth_01_10_cl_std_192'
      #,'ran_synth_02_1500_cl_std_192'
      #'ran_synth_12_1500_shadow_0_1',
-     'ran_synth_12_1500_shadow2_0_2'
-     #'ran_synth_12_1500_shadow2_0_5'
+     'ran_synth_12_1500_shadow2_0_2',
+     'ran_synth_12_1500_shadow2_0_5'
      ]
 
 
@@ -56,8 +56,9 @@ for DS in DSL:
         os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
         print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
     for i in range(12):
-        run_DS(DS, i)
-        accuracy(DS,i)
+        if i>0:
+            run_DS(DS, i)
+            accuracy(DS,i)
 
     print(f'{DS} segmentation completed')
     notify(DS+' segmentation completed')

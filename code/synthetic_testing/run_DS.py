@@ -22,7 +22,6 @@ def run_DS(DS, i):
         'Plotting': True#
         }
     para_list=[
-        {},
         {'resample_factor':1/12, #None: use method A. 1: auto select resample rate.
         }
         ]
@@ -32,5 +31,5 @@ def run_DS(DS, i):
                     #'Buffering': {'crop size': crop_size}
                 },{},{}]
 
-    OutDIR=setup(master_para, para_list, pre_para_list)
-    orthosam(OutDIR)
+    passes_para_list=setup(master_para, para_list, pre_para_list)
+    orthosam(passes_para_list)
