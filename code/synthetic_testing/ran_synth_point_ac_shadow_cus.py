@@ -8,10 +8,10 @@ from utility import load_image, preprocessing_roulette, resample_fnc, get_centro
 
 def accuracy(file_pth,i):
     print('Assessing accuracy for: ', file_pth, ' ', i)
-    fn = glob.glob('/DATA/vito/output/'+file_pth+'/*')
-    fn.sort()
-    fn_pth = fn[i]
-    with open(os.path.join(fn_pth,'para.json'), 'r') as json_file:
+    fn = '/DATA/vito/output/'+file_pth+'_00_noshadow'+'/'
+    #fn.sort()
+    #fn_pth = fn[i]
+    with open(os.path.join(fn,'para.json'), 'r') as json_file:
         para=json.load(json_file)[0]
 
     OutDIR=para.get('OutDIR')
@@ -56,8 +56,8 @@ def accuracy(file_pth,i):
     print(len(np.unique(seg_masks)),' mask(s) loaded')
 
 
-    mask=(np.load(os.path.join(DataDIR,DSname[:-4],'msk.npy'))).astype(np.uint16)
-    shadow_mask=load_image(DataDIR,DSname[:-3]+'shd',fid).astype(np.uint16)
+    mask=(np.load(os.path.join(DataDIR,DSname,'msk.npy'))).astype(np.uint16)
+    #shadow_mask=load_image(DataDIR,DSname[:-3]+'shd',fid).astype(np.uint16)
     #mask_dw=resample_fnc(mask,{'target_size':image.shape[:-1][::-1], 'method':'nearest'})
     #shadow_mask_dw=resample_fnc(shadow_mask,{'target_size':image.shape[:-1][::-1], 'method':'nearest'})
     seg_masks_rs=resample_fnc(seg_masks.astype(np.uint16),{'target_size':mask.shape[::-1], 'method':'nearest'})
@@ -74,14 +74,12 @@ def accuracy(file_pth,i):
     ids = ids[np.argsort(area)]
     area = np.sort(area)
 
-    shadowed_ids,shadowed_area=np.unique(mask[shadow_mask<1], return_counts=True)
-    shadowed_ids, shadowed_area = shadowed_ids[1:], shadowed_area[1:]  # Exclude background
-    shadowed_area = shadowed_area * (0.2 * 0.2)  # Convert to area in square mm
+    #shadowed_ids,shadowed_area=np.unique(mask[shadow_mask<1], return_counts=True)
     completely_in_shadow=np.zeros_like(ids)
-    for id in ids:
-        if id in shadowed_ids:
-            if shadowed_area[shadowed_ids==id]/area[ids==id]>0.9:
-                completely_in_shadow[ids==id]=1
+    #for id in ids:
+    #    if id in shadowed_ids:
+    #        if shadowed_area[shadowed_ids==id]/area[ids==id]>0.9:
+    #            completely_in_shadow[ids==id]=1
 
     point_based_ac=np.zeros_like(ids)
     for c in range(len(centroids))[1:]:
@@ -99,4 +97,4 @@ def accuracy(file_pth,i):
 
     print('Mean mask IoU: ')
     print(np.mean(np.abs(mask_ious)))
-    np.save(os.path.join(DataDIR,DSname[:-4],file_pth,f'point_based_ac_{i:02}.npy'), {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third, 'para':para, 'completely_in_shadow':completely_in_shadow})
+    np.save(os.path.join(DataDIR,DSname,f'point_based_ac_org.npy'), {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third, 'para':para, 'completely_in_shadow':completely_in_shadow})

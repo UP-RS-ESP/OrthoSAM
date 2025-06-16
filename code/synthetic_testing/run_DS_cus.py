@@ -6,9 +6,9 @@ from OrthoSAM import orthosam
 
 def run_DS(DS, i):
     # Define the paths to the scripts you want to run
-    master_para={'OutDIR': f'/DATA/vito/output/{DS}/{DS}_{i:02}_b250',
-        'DatasetName': f'{DS}/img',
-        'fid': i,
+    master_para={'OutDIR': f'/DATA/vito/output/{DS}_{i:02}_noshadow',
+        'DatasetName': f'{DS}',
+        'fid': 'org_rgb.npy',
         'resolution(mm)': 1,#image resolution in mm/pixel
         'tile_size': 1024,
         'tile_overlap':200,

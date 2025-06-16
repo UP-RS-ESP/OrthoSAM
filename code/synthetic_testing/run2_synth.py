@@ -6,9 +6,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utility import notify
 
 # Define the paths to the scripts you want to run
-
-
-
 DSL=[#'ran_synth_08_bw'
      #,'ran_synth_16_bw'
      #,'ran_synth_32_bw'
@@ -44,7 +41,26 @@ DSL=[#'ran_synth_08_bw'
      #'ran_synth_01_10_cl_std_192'
      #,'ran_synth_02_1500_cl_std_192'
      #'ran_synth_12_1500_shadow_0_1',
-     'ran_synth_12_1500_shadow2_0_2',
+     'ran_synth_12_1500_shadow2_0_2'#,
+#     'ran_synth_12_1500_shadow2_0_5'
+     ]
+
+
+for DS in DSL:
+    if not os.path.exists(f'/DATA/vito/output/{DS}'):
+        os.makedirs(f'/DATA/vito/output/{DS}')
+    if not os.path.exists('/DATA/vito/data/'+DS+'/'+DS):
+        os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
+        print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
+    for i in [0]:#range(12):
+
+        run_DS(DS, i)
+        accuracy(DS,i)
+
+    #print(f'{DS} segmentation completed')
+    #notify(DS+' segmentation completed')
+
+DSL=[
      'ran_synth_12_1500_shadow2_0_5'
      ]
 
@@ -55,13 +71,12 @@ for DS in DSL:
     if not os.path.exists('/DATA/vito/data/'+DS+'/'+DS):
         os.makedirs('/DATA/vito/data/'+DS+'/'+DS)
         print('Created '+'/DATA/vito/data/'+DS+'/'+DS)
+    for i in [0,4,8]:
+        run_DS(DS, i)
+        #accuracy(DS,i)
     for i in range(12):
-        if i>0:
-            run_DS(DS, i)
-            accuracy(DS,i)
-
-    print(f'{DS} segmentation completed')
-    notify(DS+' segmentation completed')
+        #run_DS(DS, i)
+        accuracy(DS,i)
 
 
 notify('All task completed')

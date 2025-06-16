@@ -25,8 +25,13 @@ def notify(text):
                 print(f"Failed to send message: {response.status_code}, {response.text}")
         except Exception as e:
             print(f"An error occurred: {e}")
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # .py script
+    except NameError:
+        base_dir = os.path.dirname(os.path.abspath("__file__"))  # Jupyter fallback
 
-    with open('code/DWH.txt', 'r') as file:
+    dwh_path = os.path.join(base_dir, 'DWH.txt')
+    with open(dwh_path, 'r') as file:
         DWH = file.readline().strip()
 
     send_discord_alert(DWH, text)
@@ -34,6 +39,7 @@ def notify(text):
 def load_image(DataDIR,DSname,fid):
     if isinstance(fid, int):
         fn_img = glob.glob(os.path.join(DataDIR,DSname,'*'))
+        fn_img.sort()
         print(fn_img)
         if fn_img[fid][-3:]=='npy':
             #image=(np.load(fn_img[fid])*255).astype(np.uint8)

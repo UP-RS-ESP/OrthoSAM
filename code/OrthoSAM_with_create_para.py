@@ -30,7 +30,7 @@ for id in id_list:
         'Plotting': True# True: plot the results
         }
     #specify for individual layers. e.g. different point_per_side
-    passs_para_list=[
+    passes_para_list=[
         {'resample_factor':0.5, #'Auto': auto select resample rate.
          }
         ]
@@ -42,10 +42,10 @@ for id in id_list:
                 },{},{}]
 
     #If no preprocessing is needed, remove pre_para_list or use None.
-    passs_para_list=setup(main_para, passs_para_list, pre_para_list)
+    passes_para_list=setup(main_para, passes_para_list, pre_para_list)
 
 
-    orthosam(passs_para_list)
+    orthosam(passes_para_list)
 
     end_run = time.time()
     print('Run took: ', end_run-start_run)
