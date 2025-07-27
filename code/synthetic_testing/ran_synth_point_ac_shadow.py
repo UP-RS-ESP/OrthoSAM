@@ -84,9 +84,12 @@ def accuracy(file_pth,i):
                 completely_in_shadow[ids==id]=1
 
     point_based_ac=np.zeros_like(ids)
+    seg_fp= np.zeros_like(seg_ids)
     for c in range(len(centroids))[1:]:
         hit_id=int(mask[int(centroids[c][0]),int(centroids[c][1])])
         point_based_ac[ids==hit_id]+=1
+        if hit_id!=0:
+                seg_fp[c]+=1
     #mask_ious=np.zeros_like(ids).astype(np.float64)
     #for n in tqdm(range(len(centroids))[1:], 'Matching and calculate IoU', unit='objects'):
     #    hit_id=int(mask[int(centroids[n][0]),int(centroids[n][1])])
@@ -99,4 +102,4 @@ def accuracy(file_pth,i):
 
     print('Mean mask IoU: ')
     print(np.mean(np.abs(mask_ious)))
-    np.save(os.path.join(DataDIR,DSname[:-4],file_pth,f'point_based_ac_{i:02}.npy'), {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor,'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third, 'para':para, 'completely_in_shadow':completely_in_shadow})
+    np.save(os.path.join(DataDIR,DSname[:-4],file_pth,f'point_based_ac_{i:02}.npy'), {'point based':point_based_ac, 'iou':mask_ious, 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor, 'segment hit':seg_fp[1:],'label_count':len(np.unique(mask))-1,'mask_count':len(np.unique(seg_masks)),'Third pass': third, 'para':para, 'completely_in_shadow':completely_in_shadow})

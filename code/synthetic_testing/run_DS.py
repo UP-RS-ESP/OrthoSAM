@@ -14,9 +14,9 @@ def run_DS(DS, i):
         'tile_overlap':200,
         'resample_factor': 1,#'Auto': auto select resample rate.
         'input_point_per_axis': 30,
-        'dilation_size':5,
+        'dilation_size':15,
         'stability_t':0.85,
-        'expected_min_size(sqmm)': 500,
+        'expected_min_size(sqmm)': 0,
         'min_radius': 0,
         'Discord_notification': True,# True: send discord when finished.
         'Plotting': True#

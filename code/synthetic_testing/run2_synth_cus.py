@@ -9,22 +9,6 @@ from utility import notify
 DSL=['ran_synth_12_1500_shadow2_0_2'
      ]
 
-
-for DS in DSL:
-    if not os.path.exists(f'/DATA/vito/output/{DS}_noshadow'):
-        os.makedirs(f'/DATA/vito/output/{DS}_noshadow')
-    if not os.path.exists('/DATA/vito/data/'+DS+'_noshadow'):
-        os.makedirs('/DATA/vito/data/'+DS+'_noshadow')
-        print('Created '+'/DATA/vito/data/'+DS+'/'+DS+'_noshadow')
-    for i in [0]:#range(12):
-
-        #run_DS(DS, i)
-        accuracy(DS,i)
-
-    print(f'{DS} segmentation completed')
-    notify(DS+' segmentation completed')
-
-
 DSL=['ran_synth_12_1500_shadow2_0_5'
      ]
 
@@ -37,7 +21,7 @@ for DS in DSL:
         print('Created '+'/DATA/vito/data/'+DS+'/'+DS+'_noshadow')
     for i in [0]:#range(12):
 
-        run_DS(DS, i)
+        #run_DS(DS, i)
         accuracy(DS,i)
 
     print(f'{DS} segmentation completed')

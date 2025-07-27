@@ -1,3 +1,8 @@
+# Adapted from:
+# https://https://github.com/facebookresearch/segment-anything/blob/main/segment_anything/automatic_mask_generator.py
+# Licensed under the Apache License, Version 2.0
+# Modifications by Vito Chan, 27.07.2025
+# 
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 
