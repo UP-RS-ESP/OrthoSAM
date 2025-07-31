@@ -101,6 +101,10 @@ wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 
 7. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](code/config.json). This can be done automatically with [`update_config.py`](code/update_config.py). 
     - This is also the file to specify which checkpoint to use. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script has the priority.
+    - This script will also create the data and output directory if they do not exist.
+```
+python update_config.py
+```
 ### Discord notification:
 As processing time can be long when dealing with large images, we have added a notification function using Discord Webhook. In order to enable this function, set 'Discord_notification' to True in the parameters or the configuration file. 
 
@@ -123,12 +127,24 @@ Please follow these steps to setup Discord notification.
 echo "your_webhook_url_here" > code/DWH.txt
 ```
 ## Codes
+### Examples
 - [`OrthoSAM_notebook.ipynb`](code/OrthoSAM_notebook.ipynb): General instruction of how to create parameters and run OrthoSAM (select a single image).
-- [`OrthoSAM_SediNet.ipynb`](code/OrthoSAM_SediNet.ipynb): Instruction of how to create parameters for running images within the SediNet archive (see https://github.com/DigitalGrainSize/SediNet). Runs single images or batch processes all images in a directory.
-- [`para_helper.ipynb`](code/para_helper.ipynb): Parameter assistance.
+- [`OrthoSAM_presets.ipynb`](code/OrthoSAM_presets.ipynb): Examples of using OrthoSAM with predefined parameters for large orthomosaics and for compact fine objects. When using predefined parameters, only output directory, input path and resolution are required.
 - [`OrthoSAM_with_create_para.py`](code/OrthoSAM_with_create_para.py): Script to create parameters and run OrthoSAM.
+- [`generate_synthetic_images.ipynb`](code/synthetic/generate_synthetic_images.ipynb): General instruction of how to generate synthetic images.
+
+### OrthoSAM
+- [`OrthoSAM.py`](code/OrthoSAM.py): Contains the main function to run OrthoSAM, and functions with predefined parameters for large orthomosaics and compact fine objects.
+- [`synthetic_generator.ipynb`](code/synthetic/synthetic_generator.ipynb): Contains the function to generate synthetic images.
+
+### Utilities
+- [`para_helper.ipynb`](code/para_helper.ipynb): Parameter assistance.
 - [`update_config.py`](code/update_config.py): Update data directory and checkpoint directory path.
-- [`config.json`](code/config.json): Configuration file to define model type, checkpoint directory, data directory, and any default parameters.
+- [`utility.py`](code/utility.py): Utility functions.
+
+### Other
+- [`config.json`](code/config.json): Configuration file to define model type, checkpoint directory, data directory, output directory, and any default parameters.
+- [`DWH.txt`](code/DWH.txt): File to store your Discord webhook URL.
 <!-- `OrthoSAM`: [OrthoSAM codes.](code/OrthoSAM.py)-->
 
 

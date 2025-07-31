@@ -3,7 +3,7 @@ import numpy as np
 from tifffile import imread, imwrite, TiffFile
 import cv2
 import torch
-from skimage.measure import label, regionprops
+from skimage.measure import label, regionprops,regionprops_table
 import os
 import json
 from segment_anything import sam_model_registry
@@ -13,6 +13,8 @@ from tqdm import tqdm
 import sys
 from multiprocessing import Pool, Manager, cpu_count
 import requests
+import pandas as pd
+import scipy.ndimage as ndi
 
 def notify(text):
     def send_discord_alert(webhook_url, message):
@@ -392,6 +394,7 @@ def setup(master_para, para_list, pre_para_list=None):
     master_para['1st_resample_factor'] = master_para['resample_factor']
     config = load_config()
     master_para={**config,**master_para}
+    master_para['OutDIR'] = os.path.join(master_para.get('MainOutDIR'), master_para.get('OutDIR'))
     if not os.path.exists(os.path.join(master_para.get('DataDIR'),master_para.get('DatasetName'))):
         print('Input directory does not exist. Exiting script.')
         sys.exit()
@@ -511,3 +514,111 @@ def save_mask_as_geotiff(source_tif_path, mask, output_tif_path):
     )
 
     print(f"Saved masks as compressed GeoTIFF to: {output_tif_path}")
+
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+def plot_tiling_with_overlap(image, crop_size, overlap):
+    """
+    Plot the tiling of the image and highlight the overlapping areas.
+    
+    Parameters:
+    - image: 2D or 3D NumPy array (H, W, C) or (H, W).
+    - crop_size: Tuple (height, width) specifying the size of each patch.
+    - overlap: The number of pixels overlapping between patches.
+    """
+    H, W = image.shape[:2]
+    patch_h, patch_w = crop_size
+    stride_h, stride_w = patch_h - overlap, patch_w - overlap
+
+    plt.imshow(image)
+
+    # Add patches and highlight overlaps
+    for i, y in enumerate(range(0, H - overlap, stride_h)):
+        for j, x in enumerate(range(0, W - overlap, stride_w)):
+            # Draw the patch as a rectangle
+            rect = patches.Rectangle((x, y), patch_w, patch_h, linewidth=1, edgecolor='r', facecolor='none')
+            plt.gca().add_patch(rect)
+            
+            # Highlight the overlapping area
+            if overlap > 0:
+                # Overlap along x direction
+                if x + patch_w < W:
+                    overlap_rect_x = patches.Rectangle((x + patch_w - overlap, y), overlap, patch_h, 
+                                                       linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_x)
+                # Overlap along y direction
+                if y + patch_h < H:
+                    overlap_rect_y = patches.Rectangle((x, y + patch_h - overlap), patch_w, overlap, 
+                                                       linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_y)
+                # Overlap corner (both x and y)
+                if (x + patch_w < W) and (y + patch_h < H):
+                    overlap_rect_xy = patches.Rectangle((x + patch_w - overlap, y + patch_h - overlap), overlap, overlap,
+                                                        linewidth=0, facecolor='yellow', alpha=0.5)
+                    plt.gca().add_patch(overlap_rect_xy)
+
+    # Set the axis limits and title
+    plt.xlim([0, W])
+    plt.ylim([H, 0])
+    plt.title("Tiling with Overlaps (highlighted in yellow)")
+
+def compute_mean(image, labeled_mask, labels):
+    """Compute mean values for R, G, B channels for each label."""
+    mean_r = ndi.labeled_comprehension(image[..., 0], labeled_mask, labels, np.mean, float, 0)
+    mean_g = ndi.labeled_comprehension(image[..., 1], labeled_mask, labels, np.mean, float, 0)
+    mean_b = ndi.labeled_comprehension(image[..., 2], labeled_mask, labels, np.mean, float, 0)
+
+    return pd.DataFrame({'label': labels, 'mean_R': mean_r, 'mean_G': mean_g, 'mean_B': mean_b})
+
+def compute_median(image, labeled_mask, labels):
+    """Compute median values for R, G, B channels for each label."""
+    median_r = ndi.labeled_comprehension(image[..., 0], labeled_mask, labels, np.median, float, 0)
+    median_g = ndi.labeled_comprehension(image[..., 1], labeled_mask, labels, np.median, float, 0)
+    median_b = ndi.labeled_comprehension(image[..., 2], labeled_mask, labels, np.median, float, 0)
+
+    return pd.DataFrame({'label': labels, 'median_R': median_r, 'median_G': median_g, 'median_B': median_b})
+
+
+
+def get_props_df(image, labeled_mask, resample=1, res=1):
+    """Extract region properties and combine them with mean & median color values.
+    Args:
+        image (np.ndarray): Input image of shape (H, W, C).
+        labeled_mask (np.ndarray): Labeled mask of shape (H, W) with unique labels for each region.
+        resample (int): Resampling factor for the labeled mask.
+        res (int): Resolution factor for the properties."""
+    labeled = label(labeled_mask, background=0)
+    
+    props = regionprops_table(
+        labeled,
+        properties=('label', 'centroid', 'axis_major_length', 'axis_minor_length', 'area', 'perimeter'),
+    )
+    props_df = pd.DataFrame(props)
+
+    props_df['axis_major_length'] = (props_df['axis_major_length'] / resample) * res
+    props_df['axis_minor_length'] = (props_df['axis_minor_length'] / resample) * res
+    props_df['area'] = (props_df['area'] / (resample ** 2)) * (res ** 2)
+    props_df['perimeter'] = (props_df['perimeter'] / resample) * res
+
+    # Compute shape-based indices
+    props_df['IR'] = (4 * np.pi * props_df['area']) / (props_df['perimeter'] ** 2)
+    props_df['h'] = ((props_df['axis_major_length'] - props_df['axis_minor_length']) ** 2) / \
+                    ((props_df['axis_major_length'] + props_df['axis_minor_length']) ** 2)
+    props_df['IRt'] = (4 * np.pi * (np.pi * props_df['axis_major_length'] * props_df['axis_minor_length'])) / \
+                      (np.pi * (props_df['axis_major_length'] + props_df['axis_minor_length']) * 
+                      (1 + ((3 * props_df['h']) / (10 + np.sqrt(4 - 3 * props_df['h']))))) ** 2
+    props_df['IRn'] = props_df['IR'] / props_df['IRt']
+
+    # Get the correct labels from props_df
+    labels = props_df['label'].values
+
+    # Compute mean and median values
+    masks=cv2.resize(masks.astype(np.uint16), image.shape[:-1][::-1], interpolation = cv2.INTER_NEAREST)
+    means_df = compute_mean(image, labeled_mask, labels)
+    medians_df = compute_median(image, labeled_mask, labels)
+
+    # Merge all data into props_df using 'label' to ensure correct alignment
+    props_df = props_df.merge(means_df, on='label', how='left')
+    props_df = props_df.merge(medians_df, on='label', how='left')
+
+    return props_df

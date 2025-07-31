@@ -38,6 +38,28 @@ def setup_full_logging(log_file_path='output.log'):
     sys.stderr = StreamToLogger(logging.getLogger(), logging.ERROR)
 
 def orthosam(para_list):
+    """    Main function to run OrthoSAM.
+    Arguments:
+    - para_list (list of dicts): List of dictionaries containing parameters for each layer.
+    Each dictionary should contain the following keys:
+        - 'OutDIR': Output directory where the results will be stored relative to the MainOutDIR stored in config.json.
+        - 'DatasetName': Path of the dataset directory relative to the data directory.
+        - 'fid': Filename or the index after sorting by file name.
+        - 'resolution(mm)': Image resolution in mm/pixel.
+        - 'tile_size': Size of the tiles to be processed.
+        - 'tile_overlap': Overlap between tiles.
+        - 'resample_factor': Resampling factor (or 'Auto' to auto select resample rate).
+        - 'input_point_per_axis': Number of input points per axis.
+        - 'dilation_size': Size of dilation for segmentation.
+        - 'stability_t': Stability threshold for segmentation.
+        - 'expected_min_size(sqmm)': Expected minimum size of objects in square millimeters.
+        - 'min_radius': Minimum radius for segmentation.
+        - 'Calculate_stats': Boolean indicating whether to calculate statistics. True to calculate statistics.
+        - 'Discord_notification': Boolean indicating whether to send Discord notifications when finished.
+        - 'Plotting': Boolean indicating whether to plot the results.
+    Returns:
+    - None: The function saves the segmentation results in the specified output directory.
+    """
     
     # Save para to a JSON file
     warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -46,6 +68,7 @@ def orthosam(para_list):
 
 
     noti=para_list[0].get('Discord_notification')
+    stats=para_list[0].get('Calculate_stats')
     start_run_whole = time.time()
     for n in range(len(para_list)):
         
@@ -68,6 +91,15 @@ def orthosam(para_list):
                 
         end_run_whole = time.time()
     print(f'Run took: {((end_run_whole -start_run_whole)/60):.2f} minutes' )
+    if stats:
+        print('Calculating statistics...')
+        from utility import load_image, get_props_df
+        image=load_image(para_list[0].get('DataDIR'), para_list[0].get('DatasetName'), para_list[0].get('fid'))
+        masks=load_image(OutDIR, 'Merged', f'Merged_Layers_{len(para_list)-1:03}.npy')
+        res=para_list[0].get('resolution(mm)')
+        df=get_props_df(image, masks, para_list[0].get('resample_factor'), res=res)
+        df.to_csv(os.path.join(OutDIR, 'props.csv'), index=False)
+        print('Statistics saved to props.csv')
     if noti:
         notify(OutDIR+' all layers completed')
 
@@ -75,12 +107,24 @@ def large_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_para=None, cus
     """
     This function is used to run the OrthoSAM on large orthomosaics with a default set of parameters.
     Arguments:
-    - OutDIR (str): The path of the output directory where the results will be stored.
+    - OutDIR (str): The path of the output directory where the results will be stored relative to the MainOutDIR stored in config.json. 
     - DatasetName (str): The path of the dataset directory relative to the data directory.
     - fid (str or int): The filename or the index after sorting by file name.
     - resolution (float): The image resolution in mm/pixel.
     - custom_main_para (dict, optional): Custom parameters for the main configuration. Default is None.
     - custom_pass (list of dicts, optional): Custom parameters for individual layers. Default is None.
+    Default parameters:
+    - tile_size: 1024
+    - tile_overlap: 200
+    - resample_factor: 1 (or 'Auto' to auto select resample rate
+    - input_point_per_axis: 30
+    - dilation_size: 5
+    - stability_t: 0.85
+    - expected_min_size(sqmm): resolution * resolution * 30
+    - min_radius: 0
+    - Calculate_stats: True (set to False to disable statistics calculation)
+    - Discord_notification: False (set to True to enable Discord notifications)
+    - Plotting: True (set to False to disable plotting)
     """
     from utility import setup
     main_para={'OutDIR':OutDIR,# where output will be stored
@@ -95,6 +139,7 @@ def large_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_para=None, cus
         'stability_t':0.85,
         'expected_min_size(sqmm)': resolution*resolution*30,
         'min_radius': 0,
+        'Calculate_stats': False, # True: calculate statistics
         'Discord_notification': False,# True: send discord when finished.
         'Plotting': True# True: plot the results
         }
@@ -124,12 +169,24 @@ def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_
     """
     This function is used to run the OrthoSAM on images of tightly packed fine obejcts with a default set of parameters.
     Arguments:
-    - OutDIR (str): The path of the output directory where the results will be stored.
+    - OutDIR (str): The path of the output directory where the results will be stored relative to the MainOutDIR stored in config.json.
     - DatasetName (str): The path of the dataset directory relative to the data directory.
     - fid (str or int): The filename or the index after sorting by file name.
     - resolution (float): The image resolution in mm/pixel.
     - custom_main_para (dict, optional): Custom parameters for the main configuration. Default is None.
     - custom_pass (list of dicts, optional): Custom parameters for individual layers. Default is None.
+    Default parameters:
+    - tile_size: 512
+    - tile_overlap: 200
+    - resample_factor: 2 (or 'Auto' to auto select resample rate)
+    - input_point_per_axis: 30
+    - dilation_size: 5
+    - stability_t: 0.85
+    - expected_min_size(sqmm): resolution * resolution * 30
+    - min_radius: 0
+    - Calculate_stats: True (set to False to disable statistics calculation)
+    - Discord_notification: False (set to True to enable Discord notifications)
+    - Plotting: True (set to False to disable plotting)
     """
     from utility import setup
     main_para={'OutDIR':OutDIR,# where output will be stored
@@ -144,6 +201,7 @@ def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_
         'stability_t':0.85,
         'expected_min_size(sqmm)': resolution*resolution*30,
         'min_radius': 0,
+        'Calculate_stats': False, # True: calculate statistics
         'Discord_notification': False,# True: send discord when finished.
         'Plotting': True# True: plot the results
         }

@@ -14,7 +14,7 @@ for id in id_list:
 
     start_run = time.time()
     #Base parameters
-    main_para={'OutDIR': f'/DATA/vito/output/Sedinet_select/sedinet_{id}_org_dw2',# where output will be stored
+    main_para={'OutDIR': f'Sedinet_select/sedinet_{id}_org_dw2',# where output will be stored  relative to the MainOutDIR stored in config.json
         'DatasetName': 'sedinet/SediNet/images',
         'fid': id,#Filename or the index after sorting by file name.
         'resolution(mm)': 1,#image resolution in mm/pixel
@@ -26,6 +26,7 @@ for id in id_list:
         'stability_t':0.85,
         'expected_min_size(sqmm)': 500,
         'min_radius': 0,
+        'Calculate_stats': False, # True: calculate statistics. If you wish to use this feature, please create a file name DWH.txt in the code directory and set the webhook.
         'Discord_notification': True,# True: send discord when finished.
         'Plotting': True# True: plot the results
         }
