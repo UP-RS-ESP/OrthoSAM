@@ -71,9 +71,9 @@ def predict_tiles(para_list,n_pass):
 
     mask_generator = SamAutomaticMaskGenerator(sam)
 
-    for ij_idx in patch_keys:
+    for count,ij_idx in enumerate(patch_keys):
         start_loop = time.time()
-        print(f'\tSegmenting tile: {ij_idx}')
+        print(f'\tSegmenting tile: {ij_idx} [{count+1}/{len(patch_keys)}]')
         #prepare image
         temp_image=patches[ij_idx]
         if (temp_image.shape[0]>(crop_size//8) and temp_image.shape[1]>(crop_size//8)):
@@ -98,12 +98,12 @@ def predict_tiles(para_list,n_pass):
 
                 with torch.no_grad():
                     masks = mask_generator.generate(temp_image)
-                print('\tFirst pass SAM: ', len(masks),' mask(s) found')
+                print(f'\tFirst pass SAM: {len(masks)} mask(s) found')
 
                 #post processing
                 #filter output mask per point by select highest pred iou mask
                 masks=filter_by_pred_iou_and_size_per_seedpoint(masks, crop_size)
-                print('\tFiltered by highest predicted iou per seed point, ', len(masks),' mask(s) remains')
+                print(f'\tFiltered by highest predicted iou per seed point, {len(masks)} mask(s) remains')
 
                 list_of_pred_iou = [mask['predicted_iou'] for mask in masks]
                 list_of_masks = [clean_mask(mask['segmentation'].astype('bool')) for mask in masks]#remove small disconnected parts
@@ -138,7 +138,7 @@ def predict_tiles(para_list,n_pass):
                                 list_of_cleaned_groups_reseg_masks.append(list_of_masks[m].astype('bool'))
                                 list_of_cleaned_groups_reseg_score.append(list_of_pred_iou[m])
                         list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)
-                        print('\tFound ',len(list_of_cleaned_groups_reseg_score_nms), ' mask(s)/object(s) in the tile')
+                        print(f'\tFound {len(list_of_cleaned_groups_reseg_score_nms)} mask(s)/object(s) in the tile')
                     else:
                         list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score = list_of_masks, list_of_pred_iou
                         list_of_cleaned_groups_reseg_masks_nms, list_of_cleaned_groups_reseg_score_nms = nms(list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score)

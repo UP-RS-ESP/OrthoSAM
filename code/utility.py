@@ -42,7 +42,7 @@ def load_image(DataDIR,DSname,fid):
     if isinstance(fid, int):
         fn_img = glob.glob(os.path.join(DataDIR,DSname,'*'))
         fn_img.sort()
-        print(fn_img)
+        #print(fn_img)
         if fn_img[fid][-3:]=='npy':
             #image=(np.load(fn_img[fid])*255).astype(np.uint8)
             image=(np.load(fn_img[fid])).astype(np.uint8)
@@ -613,9 +613,9 @@ def get_props_df(image, labeled_mask, resample=1, res=1):
     labels = props_df['label'].values
 
     # Compute mean and median values
-    masks=cv2.resize(masks.astype(np.uint16), image.shape[:-1][::-1], interpolation = cv2.INTER_NEAREST)
-    means_df = compute_mean(image, labeled_mask, labels)
-    medians_df = compute_median(image, labeled_mask, labels)
+    labeled=cv2.resize(labeled.astype(np.uint16), image.shape[:-1][::-1], interpolation = cv2.INTER_NEAREST)
+    means_df = compute_mean(image, labeled, labels)
+    medians_df = compute_median(image, labeled, labels)
 
     # Merge all data into props_df using 'label' to ensure correct alignment
     props_df = props_df.merge(means_df, on='label', how='left')

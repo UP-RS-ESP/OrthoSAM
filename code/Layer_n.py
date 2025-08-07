@@ -6,6 +6,7 @@ from skimage.morphology import binary_dilation
 import json
 import cv2
 import tqdm
+import sys
 import signal
 import os
 from Layer_0 import predict_tiles
@@ -73,7 +74,7 @@ def predict_tiles_n(para_L, n_pass):
         if plotting:
             plt.imshow(no_mask_area, cmap='nipy_spectral')
         fxy=[]
-        for i,region in tqdm.tqdm(enumerate(regions), 'Checking required resampling for each void', total=len(regions)):
+        for i,region in tqdm.tqdm(enumerate(regions), 'Checking required resampling for each void', total=len(regions), file=sys.stdout):
             # take regions with large enough areas
             if (region.area > min_pixel):
                 mask=np.array(no_mask_area==(i+1))
@@ -138,7 +139,7 @@ def predict_tiles_n(para_L, n_pass):
     ids_in_void,counts_in_void=np.unique(resampled_SAM[(ar_masks==0).astype('bool')], return_counts=True)
     ids_total,counts_total=np.unique(resampled_SAM, return_counts=True)
     valid_ids=[]
-    for id,count in tqdm.tqdm(zip(ids_in_void,counts_in_void), total=len(ids_in_void), unit='id'):
+    for id,count in tqdm.tqdm(zip(ids_in_void,counts_in_void), total=len(ids_in_void), unit='id', file=sys.stdout):
         if count>=((counts_total[ids_total==id])*0.8):#if at least 80% of the object is not masked in previous layers
             valid_ids.append(id)
 

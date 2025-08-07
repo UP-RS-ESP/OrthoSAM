@@ -2,5 +2,6 @@
     "MODEL_TYPE": "vit_h",
     "CheckpointDIR": "/DATA/vito/MetaSAM",
     "DataDIR": "/DATA/vito/data",
-    "BaseDIR": "/DATA/vito"
+    "BaseDIR": "/DATA/vito",
+    "MainOutDIR": "/DATA/vito/output"
 }

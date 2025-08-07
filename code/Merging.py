@@ -6,6 +6,7 @@ import time
 import json
 import os
 from tqdm import tqdm
+import sys
 
 def merge_chunks(para_list, n_pass):
     start_script = time.time()
@@ -62,11 +63,11 @@ def merge_chunks(para_list, n_pass):
     #Merging windows
     Aggregate_masks_noedge=[]
     pred_iou_noedge=[]
-    for w_count,pth in tqdm(enumerate(clips_pths),f'Merging and resizing tiles', total=len(clips_pths), unit='tiles'):
+    for w_count,pth in tqdm(enumerate(clips_pths),f'Merging and resizing tiles', total=len(clips_pths), unit='tiles', file=sys.stdout):
         clip_window=np.load(pth, allow_pickle=True)[0]
         i,j=clip_window['ij']
 
-        for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in tile {i,j} (RAM: {get_memory_usage():.2f} MB, {msk_count} masks)',unit='masks',leave=False,total=len(clip_window['nms mask pred iou'])):
+        for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in tile {i,j} (RAM: {get_memory_usage():.2f} MB, {msk_count} masks)',unit='masks',leave=False,total=len(clip_window['nms mask pred iou']), file=sys.stdout):
             if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
                 resized = untile(id_mask, mask, i, j, crop_size, b)
                 msk_count+=1

@@ -9,6 +9,9 @@ from pathlib import Path
 import warnings
 import os
 
+_original_stdout = None
+_original_stderr = None
+
 class StreamToLogger:
     def __init__(self, logger, log_level=logging.INFO):
         self.logger = logger
@@ -23,6 +26,8 @@ class StreamToLogger:
         pass
 
 def setup_full_logging(log_file_path='output.log'):
+    global _original_stdout, _original_stderr
+
     Path(log_file_path).parent.mkdir(parents=True, exist_ok=True)
 
     logging.basicConfig(
@@ -30,12 +35,27 @@ def setup_full_logging(log_file_path='output.log'):
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
             logging.FileHandler(log_file_path, mode='w'),
-            logging.StreamHandler(sys.stdout) 
+            logging.StreamHandler(sys.stdout)
         ]
     )
 
+    # Save original stdout/stderr if not already saved
+    if _original_stdout is None:
+        _original_stdout = sys.stdout
+    if _original_stderr is None:
+        _original_stderr = sys.stderr
+
+    # Redirect stdout and stderr to logger
     sys.stdout = StreamToLogger(logging.getLogger(), logging.INFO)
     sys.stderr = StreamToLogger(logging.getLogger(), logging.ERROR)
+
+def restore_logging():
+    """Restore original stdout and stderr."""
+    global _original_stdout, _original_stderr
+    if _original_stdout is not None:
+        sys.stdout = _original_stdout
+    if _original_stderr is not None:
+        sys.stderr = _original_stderr
 
 def orthosam(para_list):
     """    Main function to run OrthoSAM.
@@ -66,42 +86,44 @@ def orthosam(para_list):
     OutDIR=para_list[0].get('OutDIR')
     setup_full_logging(os.path.join(OutDIR,'log.txt'))
 
+    try:
+        noti=para_list[0].get('Discord_notification')
+        stats=para_list[0].get('Calculate_stats')
+        start_run_whole = time.time()
+        for n in range(len(para_list)):
+            
+            if n==0:
+                start_run = time.time()
+                predict_tiles(para_list, n)
+                end_run = time.time()       
 
-    noti=para_list[0].get('Discord_notification')
-    stats=para_list[0].get('Calculate_stats')
-    start_run_whole = time.time()
-    for n in range(len(para_list)):
-        
-        if n==0:
-            start_run = time.time()
-            predict_tiles(para_list, n)
-            end_run = time.time()       
-
-            start_run = time.time()
-            merge_chunks(para_list,n)
-            end_run = time.time()
-            if noti:
-                notify(OutDIR+' Layer 0 completed. It took '+f'{end_run-start_run}')
-        else:
-            start_run = time.time()
-            predict_tiles_n(para_list, n)
-            end_run = time.time()
-            if noti:
-                notify(OutDIR+f' Layer {n} completed. It took {end_run-start_run:.2f} seconds')
-                
-        end_run_whole = time.time()
-    print(f'Run took: {((end_run_whole -start_run_whole)/60):.2f} minutes' )
-    if stats:
-        print('Calculating statistics...')
-        from utility import load_image, get_props_df
-        image=load_image(para_list[0].get('DataDIR'), para_list[0].get('DatasetName'), para_list[0].get('fid'))
-        masks=load_image(OutDIR, 'Merged', f'Merged_Layers_{len(para_list)-1:03}.npy')
-        res=para_list[0].get('resolution(mm)')
-        df=get_props_df(image, masks, para_list[0].get('resample_factor'), res=res)
-        df.to_csv(os.path.join(OutDIR, 'props.csv'), index=False)
-        print('Statistics saved to props.csv')
-    if noti:
-        notify(OutDIR+' all layers completed')
+                start_run = time.time()
+                merge_chunks(para_list,n)
+                end_run = time.time()
+                if noti:
+                    notify(OutDIR+' Layer 0 completed. It took '+f'{end_run-start_run}')
+            else:
+                start_run = time.time()
+                predict_tiles_n(para_list, n)
+                end_run = time.time()
+                if noti:
+                    notify(OutDIR+f' Layer {n} completed. It took {end_run-start_run:.2f} seconds')
+                    
+            end_run_whole = time.time()
+        print(f'Run took: {((end_run_whole -start_run_whole)/60):.2f} minutes' )
+        if stats:
+            print('Calculating statistics...')
+            from utility import load_image, get_props_df
+            image=load_image(para_list[0].get('DataDIR'), para_list[0].get('DatasetName'), para_list[0].get('fid'))
+            masks=load_image(OutDIR, 'Merged', f'Merged_Layers_{len(para_list)-1:03}.npy')
+            res=para_list[0].get('resolution(mm)')
+            df=get_props_df(image, masks, para_list[0].get('resample_factor'), res=res)
+            df.to_csv(os.path.join(OutDIR, 'props.csv'), index=False)
+            print('Statistics saved to props.csv')
+        if noti:
+            notify(OutDIR+' all layers completed')
+    finally:
+        restore_logging()
 
 def large_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_para=None, custom_pass=None):
     """
@@ -209,8 +231,6 @@ def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_
     passes_para_list=[
         {'resample_factor':1, #'Auto': auto select resample rate.
          },
-        {'resample_factor':0.5,
-         }
         ]
     if custom_main_para:
         main_para.update(custom_main_para)
