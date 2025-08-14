@@ -35,21 +35,25 @@ cd OrthoSAM
 pip install -r requirements.txt
 ```
 
-3. Install conda kernel for jupyter lab:
+3. Install conda kernel for jupyter lab. Make sure that you are not in the OrthSAM subfolder, because there is a conflict with the `code`` directory:
 ```bash
+cd ~
 python -m ipykernel install --user --name=OrthoSAM
 ```
 
-4. Create a subdirectory for storing model checkpoints and download SAM checkpoints. This can be located anywhere, but the default is to have it in `OrthoSAM`:
+4. Create a subdirectory for storing model checkpoints and download SAM checkpoints. This can be located anywhere, but the default is to have it in `OrthoSAM`. If there is a new SAM model available, it will appear on https://github.com/facebookresearch/segment-anything. You are likely only going to need the first, high-resolution model (sam_vit_h_*.pth):
 ```bash
+cd OrthoSAM
 mkdir MetaSAM
 cd MetaSAM
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+```
 
 5. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](code/config.json). If you keep your MetaSAM within the OrthSAM github directory where `code` is also stored, you can use: 
 ```bash
+cd OrthoSAM
 python update_config.py
 ```
 In the file [`config.json`](code/config.json) you also specify the MetaSAM checkpoint. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script have the priority.
@@ -128,7 +132,7 @@ Please follow these steps to setup Discord notification.
 
 ![dwh3](fig/dwh3.png)
 
-4. Create **DWH.txt** under /code directory to store your Webhook URL.
+4. Create **DWH.txt** in the OrthoSAM/code directory to store your Webhook URL.
 ```bash
 echo "your_webhook_url_here" > code/DWH.txt
 ```
