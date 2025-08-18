@@ -223,7 +223,7 @@ def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_
         'stability_t':0.85,
         'expected_min_size(sqmm)': resolution*resolution*30,
         'min_radius': 0,
-        'Calculate_stats': False, # True: calculate statistics
+        'Calculate_stats': True, # True: calculate statistics
         'Discord_notification': False,# True: send discord when finished.
         'Plotting': True# True: plot the results
         }

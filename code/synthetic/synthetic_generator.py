@@ -46,7 +46,7 @@ def generator(min_radi=1, max_radi=3000, image_size=10000, num_circles=5000, Dir
             center_x = random.randint(radius, image_size - radius)
             center_y = random.randint(radius, image_size - radius)
             center = (center_x, center_y)
-
+            overlap = False
             # Check for overlap with existing circles
             
             for (existing_center, existing_radius) in circles:
@@ -54,6 +54,7 @@ def generator(min_radi=1, max_radi=3000, image_size=10000, num_circles=5000, Dir
                 if dist < radius + existing_radius + 1:#+1 so that no contact between circles
                     overlap = True
                     break
+                    
 
             # If no overlap, add the circle and break out of the attempt loop
             if not overlap:
@@ -127,7 +128,7 @@ def shadow_image_generator(*, baseline_Dir=None, Dir=None, min_radi=1, max_radi=
         if not os.path.exists(baseline_Dir):  
             generator(min_radi=min_radi, max_radi=max_radi, image_size=image_size, num_circles=num_circles, Dir=baseline_Dir, ran_color=ran_color, generate_dem=generate_dem, max_attempts=max_attempts, overlap=overlap)
     if not Dir:
-        Dir=baseline_Dir+ f'_shadow_{azimuth}_{inclination}'
+        Dir=os.path.join(baseline_Dir, f'_shadow_{azimuth}_{inclination}')
     if not os.path.exists(Dir):    
         os.makedirs(Dir)
     image=np.load(os.path.join(baseline_Dir, 'img.npy'))
@@ -140,9 +141,9 @@ def shadow_image_generator(*, baseline_Dir=None, Dir=None, min_radi=1, max_radi=
     shadow_image=np.clip(shadow_image,shadow_strength, None)
     shadowed_rgb = (image * shadow_image[:, :, np.newaxis]).astype(np.uint8)
 
-    np.save(Dir+'img',shadowed_rgb)
-    np.save(Dir+'shd',shadow_image)
-    np.save(Dir+'msk',mask)
+    np.save(os.path.join(Dir,'img'),shadowed_rgb)
+    np.save(os.path.join(Dir,'shd'),shadow_image)
+    np.save(os.path.join(Dir,'msk'),mask)
 
 def noise_image_generator(*, baseline_Dir=None, Dir=None, min_radi=1, max_radi=3000
                            , image_size=10000, num_circles=5000
@@ -174,18 +175,18 @@ def noise_image_generator(*, baseline_Dir=None, Dir=None, min_radi=1, max_radi=3
         if not os.path.exists(baseline_Dir):  
             generator(min_radi=min_radi, max_radi=max_radi, image_size=image_size, num_circles=num_circles, Dir=baseline_Dir, ran_color=ran_color, generate_dem=generate_dem, max_attempts=max_attempts, overlap=overlap)
     if not Dir:
-        Dir=baseline_Dir+ f'_noise_{std}'
+        Dir=os.path.join(baseline_Dir, f'_noise_{std}')
     if not os.path.exists(Dir):
         os.makedirs(Dir)
     image=np.load(os.path.join(baseline_Dir, 'img.npy'))
     mask=np.load(os.path.join(baseline_Dir, 'msk.npy'))
     noisy_image = add_gaussian_noise_to_circle(image, 0, std, mask=mask, edge_std=std)
     noisy_image = np.clip(noisy_image, 0, 255).astype(np.uint8) 
-    np.save(Dir+'img',noisy_image)
-    np.save(Dir+'msk',mask)
+    np.save(os.path.join(Dir,'img'),noisy_image)
+    np.save(os.path.join(Dir,'msk'),mask)
     try:
         height_image=np.load(os.path.join(baseline_Dir, 'dem.npy'))
-        np.save(Dir+'dem',height_image)
+        np.save(os.path.join(Dir,'dem'),height_image)
     except FileNotFoundError:
         print('No DEM found, skipping saving DEM')
 

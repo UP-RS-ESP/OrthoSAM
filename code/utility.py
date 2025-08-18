@@ -356,7 +356,7 @@ def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
 def clean_and_overwrite(mask):
     labeled = label(mask)
     id_to_remove = []
-    for i in tqdm(np.unique(mask)[1:]):
+    for i in tqdm(np.unique(mask)[1:], file=sys.stdout):
         if len(np.unique(labeled[mask==i]))>1:
             labels, counts = np.unique(labeled[mask==i], return_counts=True)   
             max_label = labels[np.argmax(counts)]
