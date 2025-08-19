@@ -12,6 +12,11 @@ Our framework consists of a tiling scheme, improved input (seed) point generatio
 **Workflow**
 ![Pebble Flow Chart](fig/pebble_flow_chart.png)
 
+
+
+
+## Setup guide
+
 ## Dependencies
 * Python 3.11+
 
@@ -19,7 +24,7 @@ For required packages, please see [requirements.txt](requirements.txt). This pro
 
 Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=0.8`. The installation instructions can be found [here](https://pytorch.org/get-started/locally/).
 
-## Setup guide
+
 ### Installation with conda:
 
 1. Install environment:
@@ -139,8 +144,12 @@ echo "your_webhook_url_here" > code/DWH.txt
 
 ## Code
 ### Examples
-To use the Ravi river orthomosaics from the western Himalaya presented in our manuscript, download data from https://doi.org/10.5281/zenodo.16567549 or use your own data. 
+To use the Ravi River orthomosaics from the western Himalaya presented in our manuscript, download data from https://doi.org/10.5281/zenodo.16567549 or use your own data. 
 
+- [`OrthoSAM_Notebook_Ravi_crop_local.ipynb`](code/OrthoSAM_Notebook_Ravi_crop_local.ipynb): Example walk through for processing a cropped version from the Ravi River orthomosaic (processing time: a few minutes) [YouTube Video]()
+- [`OrthoSAM_Notebook_Sedinet_local.ipynb`](code/OrthoSAM_Notebook_Sedinet_local.ipynb): Example walk through for processing a single image from the SediNet library.
+- [`OrthoSAM_Notebook_Sedinet_Colab.ipynb`](code/OrthoSAM_Notebook_Sedinet_Colab.ipynb): Example walk through using Google Colab for processing. Note that the Google Colab version without additional computational resources will not be able to process large images. [YouTube Video]() 
+- [`Example_generate_synthetic_pebble_images.ipynb`](code/synthetic/Example_generate_synthetic_pebble_images.ipynb): Example of the pebble image generator with shadows to create large training datasets. [YouTube Video]() 
 - [`OrthoSAM_notebook.ipynb`](code/OrthoSAM_notebook.ipynb): General instruction of how to create parameters and run OrthoSAM (select a single image).
 - [`OrthoSAM_presets.ipynb`](code/OrthoSAM_presets.ipynb): Examples of using OrthoSAM with predefined parameters for large orthomosaics and for compact fine objects. When using predefined parameters, only output directory, input path and resolution are required.
 - [`OrthoSAM_with_create_para.py`](code/OrthoSAM_with_create_para.py): Script to create parameters and run OrthoSAM.
