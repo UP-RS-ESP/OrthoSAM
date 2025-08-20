@@ -156,9 +156,9 @@ echo "your_webhook_url_here" > code/DWH.txt
 ### Examples
 To use the Ravi River orthomosaics from the western Himalaya presented in our manuscript, download data from https://doi.org/10.5281/zenodo.16567549 or use your own data. 
 
-- [`OrthoSAM_Notebook_Ravi_crop_local.ipynb`](code/OrthoSAM_Notebook_Ravi_crop_local.ipynb): Example walk through for processing a cropped version from the Ravi River orthomosaic (processing time: a few minutes) [YouTube Video]()
+- [`OrthoSAM_Notebook_Ravi_crop_local.ipynb`](code/OrthoSAM_Notebook_Ravi_crop_local.ipynb): Example walk through for processing a cropped version from the Ravi River orthomosaic (processing time: a few minutes) [YouTube Video](https://www.youtube.com/watch?v=vu67RpeNHO4)
 - [`OrthoSAM_Notebook_Sedinet_local.ipynb`](code/OrthoSAM_Notebook_Sedinet_local.ipynb): Example walk through for processing a single image from the SediNet library.
-- [`OrthoSAM_Notebook_Sedinet_Colab.ipynb`](code/OrthoSAM_Notebook_Sedinet_Colab.ipynb): Example walk through using Google Colab for processing. Note that the Google Colab version without additional computational resources will not be able to process large images. [YouTube Video]() 
+- [`OrthoSAM_Notebook_Sedinet_Colab.ipynb`](code/OrthoSAM_Notebook_Sedinet_Colab.ipynb): Example walk through using Google Colab for processing. Note that the Google Colab version without additional computational resources will not be able to process large images. [YouTube Video](https://youtu.be/bLU6dbQ3vt0) 
 - [`OrthoSAM_Notebook_imagegrains_local.ipynb`](code/OrthoSAM_Notebook_imagegrains_local.ipynb): Example to process an image from the imagegrains library (processing time: a few minutes)
 - [`Example_generate_synthetic_pebble_images.ipynb`](code/synthetic/Example_generate_synthetic_pebble_images.ipynb): Example of the pebble image generator with shadows to create large training datasets. [YouTube Video]() 
 - [`OrthoSAM_notebook.ipynb`](code/OrthoSAM_notebook.ipynb): General instruction of how to create parameters and run OrthoSAM (select a single image).
