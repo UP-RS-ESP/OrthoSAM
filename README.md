@@ -13,11 +13,11 @@ Our framework consists of a tiling scheme, improved input (seed) point generatio
 ![Pebble Flow Chart](fig/pebble_flow_chart.png)
 
 #### Table of content
-1. [Setup Guide]#(setup-guide)
-  - Installation with conda#(installation-with-conda)
-  - Installation with a virtual environment#(installation-with-a-virtual-environment)
-  - Installing Discord notifications#(discord-notification)
-2. Code and Examples#(Code-examples)
+1. [Setup Guide](#setup-guide)
+  - [Installation with conda](#installation-with-conda)
+  - [Installation with a virtual environment](#installation-with-a-virtual-environment)
+  - [Installing Discord notifications](#discord-notification)
+2. [Code and Examples](#Code-examples)
   - Several example Jupyter Notebooks to process individual images or large orthomosaics either locally on your desktop system or on Google Colab. We also provide several videos that will guide you through the processing steps.
 
 <a name="setup-guide"/>
