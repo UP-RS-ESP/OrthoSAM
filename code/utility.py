@@ -15,6 +15,7 @@ from multiprocessing import Pool, Manager, cpu_count
 import requests
 import pandas as pd
 import scipy.ndimage as ndi
+from scipy.spatial import cKDTree as kdtree
 
 def notify(text):
     def send_discord_alert(webhook_url, message):
@@ -622,3 +623,117 @@ def get_props_df(image, labeled_mask, resample=1, res=1):
     props_df = props_df.merge(medians_df, on='label', how='left')
 
     return props_df
+
+
+def accuracy(seg_masks, mask):
+    '''
+    Assess the accuracy of segmentation masks against ground truth masks.
+    Parameters:
+    - file_pth(str): Path to the directory containing the segmentation results.
+    - mask(bool): Ground truth mask.
+    
+    Returns:
+    - None: The function saves the accuracy results in a .npy file in the original directory. 
+    The npy file will contain:
+        - 'point based': Point-based accuracy for each label.
+        - 'iou': IoU for each label.
+        - 'area': Area of each label.
+        - 'segment area': Area of each segment in the segmentation mask.
+        - 'segment hit': Whether the segment intersects with an actual label.
+        - 'label_count': Number of unique labels in the ground truth mask.
+        - 'mask_count': Number of unique segments in the segmentation mask.
+        - 'number of layers': Indicates the number of layers used in the segmentation.
+        - 'para': Parameters used for the segmentation.
+        - 'completely_in_shadow': Indicates if the segment is completely in shadow (>90% covered). This is only included if shadow=True.
+    '''
+    #try:
+    #    with open(os.path.join(file_pth, 'para.json'), 'r') as json_file:
+    #        para = json.load(json_file)[0]
+    #except:
+    #    with open(os.path.join(file_pth, 'init_para.json'), 'r') as json_file:
+    #        para = json.load(json_file)[0]
+    #OutDIR=para.get('OutDIR')
+    #DataDIR=para.get('DataDIR')
+    #DSname=para.get('DatasetName')
+    #resample_factor=para.get('resample_factor')
+    #fid=para.get('fid')
+    #image=load_image(DataDIR,DSname,fid)
+    #if resample_factor!=1:
+    #    pre_para={'Resample': {'fxy':resample_factor},
+    #        }
+
+    #    image=preprocessing_roulette(image, pre_para)
+    #    print('resampled to: ', image.shape)
+
+    #n_pass=len(os.listdir(os.path.join(file_pth,'Merged')))
+
+    #seg_masks=np.array(np.load(os.path.join(file_pth,'Merged',f'Merged_Layers_{n_pass-1:03}.npy'), allow_pickle=True))
+
+    #print('Mask imported from '+OutDIR+f'/Merged/Merged_Layers_{n_pass-1:03}.npy')
+    #print('masks size:', seg_masks.shape)
+    print(len(np.unique(seg_masks))-1,' mask(s) loaded')
+    print('No. of ground truth objects: '+str(len(np.unique(mask))-1))
+
+    seg_masks=resample_fnc(seg_masks.astype(np.uint16),{'target_size':mask.shape[::-1], 'method':'nearest'})
+    
+
+    seg_ids=np.unique(seg_masks)
+    centroids=[get_centroid(seg_masks==id) for id in seg_ids]
+    #centroids=np.array(centroids)/resample_factor
+
+    ids, counts=np.unique(mask, return_counts=True)
+    ids, counts = ids[1:], counts[1:]
+    area = counts
+    ids = ids[np.argsort(area)]
+    area = np.sort(area)
+
+    point_based_ac=np.zeros_like(ids)
+    seg_fp= np.zeros_like(seg_ids)
+    for c in range(len(centroids))[1:]:
+        hit_id=int(mask[int(centroids[c][0]),int(centroids[c][1])])
+        point_based_ac[ids==hit_id]+=1
+        if hit_id!=0:
+                seg_fp[c]+=1
+    mask_ious = update_mask_ious_shared(centroids[1:], mask, ids, seg_masks, seg_ids[1:])
+
+    print('Mean mask IoU: ')
+    print(np.mean(np.abs(mask_ious)))
+    outdic={'point based':point_based_ac, 'iou':mask_ious
+                , 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]
+                , 'segment hit':seg_fp[1:],'label_count':len(np.unique(mask))-1
+                ,'mask_count':len(np.unique(seg_masks))-1}
+
+    return outdic
+
+def graph_coloring(label, k=500):
+    new_label = np.zeros(label.shape)
+    new_label[np.isnan(label)] = np.nan
+    contour_label = label.copy()
+    contour_label[ndi.binary_erosion(~np.isnan(label))] = np.nan
+    y, x = np.nonzero(~np.isnan(contour_label))
+    la = label[y, x]
+    pt = np.c_[x, y]
+    tr = kdtree(pt)
+    # construct neighborhood graph
+    graph = {}
+    for li in range(1, int(la.max()) + 1):
+        _, ii = tr.query(pt[la == li], k=k, workers=-1)
+        laii = la[ii]
+        sl = np.argmax(laii != li, axis=1)
+        laii = laii[np.arange(sl.shape[0]), sl]
+        graph[li] = np.unique(laii).tolist()
+
+    # graph coloring
+    color = {}
+    for li in graph:
+        color_neighbors = {color[i] for i in graph[li] if i in color}
+        c = 0
+        while c in color_neighbors:
+            c += 1
+        color[li] = c
+
+    colors = np.array(list(color.values()))
+    for i, li in enumerate(colors):
+        new_label[label == i+1] = li
+
+    return new_label

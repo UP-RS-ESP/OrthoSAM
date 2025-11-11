@@ -1,10 +1,9 @@
 import numpy as np
-import glob
 import sys
 import os
 import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utility import load_image, preprocessing_roulette, resample_fnc, get_centroid, update_mask_ious_shared
+from utility import load_image, preprocessing_roulette, resample_fnc, get_centroid, update_mask_ious_shared, iou
 
 def accuracy(file_pth, shadow=False):
     '''
@@ -32,7 +31,9 @@ def accuracy(file_pth, shadow=False):
     DataDIR=para.get('DataDIR')
     DSname=para.get('DatasetName')
     resample_factor=para.get('resample_factor')
-    image=(np.load(os.path.join(DataDIR,DSname,'img.npy')))
+    fid=para.get('fid')
+    image=load_image(DataDIR,DSname,fid)
+    #image=(np.load(os.path.join(DataDIR,DSname,'img.npy')))
     if resample_factor!=1:
         pre_para={'Resample': {'fxy':resample_factor},
             }
@@ -91,11 +92,75 @@ def accuracy(file_pth, shadow=False):
                 , {'point based':point_based_ac, 'iou':mask_ious
                    , 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor
                    , 'segment hit':seg_fp[1:],'label_count':len(np.unique(mask))-1
-                   ,'mask_count':len(np.unique(seg_masks)),'number of layers': third, 'para':para
+                   ,'mask_count':len(np.unique(seg_masks))-1,'number of layers': third, 'para':para
                    , 'completely_in_shadow':completely_in_shadow})
     else:
         np.save(os.path.join(DataDIR,DSname,file_pth,f'ac.npy')
                 , {'point based':point_based_ac, 'iou':mask_ious
                    , 'area':area, 'segment area':np.unique(seg_masks,return_counts=True)[1][1:]/resample_factor
                    , 'segment hit':seg_fp[1:],'label_count':len(np.unique(mask))-1
-                   ,'mask_count':len(np.unique(seg_masks)),'number of layers': third, 'para':para})
+                   ,'mask_count':len(np.unique(seg_masks))-1,'number of layers': third, 'para':para})
+        
+def prediction_based_accuracy(file_pth):
+    '''
+    Assess the accuracy of segmentation masks against ground truth masks.
+    Parameters:
+    - file_pth(str): Path to the directory containing the segmentation results.
+    Returns:
+    - Dict: The function returns a directory containing:
+        - 'iou': IoU for each prediction.
+        - 'segment area': Area of each segment in the segmentation mask.
+        - 'label_count': Number of unique labels in the ground truth mask.
+        - 'mask_count': Number of unique segments in the segmentation mask.
+        - 'number of layers': Indicates the number of layers used in the segmentation.
+        - 'para': Parameters used for the segmentation.
+    '''
+    with open(os.path.join(file_pth, 'para.json'), 'r') as json_file:
+        para = json.load(json_file)[0]
+    OutDIR=para.get('OutDIR')
+    DataDIR=para.get('DataDIR')
+    DSname=para.get('DatasetName')
+    resample_factor=para.get('resample_factor')
+    fid=para.get('fid')
+    image=load_image(DataDIR,DSname,fid)
+    #image=(np.load(os.path.join(DataDIR,DSname,'img.npy')))
+    if resample_factor!=1:
+        pre_para={'Resample': {'fxy':resample_factor},
+            }
+
+        image=preprocessing_roulette(image, pre_para)
+        print('resampled to: ', image.shape)
+
+    n_pass=len(os.listdir(OutDIR+'/Merged'))
+
+    seg_masks=np.array(np.load(OutDIR+f'/Merged/Merged_Layers_{n_pass-1:03}.npy', allow_pickle=True))
+
+    third=n_pass
+    print('Mask imported from '+OutDIR+f'/Merged/Merged_Layers_{n_pass-1:03}.npy')
+    print('masks size:', seg_masks.shape)
+    print(len(np.unique(seg_masks)),' mask(s) loaded')
+
+
+    try:
+        mask=(np.load(os.path.join(DataDIR,DSname[:-4],'msk.npy'))).astype(np.uint16)
+    except:
+        mask=(np.load(os.path.join(DataDIR,DSname[:-4],f'msk/msk_{fid:02d}.npy'))).astype(np.uint16)
+    seg_masks_rs=resample_fnc(seg_masks.astype(np.uint16),{'target_size':mask.shape[::-1], 'method':'nearest'})
+    print('No. of actual objects: '+str(len(np.unique(mask))-1))
+
+    seg_ids,seg_area=np.unique(seg_masks_rs, return_counts=True)
+    seg_ids, seg_area = seg_ids[1:], seg_area[1:]
+    seg_ids = seg_ids[np.argsort(seg_area)][::-1]
+    seg_area = np.sort(seg_area)[::-1]
+
+    seg_based_iou=np.zeros_like(seg_ids).astype(np.float32)
+    for i in range(len(seg_ids)):
+        hit_ids=np.unique(mask[seg_masks_rs==seg_ids[i]])
+        hit_ids=hit_ids[hit_ids!=0]  # Exclude background
+        if len(hit_ids)>0:
+            iou_l=[iou(mask==hit_id, seg_masks_rs==seg_ids[i]) for hit_id in hit_ids]
+            seg_based_iou[i]=np.max(iou_l)
+
+    return {'iou':seg_based_iou
+                , 'segment area':seg_area, 'label_count':len(np.unique(mask))-1
+                ,'mask_count':len(np.unique(seg_masks))-1,'number of layers': third, 'para':para}

@@ -59,6 +59,7 @@ def merge_chunks(para_list, n_pass):
     msk_count=0
     id_mask = np.zeros_like(image[:,:,0], dtype=np.uint32)
     stack_mask = np.zeros_like(image[:,:,0], dtype=np.uint32)
+    #score_mask = np.zeros_like(image[:,:,0], dtype=np.float32)
 
     #Merging windows
     Aggregate_masks_noedge=[]
@@ -72,6 +73,7 @@ def merge_chunks(para_list, n_pass):
                 resized = untile(id_mask, mask, i, j, crop_size, b)
                 msk_count+=1
                 id_mask[resized!=0]=(msk_count)
+                #score_mask[resized!=0]=(score)
                 stack_mask+=resized
         clip_window.clear()
 
