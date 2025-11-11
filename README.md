@@ -63,12 +63,12 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
   wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
   ```
 
-5. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](code/config.json). If you keep your MetaSAM within the OrthSAM github directory where `code` is also stored, you can use: 
+5. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](OrthoSAM/config.json). If you keep your MetaSAM within the OrthSAM github directory where `code` is also stored, you can use: 
   ```bash
   cd OrthoSAM
   python update_config.py
   ```
-  In the file [`config.json`](code/config.json) you also specify the MetaSAM checkpoint. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script have the priority.
+  In the file [`config.json`](OrthoSAM/config.json) you also specify the MetaSAM checkpoint. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script have the priority.
 
 
 <a name="installation-with-a-virtual-environment"></a>
@@ -120,7 +120,7 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
 
 6. Move the downloaded checkpoint into the MetaSAM folder.
 
-7. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](code/config.json). This can be done automatically with [`update_config.py`](code/update_config.py). 
+7. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](OrthoSAM/config.json). This can be done automatically with [`update_config.py`](OrthoSAM/update_config.py). 
     - This is also the file to specify which checkpoint to use. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script has the priority.
     - This script will also create the data and output directory if they do not exist.
   ```
@@ -145,9 +145,9 @@ Please follow these steps to setup Discord notification.
 
 ![dwh3](fig/dwh3.png)
 
-4. Create **DWH.txt** in the OrthoSAM/code directory to store your Webhook URL.
+4. Create **DWH.txt** in the OrthoSAM/OrthoSAM directory to store your Webhook URL.
 ```bash
-echo "your_webhook_url_here" > code/DWH.txt
+echo "your_webhook_url_here" > OrthoSAM/DWH.txt
 ```
 
 
@@ -156,29 +156,29 @@ echo "your_webhook_url_here" > code/DWH.txt
 ### Examples
 To use the Ravi River orthomosaics from the western Himalaya presented in our manuscript, download data from https://doi.org/10.5281/zenodo.16567549 or use your own data. 
 
-- [`OrthoSAM_Notebook_Ravi_crop_local.ipynb`](code/OrthoSAM_Notebook_Ravi_crop_local.ipynb): Example walk through for processing a cropped version from the Ravi River orthomosaic (processing time: a few minutes) [YouTube Video](https://www.youtube.com/watch?v=vu67RpeNHO4)
-- [`OrthoSAM_Notebook_Sedinet_local.ipynb`](code/OrthoSAM_Notebook_Sedinet_local.ipynb): Example walk through for processing a single image from the SediNet library.
-- [`OrthoSAM_Notebook_Sedinet_Colab.ipynb`](code/OrthoSAM_Notebook_Sedinet_Colab.ipynb): Example walk through using Google Colab for processing. Note that the Google Colab version without additional computational resources will not be able to process large images. [YouTube Video](https://youtu.be/bLU6dbQ3vt0) 
-- [`OrthoSAM_Notebook_imagegrains_local.ipynb`](code/OrthoSAM_Notebook_imagegrains_local.ipynb): Example to process an image from the imagegrains library (processing time: a few minutes)
-- [`Example_generate_synthetic_pebble_images.ipynb`](code/synthetic/Example_generate_synthetic_pebble_images.ipynb): Example of the pebble image generator with shadows to create large training datasets. [YouTube Video](https://youtu.be/rsJR8z98BRk) 
-- [`OrthoSAM_notebook.ipynb`](code/OrthoSAM_notebook.ipynb): General instruction of how to create parameters and run OrthoSAM (select a single image).
-- [`OrthoSAM_presets.ipynb`](code/OrthoSAM_presets.ipynb): Examples of using OrthoSAM with predefined parameters for large orthomosaics and for compact fine objects. When using predefined parameters, only output directory, input path and resolution are required.
-- [`OrthoSAM_with_create_para.py`](code/OrthoSAM_with_create_para.py): Script to create parameters and run OrthoSAM.
-- [`generate_synthetic_images.ipynb`](code/synthetic/generate_synthetic_images.ipynb): General instruction of how to generate synthetic pebble images.
+- [`OrthoSAM_Notebook_Ravi_crop_local.ipynb`](Notebooks/OrthoSAM_notebook/OrthoSAM_Notebook_Ravi_crop_local.ipynb): Example walk through for processing a cropped version from the Ravi River orthomosaic (processing time: a few minutes) [YouTube Video](https://www.youtube.com/watch?v=vu67RpeNHO4)
+- [`OrthoSAM_Notebook_Sedinet_local.ipynb`](Notebooks/OrthoSAM_notebook/OrthoSAM_Notebook_Sedinet_local.ipynb): Example walk through for processing a single image from the SediNet library.
+- [`OrthoSAM_Notebook_Sedinet_Colab.ipynb`](Notebooks/OrthoSAM_notebook/OrthoSAM_Notebook_Sedinet_Colab.ipynb): Example walk through using Google Colab for processing. Note that the Google Colab version without additional computational resources will not be able to process large images. [YouTube Video](https://youtu.be/bLU6dbQ3vt0) 
+- [`OrthoSAM_Notebook_imagegrains_local.ipynb`](Notebooks/OrthoSAM_notebook/OrthoSAM_Notebook_imagegrains_local.ipynb): Example to process an image from the imagegrains library (processing time: a few minutes)
+- [`Example_generate_synthetic_pebble_images.ipynb`](Notebooks/synthetic/Example_generate_synthetic_pebble_images.ipynb): Example of the pebble image generator with shadows to create large training datasets. [YouTube Video](https://youtu.be/rsJR8z98BRk) 
+- [`OrthoSAM_notebook.ipynb`](Notebooks/OrthoSAM_notebook/OrthoSAM_notebook.ipynb): General instruction of how to create parameters and run OrthoSAM (select a single image).
+- [`OrthoSAM_presets.ipynb`](Notebooks/OrthoSAM_notebook/OrthoSAM_presets.ipynb): Examples of using OrthoSAM with predefined parameters for large orthomosaics and for compact fine objects. When using predefined parameters, only output directory, input path and resolution are required.
+- [`OrthoSAM_with_create_para.py`](OrthoSAM_with_create_para.py): Script to create parameters and run OrthoSAM.
+- [`generate_synthetic_images.ipynb`](Notebooks/synthetic/generate_synthetic_images.ipynb): General instruction of how to generate synthetic pebble images.
 
 ### OrthoSAM
-- [`OrthoSAM.py`](code/OrthoSAM.py): Contains the main function to run OrthoSAM, and functions with predefined parameters for large orthomosaics and compact fine objects (see OrthoSAM_presets.ipynb).
-- [`synthetic_generator.ipynb`](code/synthetic/synthetic_generator.ipynb): Contains the function to generate synthetic pebble images.
+- [`Core.py`](OrthoSAM/Core.py): Contains the main function to run OrthoSAM, and functions with predefined parameters for large orthomosaics and compact fine objects (see OrthoSAM_presets.ipynb).
+- [`synthetic_generator.ipynb`](OrthoSAM/synthetic/synthetic_generator.ipynb): Contains the function to generate synthetic pebble images.
 
 ### Utilities
-- [`para_helper.ipynb`](code/para_helper.ipynb): Parameter assistance.
-- [`update_config.py`](code/update_config.py): Update data directory and checkpoint directory path.
-- [`utility.py`](code/utility.py): Utility functions.
+- [`para_helper.ipynb`](Notebooks/OrthoSAM_notebook/para_helper.ipynb): Parameter assistance.
+- [`update_config.py`](update_config.py): Update data directory and checkpoint directory path.
+- [`utility.py`](OrthoSAM/utility.py): Utility functions.
 
 ### Other
-- [`config.json`](code/config.json): Configuration file to define model type, checkpoint directory, data directory, output directory, and any default parameters.
-- [`DWH.txt`](code/DWH.txt): File to store your Discord webhook URL.
-<!-- `OrthoSAM`: [OrthoSAM codes.](code/OrthoSAM.py)-->
+- [`config.json`](OrthoSAM/config.json): Configuration file to define model type, checkpoint directory, data directory, output directory, and any default parameters.
+- [`DWH.txt`](OrthoSAM/DWH.txt): File to store your Discord webhook URL.
+<!-- `OrthoSAM`: [OrthoSAM codes.](OrthoSAM/OrthoSAM.py)-->
 
 
 
