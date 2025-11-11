@@ -1,0 +1,14 @@
+LICENSE.txt
+README.md
+setup.py
+OrthoSAM/Layer_0.py
+OrthoSAM/Layer_n.py
+OrthoSAM/Merging.py
+OrthoSAM/OrthoSAM.py
+OrthoSAM/__init__.py
+OrthoSAM/automatic_mask_generator_mod.py
+OrthoSAM/utility.py
+OrthoSAM.egg-info/PKG-INFO
+OrthoSAM.egg-info/SOURCES.txt
+OrthoSAM.egg-info/dependency_links.txt
+OrthoSAM.egg-info/top_level.txt

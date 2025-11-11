@@ -1,3 +1,4 @@
+-e .
 addict==2.4.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.11.16

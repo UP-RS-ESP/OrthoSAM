@@ -2,10 +2,9 @@ data/
 output/
 data/MetaSAM/
 .venv/
-/DATA/vito/code/notification.py
-/DATA/vito/code/DWH.txt
+OrthoSAM/DWH.txt
 nohup.out
 numba/
 code/DWH.txt
-archieved/
+Notebooks/archieved/
 MetaSAM/
