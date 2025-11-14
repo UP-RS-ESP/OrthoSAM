@@ -113,7 +113,7 @@ def orthosam(para_list):
         print(f'Run took: {((end_run_whole -start_run_whole)/60):.2f} minutes' )
         if stats:
             print('Calculating statistics...')
-            from utility import load_image, get_props_df
+            from OrthoSAM.utility import load_image, get_props_df
             image=load_image(para_list[0].get('DataDIR'), para_list[0].get('DatasetName'), para_list[0].get('fid'))
             masks=load_image(OutDIR, 'Merged', f'Merged_Layers_{len(para_list)-1:03}.npy')
             res=para_list[0].get('resolution(mm)')
