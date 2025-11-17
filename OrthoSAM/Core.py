@@ -30,6 +30,11 @@ def setup_full_logging(log_file_path='output.log'):
 
     Path(log_file_path).parent.mkdir(parents=True, exist_ok=True)
 
+    root = logging.getLogger()
+    for h in root.handlers[:]:
+        root.removeHandler(h)
+        h.close()
+        
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
