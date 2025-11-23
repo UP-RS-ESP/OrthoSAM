@@ -130,7 +130,7 @@ def orthosam(para_list):
     finally:
         restore_logging()
 
-def large_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_para=None, custom_pass=None):
+def large_orthosam(OutDIR, DatasetName,fid,resolution=1,custom_main_para=None, custom_pass=None):
     """
     This function is used to run the OrthoSAM on large orthomosaics with a default set of parameters.
     Arguments:
@@ -192,7 +192,7 @@ def large_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_para=None, cus
 
     orthosam(passes_para_list)
 
-def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution,custom_main_para=None, custom_pass=None):
+def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution=1,custom_main_para=None, custom_pass=None):
     """
     This function is used to run the OrthoSAM on images of tightly packed fine obejcts with a default set of parameters.
     Arguments:
