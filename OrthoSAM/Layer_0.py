@@ -300,6 +300,7 @@ def calculate_stability_score(
     mask, mask_threshold: float, threshold_offset: float
 ):
     """
+    Credit: Meta SAM
     Computes the stability score for a batch of masks. The stability
     score is the IoU between the binary masks obtained by thresholding
     the predicted mask logits at high and low values.

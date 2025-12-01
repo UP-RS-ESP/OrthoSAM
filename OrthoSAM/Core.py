@@ -67,21 +67,22 @@ def orthosam(para_list):
     Arguments:
     - para_list (list of dicts): List of dictionaries containing parameters for each layer.
     Each dictionary should contain the following keys:
-        - 'OutDIR': Output directory where the results will be stored relative to the MainOutDIR stored in config.json.
-        - 'DatasetName': Path of the dataset directory relative to the data directory.
-        - 'fid': Filename or the index after sorting by file name.
-        - 'resolution(mm)': Image resolution in mm/pixel.
-        - 'tile_size': Size of the tiles to be processed.
-        - 'tile_overlap': Overlap between tiles.
-        - 'resample_factor': Resampling factor (or 'Auto' to auto select resample rate).
-        - 'input_point_per_axis': Number of input points per axis.
-        - 'dilation_size': Size of dilation for segmentation.
-        - 'stability_t': Stability threshold for segmentation.
-        - 'expected_min_size(sqmm)': Expected minimum size of objects in square millimeters.
-        - 'min_radius': Minimum radius for segmentation.
-        - 'Calculate_stats': Boolean indicating whether to calculate statistics. True to calculate statistics.
-        - 'Discord_notification': Boolean indicating whether to send Discord notifications when finished.
-        - 'Plotting': Boolean indicating whether to plot the results.
+        - 'OutDIR' (str): Output directory where the results will be stored relative to the MainOutDIR stored in config.json.
+        - 'DatasetName' (str): Path of the dataset directory relative to the data directory.
+        - 'fid' (int|str): Filename or the index after sorting by file name.
+        - 'resolution(mm)' (int|float): Image resolution in mm/pixel.
+        - 'tile_size' (int): Size of the tiles to be processed.
+        - 'tile_overlap' (int): Overlap between tiles.
+        - 'resample_factor' (int|float|Literal['Auto']): Resampling factor (or 'Auto' to auto select resample rate).
+        - 'input_point_per_axis' (int): Number of input points per axis.
+        - 'dilation_size' (int): Size of dilation for segmentation.
+        - 'stability_t' (flaot): Stability threshold for segmentation.
+        - 'expected_min_size(sqmm)' (int): Expected minimum size of objects in square millimeters.
+        - 'min_radius' (int): Minimum radius for segmentation.
+        - 'edge_removal' (Boolean): Indicating whether to remove mask laying on the edge of the image. Default True.
+        - 'Calculate_stats' (Boolean): Indicating whether to calculate statistics. True to calculate statistics.
+        - 'Discord_notification' (Boolean): Indicating whether to send Discord notifications when finished.
+        - 'Plotting' (Boolean): Indicating whether to plot the results.
     Returns:
     - None: The function saves the segmentation results in the specified output directory.
     """
@@ -100,9 +101,6 @@ def orthosam(para_list):
             if n==0:
                 start_run = time.time()
                 predict_tiles(para_list, n)
-                end_run = time.time()       
-
-                start_run = time.time()
                 merge_chunks(para_list,n)
                 end_run = time.time()
                 if noti:
@@ -149,6 +147,7 @@ def large_orthosam(OutDIR, DatasetName,fid,resolution=1,custom_main_para=None, c
     - stability_t: 0.85
     - expected_min_size(sqmm): resolution * resolution * 30
     - min_radius: 0
+    - edge_removal: True
     - Calculate_stats: True (set to False to disable statistics calculation)
     - Discord_notification: False (set to True to enable Discord notifications)
     - Plotting: True (set to False to disable plotting)
@@ -166,6 +165,7 @@ def large_orthosam(OutDIR, DatasetName,fid,resolution=1,custom_main_para=None, c
         'stability_t':0.85,
         'expected_min_size(sqmm)': resolution*resolution*30,
         'min_radius': 0,
+        'edge_removal': True,
         'Calculate_stats': False, # True: calculate statistics
         'Discord_notification': False,# True: send discord when finished.
         'Plotting': True# True: plot the results
@@ -211,6 +211,7 @@ def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution=1,custom_mai
     - stability_t: 0.85
     - expected_min_size(sqmm): resolution * resolution * 30
     - min_radius: 0
+    - edge_removal: True
     - Calculate_stats: True (set to False to disable statistics calculation)
     - Discord_notification: False (set to True to enable Discord notifications)
     - Plotting: True (set to False to disable plotting)
@@ -228,6 +229,7 @@ def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution=1,custom_mai
         'stability_t':0.85,
         'expected_min_size(sqmm)': resolution*resolution*30,
         'min_radius': 0,
+        'edge_removal': True,
         'Calculate_stats': True, # True: calculate statistics
         'Discord_notification': False,# True: send discord when finished.
         'Plotting': True# True: plot the results

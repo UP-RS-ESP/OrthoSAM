@@ -35,6 +35,9 @@ def merge_chunks(para_list, n_pass):
     DSname=para.get('DatasetName')
     fid=para.get('fid')
     plotting=para.get('Plotting')
+    edge_removal=para.get('edge_removal')
+    if not edge_removal:
+        edge_removal=True
 
     #defining clips
     b=para.get('tile_overlap')
@@ -69,7 +72,14 @@ def merge_chunks(para_list, n_pass):
         i,j=clip_window['ij']
 
         for mask,score in tqdm(zip(clip_window['nms mask'], clip_window['nms mask pred iou']), f'Merging and resizing masks in tile {i,j} (RAM: {get_memory_usage():.2f} MB, {msk_count} masks)',unit='masks',leave=False,total=len(clip_window['nms mask pred iou']), file=sys.stdout):
-            if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
+            if edge_removal:
+                if not (np.any(mask[0]==1) or np.any(mask[-1]==1) or np.any(mask[:,0]==1) or np.any(mask[:,-1]==1)):
+                    keep=True
+                else:
+                    keep=False
+            else:
+                keep=True
+            if keep:
                 resized = untile(id_mask, mask, i, j, crop_size, b)
                 msk_count+=1
                 id_mask[resized!=0]=(msk_count)
