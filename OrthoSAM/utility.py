@@ -18,6 +18,15 @@ import scipy.ndimage as ndi
 from scipy.spatial import cKDTree as kdtree
 
 def notify(text):
+    '''
+    Send a Discord alert with the given text message.
+
+    Arguments:
+    - text (str): The message to be sent to the Discord webhook.
+    
+    Returns:
+    - None: Sends a message to the Discord webhook specified in DWH.txt.
+    '''
     def send_discord_alert(webhook_url, message):
         data = {"content": message}
         try:
@@ -40,6 +49,17 @@ def notify(text):
     send_discord_alert(DWH, text)
 
 def load_image(DataDIR,DSname,fid):
+    '''
+    Load image from specified directory and dataset name using file identifier.
+
+    Arguments:
+    - DataDIR (str): Directory where the dataset is located.
+    - DSname (str): Name of the dataset.
+    - fid (int or str): File identifier for the image to load.
+
+    Returns:
+    - image (numpy.ndarray): The loaded image.
+    '''
     if isinstance(fid, int):
         fn_img = glob.glob(os.path.join(DataDIR,DSname,'*'))
         fn_img.sort()
@@ -68,9 +88,16 @@ def load_image(DataDIR,DSname,fid):
 
 def crop_fnc(input, para_in):
     '''
-    crop size
-    i
-    j
+    Crop the input image based on specified parameters.
+    Arguments:
+    - input (numpy.ndarray): The input image to be cropped.
+    - para_in (dict): Dictionary of parameters for cropping.
+        - crop size (int): Size of the crop.
+        - i (int): Row index of the crop.
+        - j (int): Column index of the crop.
+
+    Returns:
+    - output (numpy.ndarray): The cropped image.
     '''
     para={'crop size': 2048,
           'i':0,
@@ -86,6 +113,16 @@ def crop_fnc(input, para_in):
     #print(f'Cropped from {input.shape} to {output.shape}')
     return output
 def gaussian_fnc(input, para_in):
+    """
+    Apply Gaussian blur to the input image.
+
+    Arguments:
+    - input (numpy.ndarray): The input image.
+    - para_in (dict): Dictionary of parameters for Gaussian blur.
+
+    Returns:
+    - output (numpy.ndarray): The blurred image.
+    """
     para={'kernel size': 3}
     para.update(para_in)
     k=para.get('kernel size')
@@ -94,6 +131,17 @@ def gaussian_fnc(input, para_in):
     return output
 
 def clahe_fnc(input, para_in):
+    """
+    Apply CLAHE (Contrast Limited Adaptive Histogram Equalization) to the input image.
+    Arguments:
+    - input (numpy.ndarray): The input image.
+    - para_in (dict): Dictionary of parameters for CLAHE.
+        - clahe window (int): Size of the CLAHE window.
+        - clip limit (float): Clip limit for CLAHE.
+
+    Returns:
+    - output (numpy.ndarray): The CLAHE-adjusted image.
+    """
     para={'clahe window': 50,
             'clip limit': 4
             }
@@ -114,6 +162,18 @@ def clahe_fnc(input, para_in):
     return output
 
 def Lpull_fnc(input, para_in):
+    """
+    Apply Lpull to the input image.
+
+    Arguments:
+    - input (numpy.ndarray): The input image.
+    - para_in (dict): Dictionary of parameters for Lpull.
+        - thres (int): Threshold value for L channel.
+        - pull (int): Pull value to adjust L channel.
+
+    Returns:
+    - output (numpy.ndarray): The Lpull-adjusted image.
+    """
     para={'thres': 60,
           'pull': 60
           }
@@ -132,6 +192,19 @@ def Lpull_fnc(input, para_in):
     return output
 
 def resample_fnc(input, para_in):
+    '''
+    Resample the input image based on specified parameters.
+
+    Arguments:
+    - input (numpy.ndarray): The input image to be resampled.
+    - para_in (dict): Dictionary of parameters for resampling.
+        - fxy (float): Scaling factor.
+        - method (str): Interpolation method.
+        - target_size (tuple): Target size of the image.
+
+    Returns:
+    - output (numpy.ndarray): The resampled image.
+    '''
     para={'fxy':1,
           'method': None,
           'target_size': (0, 0)}
@@ -162,6 +235,16 @@ def resample_fnc(input, para_in):
     return output
 
 def buffering_fnc(input,para_in):
+    '''
+    Buffer the input image to a target size.
+    Arguments:
+    - input (numpy.ndarray): The input image to be buffered.
+    - para_in (dict): Dictionary of parameters for buffering.
+        - crop size (int): Target size of the image.
+
+    Returns:
+    - output (numpy.ndarray): The buffered image.
+    '''
     para={'crop size': 2048}
     para.update(para_in)
 
@@ -182,6 +265,17 @@ def buffering_fnc(input,para_in):
 
 
 def load_roulette(input, process, para_in):
+    '''
+    Load and apply a specific preprocessing function based on the process name.
+    
+    Arguments:
+    - input (numpy.ndarray): The input image.
+    - process (str): The name of the preprocessing function to apply.
+    - para_in (dict): Dictionary of parameters for the preprocessing function.
+
+    Returns:
+    - output (numpy.ndarray): The preprocessed image.
+    '''
     if process=='Crop':
         output=crop_fnc(input, para_in)
     elif process=='Gaussian':
@@ -200,23 +294,32 @@ def load_roulette(input, process, para_in):
     return output
 def preprocessing_roulette(input, process_para):
     '''
-    Crop:
-    para={'crop size': 2048, 'i':0, 'j':0}
-
-    Gaussian:
-    para={'kernel size': 3}
-
-    CLAHE:
-    para={'clahe window': 50, 'clip limit': 4}
-
-    Lpull:
-    para={'thres': 60, 'pull': 60}
-
-    Resample:
-    para={'fxy':2, 'method': None}
+    Apply a series of preprocessing functions to the input image based on the provided parameters.
     
-    Buffer:
-    para={'crop size': 2048}
+    Arguments:
+    - input (numpy.ndarray): The input image.
+    - process_para (dict): Dictionary of preprocessing parameters.
+        Options:
+            Crop:
+            para={'crop size': 2048, 'i':0, 'j':0}
+
+            Gaussian:
+            para={'kernel size': 3}
+
+            CLAHE:
+            para={'clahe window': 50, 'clip limit': 4}
+
+            Lpull:
+            para={'thres': 60, 'pull': 60}
+
+            Resample:
+            para={'fxy':2, 'method': None}
+            
+            Buffer:
+            para={'crop size': 2048}
+    
+    Returns:
+    - output (numpy.ndarray): The preprocessed image.
     '''
     temp_input = input.copy()
     if len(process_para.items())>0:
@@ -227,6 +330,17 @@ def preprocessing_roulette(input, process_para):
     return temp_input
 
 def get_image_patches(image, crop_size, overlap):
+    '''
+    Patch image with specified crop size and overlap.
+    
+    Arguments:
+    - image (numpy.ndarray): The input image.
+    - crop_size (int): Size of the patches.
+    - overlap (int): Overlap between patches.
+
+    Returns:
+    - patches (dict): Dictionary of image patches indexed by (i, j).
+    '''
 
     H, W = image.shape[:2]
     patch_h, patch_w = crop_size, crop_size
@@ -245,6 +359,15 @@ def get_image_patches(image, crop_size, overlap):
     return patches
 
 def load_config(filename='config.json'):
+    '''
+    Load configuration parameters from a JSON file.
+
+    Arguments:
+    - filename (str): Name of the JSON configuration file.
+
+    Returns:
+    - config (dict): Dictionary of configuration parameters.
+    '''
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(script_dir, filename)
 
@@ -252,6 +375,15 @@ def load_config(filename='config.json'):
         return json.load(f)
     
 def set_sam(MODEL_TYPE,CheckpointDIR):
+    '''
+    Set up the SAM model with specified type and checkpoint directory.
+    Arguments:
+    - MODEL_TYPE (str): Type of the SAM model.
+    - CheckpointDIR (str): Directory containing the model checkpoint.
+
+    Returns:
+    - sam (torch.nn.Module): The loaded SAM model.
+    '''
     if torch.cuda.is_available():
         DEVICE = torch.device('cuda:0')
         print('Currently running on GPU\nModel '+MODEL_TYPE)
@@ -270,6 +402,15 @@ def set_sam(MODEL_TYPE,CheckpointDIR):
     return sam
 
 def clean_mask(mask):
+    '''
+    Clean the mask by retaining only the largest connected component.
+    Arguments:
+    - mask (numpy.ndarray): The input binary mask.
+
+    Returns:
+    - cleaned_mask (numpy.ndarray): The cleaned binary mask with only the largest component.
+    '''
+
     labels = label(mask)
     l = len(np.unique(labels))
     if l > 2:
@@ -285,6 +426,16 @@ def clean_mask(mask):
         return mask
     
 def area_radi(mask, min_pixel, min_radi):
+    '''
+    Calculate if the mask has area and radius above specified minimum.
+    Arguments:
+    - mask (numpy.ndarray): The input binary mask.
+    - min_pixel (int): Minimum area threshold.
+    - min_radi (float): Minimum radius threshold.
+
+    Returns:
+    - bool: True if both area and radius exceed minimums, False otherwise.
+    '''
     labels = label(mask)
     try:
         regions = regionprops(labels)
@@ -297,6 +448,14 @@ def area_radi(mask, min_pixel, min_radi):
         return False
 
 def find_bounding_boxes(binary_mask):
+    '''
+    Find bounding boxes for each connected component in the binary mask.
+    Arguments:
+    - binary_mask (numpy.ndarray): The input binary mask.
+
+    Returns:
+    - bboxes (list): List of bounding boxes for each connected component.
+    '''
     bboxes = []
     if torch.cuda.is_available():
         DEVICE = torch.device('cuda:0')
@@ -317,6 +476,15 @@ def find_bounding_boxes(binary_mask):
         return None
     
 def nms(lst_msk,lst_score):
+    '''
+    Apply Non-Maximum Suppression (NMS) to a list of masks and their corresponding scores.
+    Arguments:
+    - lst_msk (list): List of binary masks.
+    - lst_score (list): List of scores corresponding to each mask.
+    
+    Returns:
+    - tuple: A tuple containing two lists - the filtered masks and their corresponding scores after NMS.
+    '''
     if len(lst_msk)>1:
         #NMS filtering
         if torch.cuda.is_available():
@@ -336,12 +504,31 @@ def nms(lst_msk,lst_score):
         return lst_msk,lst_score
     
 def get_memory_usage():
+    '''
+    Get the current memory usage of the process in MB.
+
+    Returns:
+    - (float): Memory usage in megabytes (MB).
+    '''
     process = psutil.Process()
     mem_info = process.memory_info()
     # Convert from bytes to MB
     return mem_info.rss / (1024 * 1024)
 
 def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
+    '''
+    Untile a patch back into the full image mask at the specified position.
+    Arguments:
+    - id_mask (numpy.ndarray): The full image mask to update.
+    - patch (numpy.ndarray): The patch to be untiled.
+    - original_i (int): Row index of the patch in the tiled image.
+    - original_j (int): Column index of the patch in the tiled image.
+    - crop_size (int): Size of the patches.
+    - overlap (int): Overlap between patches.
+
+    Returns:
+    - temp_untile (numpy.ndarray): The updated full image mask with the patch untiled.
+    '''
 
     temp_untile = np.zeros_like(id_mask, dtype=np.uint16)
     stride = crop_size - overlap
@@ -355,6 +542,14 @@ def untile(id_mask, patch, original_i, original_j, crop_size, overlap):
     return temp_untile
 
 def clean_and_overwrite(mask):
+    '''
+    Clean the mask by removing small disconnected components within each labeled region and relabeling.
+    Arguments:
+    - mask (numpy.ndarray): The input labeled mask.
+
+    Returns:
+    - cleaned_mask (numpy.ndarray): The cleaned labeled mask.
+    '''
     labeled = label(mask)
     id_to_remove = []
     for i in tqdm(np.unique(mask)[1:], file=sys.stdout):
@@ -368,6 +563,14 @@ def clean_and_overwrite(mask):
     return label(mask)
 
 def create_dir_ifnotexist(OutDIR):
+    '''
+    Create output directories if they do not exist.
+    Arguments:
+    - OutDIR (str): The main output directory.
+
+    Returns:
+    - None: Creates directories if they do not exist.
+    '''
     if not os.path.exists(OutDIR):
         os.makedirs(OutDIR)
     if not os.path.exists(os.path.join(OutDIR,'chunks')):
@@ -376,6 +579,14 @@ def create_dir_ifnotexist(OutDIR):
         os.makedirs(os.path.join(OutDIR,'Merged'))
 
 def prompt_fid(para):
+    '''
+    Prompt the user to select a file identifier (fid) from the available images in the dataset.
+    Arguments:
+    - para (dict): Dictionary of parameters including 'DataDIR' and 'DatasetName'.
+
+    Returns:
+    - para (dict): Updated dictionary of parameters with selected 'fid'.
+    '''
     fn_img = glob.glob(os.path.join(para.get('DataDIR'),para.get('DatasetName'),'*'))
     fn_img.sort()
     for i,fn in enumerate(fn_img):
@@ -392,6 +603,16 @@ def prompt_fid(para):
     return para
 
 def setup(master_para, para_list, pre_para_list=None):
+    '''
+    Setup the output directory and save parameters to JSON files.
+    Arguments:
+    - master_para (dict): Dictionary of master parameters.
+    - para_list (list): List of parameter dictionaries for each layer.
+    - pre_para_list (list, optional): List of preprocessing parameter dictionaries for each layer.
+
+    Returns:
+    - lst (list): List of combined parameter dictionaries for each layer.
+    '''
     master_para['1st_resample_factor'] = master_para['resample_factor']
     config = load_config()
     master_para={**config,**master_para}
@@ -418,6 +639,19 @@ def setup(master_para, para_list, pre_para_list=None):
     return lst
 
 def get_patch_at(image, i, j, crop_size, overlap):
+    '''
+    Get a specific patch from the image based on the provided indices.
+    Arguments:
+    - image (numpy.ndarray): The input image.
+    - i (int): Row index of the patch.
+    - j (int): Column index of the patch.
+    - crop_size (int): Size of the patches.
+    - overlap (int): Overlap between patches.
+
+    Returns:
+    - patch (numpy.ndarray): The extracted image patch.
+    
+    '''
     stride = crop_size - overlap
     start_y = i * stride
     start_x = j * stride
@@ -425,6 +659,14 @@ def get_patch_at(image, i, j, crop_size, overlap):
     return patch
 
 def clean_mask(mask):
+    '''
+    Clean the mask by retaining only the largest connected component.
+    Arguments:
+    - mask (numpy.ndarray): The input binary mask.
+
+    Returns:
+    - cleaned_mask (numpy.ndarray): The cleaned binary mask with only the largest component.
+    '''
     labels = label(mask)
     l = len(np.unique(labels))
     if l > 2:
@@ -437,6 +679,14 @@ def clean_mask(mask):
         return mask
     
 def get_centroid(mask):
+    '''
+    Get the centroid of the largest connected component in the mask.
+    Arguments:
+    - mask (numpy.ndarray): The input binary mask.
+
+    Returns:
+    - centroid (tuple): The (row, column) coordinates of the centroid.
+    '''
     labels = label(mask)
     regions = regionprops(labels)
     sorted_regions = sorted(regions, key=lambda x: x.area, reverse=True)
@@ -446,6 +696,15 @@ def get_centroid(mask):
         return (0,0)
     
 def iou(mask1, mask2):
+    '''
+    Compute the Intersection over Union (IoU) between two binary masks.
+    Arguments:
+    - mask1 (numpy.ndarray): The first binary mask.
+    - mask2 (numpy.ndarray): The second binary mask.
+
+    Returns:
+    - iou (float): The IoU value between the two masks.
+    '''
     assert np.array_equal(mask1, mask1.astype(bool)), "mask1 is not binary"
     assert np.array_equal(mask2, mask2.astype(bool)), "mask2 is not binary"
 
@@ -456,6 +715,13 @@ def iou(mask1, mask2):
     
     return iou
 def compute_iou_shared(args):
+    '''
+    Compute IoU for a single centroid and update the shared dictionary.
+    Arguments:
+    - args (tuple): A tuple containing (i, centroid, mask, ids, mask_ious_dict, seg_masks_rs, seg_id).
+    Returns:
+    - None: Updates the shared dictionary in place.
+    '''
     i, centroid, mask, ids, mask_ious_dict, seg_masks_rs, seg_id = args
     hit_id = int(mask[int(centroid[0]), int(centroid[1])])
     current_iou = mask_ious_dict.get(hit_id, 0.0) 
@@ -470,6 +736,15 @@ def compute_iou_shared(args):
 def update_mask_ious_shared(centroids, mask, ids, seg_masks_rs, seg_ids):
     '''
     Multiprocessing mask IoU computation with shared memory
+    Arguments:
+    - centroids (list): List of centroids for each segment.
+    - mask (numpy.ndarray): The binary mask.
+    - ids (numpy.ndarray): The array of segment IDs.
+    - seg_masks_rs (numpy.ndarray): The resampled segment masks.
+    - seg_ids (list): List of segment IDs.
+
+    Returns:
+    - mask_ious (numpy.ndarray): The array of IoU values for each segment ID
     '''
 
     with Manager() as manager:
@@ -490,6 +765,16 @@ def update_mask_ious_shared(centroids, mask, ids, seg_masks_rs, seg_ids):
         return mask_ious
     
 def save_mask_as_geotiff(source_tif_path, mask, output_tif_path):
+    '''
+    Save the mask as a compressed GeoTIFF file, preserving geospatial metadata from the source TIFF.
+    Arguments:
+    - source_tif_path (str): Path to the source GeoTIFF file.
+    - mask (numpy.ndarray): The mask to be saved.
+    - output_tif_path (str): Path to save the output GeoTIFF file.
+
+    Returns:
+    - None: Saves the mask as a GeoTIFF file.
+    '''
     with TiffFile(source_tif_path) as tif:
         original_tags = tif.pages[0].tags
         original_page = tif.pages[0]
@@ -583,11 +868,15 @@ def compute_median(image, labeled_mask, labels):
 
 def get_props_df(image, labeled_mask, resample=1, res=1):
     """Extract region properties and combine them with mean & median color values.
-    Args:
-        image (np.ndarray): Input image of shape (H, W, C).
-        labeled_mask (np.ndarray): Labeled mask of shape (H, W) with unique labels for each region.
-        resample (int): Resampling factor for the labeled mask.
-        res (int): Resolution factor for the properties."""
+    Arguments:
+    - image (np.ndarray): Input image of shape (H, W, C).
+    - labeled_mask (np.ndarray): Labeled mask of shape (H, W) with unique labels for each region.
+    - resample (int): Resampling factor for the labeled mask.
+    - res (int): Resolution factor for the properties.
+    
+    Returns:
+    - props_df (pd.DataFrame): DataFrame containing region properties and color statistics.
+    """
     labeled = label(labeled_mask, background=0)
     
     props = regionprops_table(
@@ -706,6 +995,15 @@ def accuracy(seg_masks, mask):
     return outdic
 
 def graph_coloring(label, k=500):
+    '''
+    Colors the labeled regions in the input label image such that no two adjacent regions share the same color.
+    Arguments:
+    label (np.array): 2D array of labeled regions.
+    k (int): Number of nearest neighbors to consider for adjacency.
+    
+    Returns:
+    new_label (np.array): 2D array of labeled regions with colors assigned.
+    '''
     new_label = np.zeros(label.shape)
     new_label[np.isnan(label)] = np.nan
     contour_label = label.copy()
@@ -737,3 +1035,31 @@ def graph_coloring(label, k=500):
         new_label[label == i+1] = li
 
     return new_label
+
+def mod_ap(tp_area, fp_area):
+    '''
+    Calculate modified average precision (mod AP) based on true positive and false positive areas.
+    Arguments:
+    tp_area (np.array): Array of true positive areas.
+    fp_area (np.array): Array of false positive areas.
+
+    Returns:
+    ap (float): The calculated modified average precision (mod AP).
+    '''
+    tps=np.ones_like(tp_area)
+    fps=np.zeros_like(fp_area)
+    all_area=np.hstack([tp_area,fp_area])
+    ac=np.hstack([tps,fps])
+    ac=ac[np.argsort(all_area)]
+    for i in np.arange(1,len(ac)):
+        ac[i]+=ac[i-1]
+
+    precision=ac/np.arange(1,len(ac)+1)
+    recall=ac/(len(ac))
+    mrec = np.concatenate(([0.0], recall, [1.0]))
+    mpre = np.concatenate(([0.0], precision, [0.0]))
+    for i in range(len(mpre) - 2, -1, -1):
+        mpre[i] = max(mpre[i], mpre[i + 1])
+    idx = np.where(mrec[1:] != mrec[:-1])[0]
+    ap = np.sum((mrec[idx + 1] - mrec[idx]) * mpre[idx + 1])
+    return ap

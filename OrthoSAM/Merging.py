@@ -9,6 +9,16 @@ from tqdm import tqdm
 import sys
 
 def merge_chunks(para_list, n_pass):
+    '''
+    Merging tiles for a specific layer.
+
+    Arguments:
+    - para_list (list): List of parameter dictionaries.
+    - n_pass (int): Index of the current layer to process.
+    
+    Returns:
+    - None: This function merges the tiles for the specified layer and saves the results to specified output directory.
+    '''
     start_script = time.time()
     
     para = para_list[n_pass]

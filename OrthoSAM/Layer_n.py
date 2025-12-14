@@ -18,6 +18,15 @@ def timeout_handler(signum, frame):
     raise TimeoutError
 
 def predict_tiles_n(para_L, n_pass):
+    '''
+    Processing tile.
+    Arguments:
+    - para_L (list): List of parameter dictionaries.
+    - n_pass (int): Index of the current layer to process.
+
+    Returns:
+    - None: This function processes the tiles for the specified layer and saves the results to specified output directory.
+    '''
     start_script = time.time()
     
     para = para_L[n_pass]

@@ -13,6 +13,16 @@ import os
 from OrthoSAM.utility import load_image, preprocessing_roulette, get_image_patches, set_sam, nms, clean_mask, area_radi
 
 def predict_tiles(para_list,n_pass): 
+    '''
+    Segment tiles using SAM model.
+    
+    Arguments:
+    - para_list: parameter list.
+    - n_pass: current layer index.
+    
+    Returns:
+    - None: saves output to specified directory.
+    '''
     start_script = time.time()
     
     para = para_list[n_pass]
@@ -181,6 +191,17 @@ def predict_tiles(para_list,n_pass):
 
 
 def filter_by_pred_iou_and_size_per_seedpoint(masks,crop_size,size_threshold=0.4):
+    '''
+    Filter SAM output mask per seed point by predicted iou and tile coverage.
+    
+    Arguments:
+    - masks (dict): SAM output masks.
+    - crop_size (int): Size of the crop.
+    - size_threshold (float): Maximum allowed mask size relative to the crop.
+
+    Returns:
+    - highest_pred_iou_by_point (list): Filtered masks with highest predicted iou per seed point.
+    '''
     seed_point=np.array([mask['point_coords'][0] for mask in masks])
     highest_pred_iou_by_point=[]
     i=0
@@ -211,6 +232,17 @@ def filter_by_pred_iou_and_size_per_seedpoint(masks,crop_size,size_threshold=0.4
     return highest_pred_iou_by_point
 
 def Groupping_masks(list_of_masks):
+    '''
+    Grouping overlapping masks.
+    
+    Arguments:
+    - list_of_masks (list): List of binary masks.
+
+    Returns:
+    - group_overlap_area (list): List of overlap areas for each group.
+    - unique_groups (list): List of unique groups of overlapping masks.
+    - list_overlap (list): List of overlapping mask indices.
+    '''
 
     ar_masks=np.stack(list_of_masks)
     ar_masks_flat=ar_masks.reshape((ar_masks.shape[0],ar_masks.shape[1]*ar_masks.shape[2]))#flat 2d to 1d masks
@@ -233,6 +265,18 @@ def Groupping_masks(list_of_masks):
     return group_overlap_area, unique_groups, list_overlap
 
 def filter_groupping_by_intersection(group_overlap_area,unique_groups, list_overlap ,intersection_threshold=1000):
+    '''
+    Filter grouped masks by intersection area.
+
+    Arguments:
+    - group_overlap_area (list): List of overlap areas for each group.
+    - unique_groups (list): List of unique groups of overlapping masks.
+    - list_overlap (list): List of overlapping mask indices.
+    - intersection_threshold (int): Threshold for intersection area in pixels.
+
+    Returns:
+    - unique_groups_thresholded (list): Filtered list of unique groups.
+    '''
     #filter by intersection area
     filtered=np.array(group_overlap_area)>intersection_threshold
     unique_groups_thresholded=[unique_groups[i] for i in range(len(unique_groups)) if filtered[i]]
@@ -242,6 +286,18 @@ def filter_groupping_by_intersection(group_overlap_area,unique_groups, list_over
     return unique_groups_thresholded
 
 def checking_remaining_ungroupped(list_of_masks, unique_groups_thresholded, masks):
+    '''
+    Check remaining ungrouped masks.
+    
+    Arguments:
+    - list_of_masks (list): List of binary masks.
+    - unique_groups_thresholded (list): Filtered list of unique groups.
+    - masks (list): List of all masks.
+
+    Returns:
+    - cleaned_groups (list): Final grouped masks after checking overlaps.
+    - list_of_nooverlap_mask (list): List of masks that did not overlap with any group
+    '''
     #check if there is remaining ungroupped pairs
     checker=np.zeros(len(list_of_masks))
     for gp in unique_groups_thresholded:
@@ -315,8 +371,25 @@ def calculate_stability_score(
         return 0.0
     return intersection / union
 
-def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor, crop_size,stb_t, size_threshold=0.4,tm=0.5):
-   
+def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, predictor, crop_size, stb_t, size_threshold=0.4,tm=0.5):
+    '''
+    Second pass SAM segmentation guided by input points generated based on the first pass.
+    
+    Arguments:
+    - cleaned_groups (list): Final grouped masks after checking overlaps.
+    - min_pixel (int): Minimum pixel count for filtering.
+    - min_radi (float): Minimum radius for filtering.
+    - list_of_masks (list): List of binary masks.
+    - predictor: SAM predictor object.
+    - crop_size (int): Size of the crop.
+    - stb_t (float): Stability threshold.
+    - size_threshold (float): Maximum allowed mask size relative to the crop. Default is 0.4.
+    - tm (float): Threshold for separating high and low confidence regions. Default is 0.5.
+
+    Returns:
+    - list_of_cleaned_groups_reseg_masks (list): List of re-segmented masks.
+    - list_of_cleaned_groups_reseg_score (list): List of scores for the re-segmented masks.
+    '''
     cleaned_groups_reseg=[]
     for k in range(len(cleaned_groups)):
         stacked=np.stack([list_of_masks[i] for i in cleaned_groups[k]])
@@ -370,6 +443,18 @@ def Guided_second_pass_SAM(cleaned_groups, min_pixel, min_radi, list_of_masks, p
     return list_of_cleaned_groups_reseg_masks, list_of_cleaned_groups_reseg_score
 
 def mask_in_valid_box(masks,b, ij_idx, max_ij):
+    '''
+    Check if masks are within the valid box area of the tile.
+    Arguments:
+    - masks (list): List of binary masks.
+    - b (int): Overlap size.
+    - ij_idx (tuple): Tile index.
+    - max_ij (tuple): Maximum tile index.
+    
+    Returns:
+    - keep (list): List of booleans indicating whether each mask is within the valid
+    box area.
+    '''
     def get_box(b, ij_idx, max_ij):
         if (ij_idx[0]==max_ij[0] and ij_idx[0]==0):
             y0,y1=0,-1

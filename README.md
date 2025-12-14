@@ -1,7 +1,7 @@
 # OrthoSAM: Multi-Scale Extension of SegmentAnything for River Pebble Delineation from Large Orthophotos
 
 *This work is currently under review. Please cite as:
-Chan, V., Rheinwalt, A., Bookhagen, B.: OrthoSAM: Multi-Scale Extension of SegmentAnything for River Pebble Delineation from Large Orthophotos, in review* [PDF](OrthoSAM_inreview.pdf)
+Chan, V., Rheinwalt, A., Bookhagen, B.: OrthoSAM: Multi-Scale Extension of SegmentAnything for River Pebble Delineation from Large Orthophotos, in review* [PDF](OrthoSAM_inreview.pdf) | [Preprint](https://egusphere.copernicus.org/preprints/2025/egusphere-2025-4003/).
 
 *The three example orthomosaics from the Ravi river in the western Himalaya described in the manuscript and used as examples in this repository are available on Zenodo https://doi.org/10.5281/zenodo.16567549*
 
@@ -178,6 +178,11 @@ To use the Ravi River orthomosaics from the western Himalaya presented in our ma
 ### Other
 - [`config.json`](OrthoSAM/config.json): Configuration file to define model type, checkpoint directory, data directory, output directory, and any default parameters.
 - [`DWH.txt`](OrthoSAM/DWH.txt): File to store your Discord webhook URL.
+
+### Output
+- [`ImageGrain_outputs.zip`](OrthoSAM/Notebooks/OtherDataset/ImageGrain_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the ImageGrains dataset. ImageGrains is publicly available and can be accessed at https://zenodo.org/records/8005771.
+- [`SediNet_outputs.zip`](OrthoSAM/Notebooks/OtherDataset/SediNet_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the SediNet dataset. SediNet is publicly available dataset and can be accessed at https://github.com/DigitalGrainSize/SediNet.
+
 <!-- `OrthoSAM`: [OrthoSAM codes.](OrthoSAM/OrthoSAM.py)-->
 
 

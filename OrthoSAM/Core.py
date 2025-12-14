@@ -83,6 +83,7 @@ def orthosam(para_list):
         - 'Calculate_stats' (Boolean): Indicating whether to calculate statistics. True to calculate statistics.
         - 'Discord_notification' (Boolean): Indicating whether to send Discord notifications when finished.
         - 'Plotting' (Boolean): Indicating whether to plot the results.
+    
     Returns:
     - None: The function saves the segmentation results in the specified output directory.
     """
@@ -138,6 +139,7 @@ def large_orthosam(OutDIR, DatasetName,fid,resolution=1,custom_main_para=None, c
     - resolution (float): The image resolution in mm/pixel.
     - custom_main_para (dict, optional): Custom parameters for the main configuration. Default is None.
     - custom_pass (list of dicts, optional): Custom parameters for individual layers. Default is None.
+    
     Default parameters:
     - tile_size: 1024
     - tile_overlap: 200
@@ -202,6 +204,7 @@ def compact_fine_object_orthosam(OutDIR, DatasetName,fid,resolution=1,custom_mai
     - resolution (float): The image resolution in mm/pixel.
     - custom_main_para (dict, optional): Custom parameters for the main configuration. Default is None.
     - custom_pass (list of dicts, optional): Custom parameters for individual layers. Default is None.
+    
     Default parameters:
     - tile_size: 512
     - tile_overlap: 200
