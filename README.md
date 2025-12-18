@@ -80,7 +80,7 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
 
 <a name="configuration_file"></a>
 ### Configuration file:
-[`config.json`](OrthoSAM/config.json) can be used to specify directories path. This is also the file to specify which checkpoint to use. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script has the priority.
+[`config.json`](OrthoSAM/config.json) can be used to specify directory paths. This is also the file to specify which checkpoint to use. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script has the priority.
 
 <a name="discord-notification"></a>
 ### Discord notification:
