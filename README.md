@@ -25,7 +25,7 @@ Our framework consists of a tiling scheme, improved input (seed) point generatio
 ## Setup guide
 
 ### Dependencies
-* Python 3.11+
+* Python 3.12+
 
 For required packages, please see [requirements.txt](requirements.txt). This project was developed and tested using Python's built-in virtual environment module, `venv`.
 
@@ -36,7 +36,7 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
 
 1. Install environment:
   ```bash
-  conda create -y -n OrthoSAM -c conda-forge python=3.11 pip ipython jupyterlab numpy pandas numba scipy scikit-learn scikit-image matplotlib cupy pytorch torchvision
+  conda create -y -n OrthoSAM -c conda-forge python=3.12 pip ipython jupyterlab numpy pandas numba scipy scikit-learn scikit-image matplotlib cupy pytorch torchvision
   conda activate OrthoSAM
   ```
 
@@ -44,7 +44,7 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
   ```bash
   git clone https://github.com/UP-RS-ESP/OrthoSAM.git
   cd OrthoSAM
-  pip install -r requirements.txt
+  pip install -r requirements.txt && orthosam-setup
   ```
 
 3. Install conda kernel for jupyter lab. Make sure that you are not in the OrthSAM subfolder, because there is a conflict with the `code`` directory:
@@ -52,23 +52,6 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
   cd ~
   python -m ipykernel install --user --name=OrthoSAM
   ```
-
-4. Create a subdirectory for storing model checkpoints and download SAM checkpoints. This can be located anywhere, but the default is to have it in `OrthoSAM`. If there is a new SAM model available, it will appear on https://github.com/facebookresearch/segment-anything. You are likely only going to need the first, high-resolution model (sam_vit_h_*.pth):
-  ```bash
-  cd OrthoSAM
-  mkdir MetaSAM
-  cd MetaSAM
-  wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-  wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
-  wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
-  ```
-
-5. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](OrthoSAM/config.json). If you keep your MetaSAM within the OrthSAM github directory where `code` is also stored, you can use: 
-  ```bash
-  cd OrthoSAM
-  python update_config.py
-  ```
-  In the file [`config.json`](OrthoSAM/config.json) you also specify the MetaSAM checkpoint. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script have the priority.
 
 
 <a name="installation-with-a-virtual-environment"></a>
@@ -92,40 +75,12 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
 
 3. To install all required packages: 
   ```
-  pip install -r requirements.txt
+  pip install -r requirements.txt && orthosam-setup
   ```
 
-4. Create a subdirectory for storing model checkpoints
-  ```bash
-  mkdir -p MetaSAM
-  ```
-
-5. Download the Segment Anything checkpoint from 
-
-  `vit_h`:
-  https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-
-  `vit_l`:
-  https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
-
-  `vit_b`:
-  https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
-
-  Download all three:
-  ```bash
-  wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-  wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
-  wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
-  ```
-
-6. Move the downloaded checkpoint into the MetaSAM folder.
-
-7. Update configuration path. Please update the data directory and checkpoint directory path in [`config.json`](OrthoSAM/config.json). This can be done automatically with [`update_config.py`](OrthoSAM/update_config.py). 
-    - This is also the file to specify which checkpoint to use. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script has the priority.
-    - This script will also create the data and output directory if they do not exist.
-  ```
-  python update_config.py
-  ```
+<a name="configuration_file"></a>
+### Configuration file:
+[`config.json`](OrthoSAM/config.json) can be used to specify directories path. This is also the file to specify which checkpoint to use. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script has the priority.
 
 <a name="discord-notification"></a>
 ### Discord notification:

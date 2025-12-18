@@ -8,6 +8,7 @@ numba/
 code/DWH.txt
 Notebooks/archieved/
 MetaSAM/
+OrthoSAM/MetaSAM/
 Notebooks/OtherDataset/ImageGrain_output/
 Notebooks/OtherDataset/SediNet_output
 #Notebooks/OtherDataset/SediNet_outputs.zip
