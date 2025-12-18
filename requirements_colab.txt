@@ -1,4 +1,3 @@
--e .
 addict
 aiohappyeyeballs
 aiohttp
@@ -12,7 +11,6 @@ blosc2
 certifi
 charset-normalizer
 click
-clip @ git+https://github.com/openai/CLIP.git@dcba3cb2e2827b402d2701e7e1c7d9fed8a20ef1
 comm
 ConfigArgParse
 contourpy
@@ -81,7 +79,6 @@ nvidia-cusparse-cu12
 nvidia-nccl-cu12
 nvidia-nvjitlink-cu12
 nvidia-nvtx-cu12
-open3d
 opencv-python
 packaging
 pandas

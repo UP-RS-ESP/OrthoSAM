@@ -180,8 +180,8 @@ To use the Ravi River orthomosaics from the western Himalaya presented in our ma
 - [`DWH.txt`](OrthoSAM/DWH.txt): File to store your Discord webhook URL.
 
 ### Output
-- [`ImageGrain_outputs.zip`](OrthoSAM/Notebooks/OtherDataset/ImageGrain_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the ImageGrains dataset. ImageGrains is publicly available and can be accessed at https://zenodo.org/records/8005771.
-- [`SediNet_outputs.zip`](OrthoSAM/Notebooks/OtherDataset/SediNet_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the SediNet dataset. SediNet is publicly available dataset and can be accessed at https://github.com/DigitalGrainSize/SediNet.
+- [`ImageGrain_outputs.zip`](ImageGrains_SediNet_predictions/ImageGrain_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the ImageGrains dataset. ImageGrains is publicly available and can be accessed at https://zenodo.org/records/8005771.
+- [`SediNet_outputs.zip`](ImageGrains_SediNet_predictions/SediNet_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the SediNet dataset. SediNet is publicly available dataset and can be accessed at https://github.com/DigitalGrainSize/SediNet.
 
 <!-- `OrthoSAM`: [OrthoSAM codes.](OrthoSAM/OrthoSAM.py)-->
 

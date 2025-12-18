@@ -12,3 +12,5 @@ Notebooks/OtherDataset/ImageGrain_output/
 Notebooks/OtherDataset/SediNet_output
 #Notebooks/OtherDataset/SediNet_outputs.zip
 #Notebooks/OtherDataset/ImageGrain_outputs.zip
+output_fig/
+OrthoSAM.egg-info/
