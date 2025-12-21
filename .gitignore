@@ -15,3 +15,4 @@ Notebooks/OtherDataset/SediNet_output
 #Notebooks/OtherDataset/ImageGrain_outputs.zip
 output_fig/
 OrthoSAM.egg-info/
+OrthoSAM/config.json
