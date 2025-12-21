@@ -31,6 +31,14 @@ For required packages, please see [requirements.txt](requirements.txt). This pro
 
 Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=0.8`. The installation instructions can be found [here](https://pytorch.org/get-started/locally/).
 
+<a name="download-orthosam"></a>
+### Download OrthoSAM:
+Use `git clone https://github.com/UP-RS-ESP/OrthoSAM.git` to download the repository (skip this step if you already have done it): 
+  ```bash
+  git clone https://github.com/UP-RS-ESP/OrthoSAM.git
+  cd OrthoSAM
+  ```
+
 <a name="installation-with-conda"></a>
 ### Installation with conda:
 
@@ -40,10 +48,8 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
   conda activate OrthoSAM
   ```
 
-2. Install requirements from github repository. Use `git clone https://github.com/UP-RS-ESP/OrthoSAM.git` to download the repository (skip this step if you already have done it): 
+2. Install requirements from github repository: 
   ```bash
-  git clone https://github.com/UP-RS-ESP/OrthoSAM.git
-  cd OrthoSAM
   pip install -r requirements.txt && orthosam-setup
   ```
 
@@ -73,7 +79,7 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
   venv\Scripts\activate
   ```
 
-3. To install all required packages: 
+3. To install all required packages and setup OrthoSAM: 
   ```
   pip install -r requirements.txt && orthosam-setup
   ```

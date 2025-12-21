@@ -7,6 +7,14 @@ For required packages, please see [requirements.txt](requirements.txt). This pro
 
 Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=0.8`. The installation instructions can be found [here](https://pytorch.org/get-started/locally/).
 
+<a name="download-orthosam"></a>
+### Download OrthoSAM:
+Use `git clone https://github.com/UP-RS-ESP/OrthoSAM.git` to download the repository (skip this step if you already have done it): 
+  ```bash
+  git clone https://github.com/UP-RS-ESP/OrthoSAM.git
+  cd OrthoSAM
+  ```
+
 <a name="installation-with-conda"></a>
 ### Installation with conda:
 
@@ -16,10 +24,8 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
   conda activate OrthoSAM
   ```
 
-2. Install requirements from github repository. Use `git clone https://github.com/UP-RS-ESP/OrthoSAM.git` to download the repository (skip this step if you already have done it): 
+2. Install requirements from github repository: 
   ```bash
-  git clone https://github.com/UP-RS-ESP/OrthoSAM.git
-  cd OrthoSAM
   pip install -r requirements.txt && orthosam-setup
   ```
 
@@ -49,7 +55,7 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
   venv\Scripts\activate
   ```
 
-3. To install all required packages: 
+3. To install all required packages and setup OrthoSAM: 
   ```
   pip install -r requirements.txt && orthosam-setup
   ```
@@ -89,3 +95,27 @@ To verified your installation:
 <a name="configuration_file"></a>
 ### Configuration file:
 [`config.json`](OrthoSAM/config.json) can be used to specify directory paths. This is also the file to specify which checkpoint to use. If you wish set any default parameter, it can be added to `config.json`. Please note that parameters defined in the script has the priority.
+
+
+<a name="discord-notification"></a>
+### Discord notification:
+As processing time can be long when dealing with large images, we have added a notification function using Discord Webhook. In order to enable this function, set 'Discord_notification' to True in the parameters or the configuration file. 
+
+Please follow these steps to setup Discord notification. 
+
+1. Go to the Discord channel where you would like the notification be sent to. Click **Edit Channel**.
+
+![dwh1](fig/dwh1.png)
+
+2. Go to **Integrations**, **Webhooks**.
+
+![dwh2](fig/dwh2.png)
+
+3. If you do not already have a Webhook, click **New Webhook** and then **Copy Webhook URL**. 
+
+![dwh3](fig/dwh3.png)
+
+4. Create **DWH.txt** in the OrthoSAM/OrthoSAM directory to store your Webhook URL.
+```bash
+echo "your_webhook_url_here" > OrthoSAM/DWH.txt
+```
