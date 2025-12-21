@@ -77,6 +77,37 @@ Additionally, the code requires `python>=3.8`, `pytorch>=1.7` and `torchvision>=
   ```
   pip install -r requirements.txt && orthosam-setup
   ```
+<a name="installation-of-orthosam"></a>
+### Installation of OrthoSAM (package only)
+
+If all dependencies have already been installed (e.g. via conda or a virtual environment), you can install OrthoSAM directly from the repository root:
+    ```
+    pip install -e . && orthosam-setup
+    ```
+
+`orthosam-setup` performs the following setup tasks after installing OrthoSAM:
+
+1. Create config.json in `OrthoSAM/config.json`  
+    - This sets absolute paths for OrthoSAM. For more details on the configuration file, see the [Configuration file](#configuration_file) section below.
+
+
+2. Create required directories  
+   - `OrthoSAM/MetaSAM/` for storing model checkpoints.
+   - `data/` and `output/` for inputs and outputs.
+
+3. Download default SAM model checkpoints  
+   - `sam_vit_h_4b8939.pth`  
+   - `sam_vit_l_0b3195.pth`  
+   - `sam_vit_b_01ec64.pth`
+
+Note: This command must be run from the **repository root directory**.  
+
+<a name="installation-verification"></a>
+### Installation Verification
+To verified your installation:
+  ```
+  python -c "import OrthoSAM; print('OK')"
+  ```
 
 <a name="configuration_file"></a>
 ### Configuration file:
@@ -127,7 +158,7 @@ To use the Ravi River orthomosaics from the western Himalaya presented in our ma
 
 ### Utilities
 - [`para_helper.ipynb`](Notebooks/OrthoSAM_notebook/para_helper.ipynb): Parameter assistance.
-- [`update_config.py`](update_config.py): Update data directory and checkpoint directory path.
+- [`update_config.py`](OrthoSAM/update_config.py): Update data directory and checkpoint directory path.
 - [`utility.py`](OrthoSAM/utility.py): Utility functions.
 
 ### Other
@@ -135,7 +166,7 @@ To use the Ravi River orthomosaics from the western Himalaya presented in our ma
 - [`DWH.txt`](OrthoSAM/DWH.txt): File to store your Discord webhook URL.
 
 ### Output
-- [`ImageGrain_outputs.zip`](ImageGrains_SediNet_predictions/ImageGrain_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the ImageGrains dataset. ImageGrains is publicly available and can be accessed at https://zenodo.org/records/8005771.
+- [`ImageGrains_outputs.zip`](ImageGrains_SediNet_predictions/ImageGrains_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the ImageGrains dataset. ImageGrains is publicly available and can be accessed at https://zenodo.org/records/8005771.
 - [`SediNet_outputs.zip`](ImageGrains_SediNet_predictions/SediNet_outputs.zip): Compressed archive containing segmentation outputs produced by OrthoSAM on the SediNet dataset. SediNet is publicly available dataset and can be accessed at https://github.com/DigitalGrainSize/SediNet.
 
 <!-- `OrthoSAM`: [OrthoSAM codes.](OrthoSAM/OrthoSAM.py)-->
