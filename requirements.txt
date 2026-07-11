@@ -70,9 +70,9 @@ nbformat==5.10.4
 ndindex==1.9.2
 nest-asyncio==1.6.0
 networkx==3.3
-numba
+numba<0.66
 numexpr==2.10.1
-numpy
+numpy<2.4
 nvidia-cublas-cu12
 nvidia-cuda-cupti-cu12
 nvidia-cuda-nvrtc-cu12
