@@ -40,4 +40,5 @@ def update_config_paths(config_path):
 
     print("Config updated with base:", base_dir)
 
-update_config_paths(os.path.join('OrthoSAM','config.json'))
+script_dir = Path(__file__).resolve().parent
+update_config_paths(os.path.join(script_dir,'config.json'))
