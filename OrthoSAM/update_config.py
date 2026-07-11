@@ -27,7 +27,7 @@ def update_config_paths(workdir_path=None):
 
         # Update paths in existing config
         config['CheckpointDIR'] = str(base_dir / 'OrthoSAM' / 'MetaSAM')
-        if workdir_path.exists():
+        if workdir_path:
           config['DataDIR'] = str(workdir_path / 'data')
           config['MainOutDIR'] = str(workdir_path / 'output')
           config['BaseDIR'] = str(workdir_path)
