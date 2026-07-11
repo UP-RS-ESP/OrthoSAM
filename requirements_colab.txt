@@ -64,7 +64,7 @@ nbformat
 ndindex
 nest-asyncio
 networkx
-numba<0.66
+numba<0.62
 numexpr
 numpy<2.4
 nvidia-cublas-cu12
