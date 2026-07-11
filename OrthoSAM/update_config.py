@@ -2,11 +2,13 @@ import json
 from pathlib import Path
 import os
 
-def update_config_paths(config_path):
+def update_config_paths(workdir_path=None):
     # Resolve base directory (two levels up from this file)
     base_dir = Path(__file__).resolve().parent.parent
-
-    config_path = Path(config_path)
+    script_dir = Path(__file__).resolve().parent
+    config_path=Path(os.path.join(script_dir,'config.json'))
+    if workdir_path:
+      workdir_path=Path(workdir_path)
 
     # If config file doesn't exist, create it with default values
     if not config_path.exists():
@@ -25,9 +27,14 @@ def update_config_paths(config_path):
 
         # Update paths in existing config
         config['CheckpointDIR'] = str(base_dir / 'OrthoSAM' / 'MetaSAM')
-        config['DataDIR'] = str(base_dir / 'data')
-        config['MainOutDIR'] = str(base_dir / 'output')
-        config['BaseDIR'] = str(base_dir)
+        if workdir_path.exists():
+          config['DataDIR'] = str(workdir_path / 'data')
+          config['MainOutDIR'] = str(workdir_path / 'output')
+          config['BaseDIR'] = str(workdir_path)
+        else:
+          config['DataDIR'] = str(base_dir / 'data')
+          config['MainOutDIR'] = str(base_dir / 'output')
+          config['BaseDIR'] = str(base_dir)
 
     # Make sure required directories exist
     Path(config['DataDIR']).mkdir(parents=True, exist_ok=True)
@@ -40,5 +47,4 @@ def update_config_paths(config_path):
 
     print("Config updated with base:", base_dir)
 
-script_dir = Path(__file__).resolve().parent
-update_config_paths(os.path.join(script_dir,'config.json'))
+update_config_paths()
