@@ -1,13 +1,13 @@
 # OrthoSAM: Multi-Scale Extension of SegmentAnything for River Pebble Delineation from Large Orthophotos
 
 *This work is currently under review. Please cite as:
-Chan, V., Rheinwalt, A., Bookhagen, B.: OrthoSAM: Multi-Scale Extension of SegmentAnything for River Pebble Delineation from Large Orthophotos, in review* [PDF](OrthoSAM_inreview.pdf) | [Preprint](https://egusphere.copernicus.org/preprints/2025/egusphere-2025-4003/).
+Chan, V., Rheinwalt, A., Bookhagen, B.: OrthoSAM: Multi-Scale Extension of SegmentAnything for River Pebble Delineation from Large Orthophotos, 2026* [Publication](https://esurf.copernicus.org/articles/14/391/2026/esurf-14-391-2026.html).
 
 *The three example orthomosaics from the Ravi river in the western Himalaya described in the manuscript and used as examples in this repository are available on Zenodo https://doi.org/10.5281/zenodo.16567549*
 
 Sediment characteristics and grain-size distribution are crucial for understanding natural hazards, hydrologic conditions, and ecosystems. Traditional methods for collecting this information are costly, labor-intensive, and time-consuming. To address this, we present **OrthoSAM**, a workflow leveraging the Segment Anything Model (SAM) for automated delineation of densely packed pebbles in high-resolution orthomosaics.
 
-Our framework consists of a tiling scheme, improved input (seed) point generation, and a multi-scale resampling scheme. Validation using synthetic images shows high precision close to 1, a recall above 0.9, with a mean IoU above 0.9. Using a large synthetic dataset, we show that the two-sample Kolmogorov-Smirnov test confirms the accuracy of the grain size distribution. We identified a size detection limit of 30 pixels in diameter that corresponds to 700 pixels for a circular object. Applying OrthoSAM to orthomosaics from the Ravi River in India, we delineated 6087 pebbles with high precision and recall. The resulting grain dataset includes measurements such as area, axis lengths, perimeter, RGB statistics, and smoothness, providing valuable insights for further analysis in geomorphology and ecosystem studies.
+Our framework consists of a tiling scheme, improved input (seed) point generation, and a multi-scale resampling scheme. Validation using synthetic images shows high precision close to 1, a recall above 0.9, and a mean IoU above 0.9. Using a large synthetic dataset, we show that the two-sample Kolmogorov-Smirnov test confirms the accuracy of the grain size distribution. We identified a size detection limit of 30 pixels in diameter that corresponds to 700 pixels for a circular object. Applying OrthoSAM to orthomosaics from the Ravi River in India, we delineated 6087 pebbles with high precision and recall. The resulting grain dataset includes measurements such as area, axis lengths, perimeter, RGB statistics, and smoothness, providing valuable insights for further analysis in geomorphology and ecosystem studies.
 
 **Workflow**
 ![Pebble Flow Chart](fig/pebble_flow_chart.png)
